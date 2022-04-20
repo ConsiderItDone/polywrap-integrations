@@ -21,7 +21,6 @@ import { HELLO_WASM_METHODS, networkId, publicKeyToStr } from "./testUtils";
 jest.setTimeout(360000);
 
 describe("e2e", () => {
-
   let client: Web3ApiClient;
   let apiUri: string;
 
@@ -43,7 +42,8 @@ describe("e2e", () => {
       plugins: [
         {
           uri: "w3://ens/nearPlugin.web3api.eth",
-          plugin: nearPlugin(nearConfig)
+          //@ts-ignore
+          plugin: nearPlugin(nearConfig),
         },
         {
           uri: "w3://ens/ipfs.web3api.eth",
@@ -91,7 +91,7 @@ describe("e2e", () => {
       }`,
       variables: {
         blockQuery: blockQuery,
-      }
+      },
     });
     expect(result.errors).toBeFalsy();
     expect(result.data).toBeTruthy();
@@ -102,7 +102,9 @@ describe("e2e", () => {
     expect(block.chunks.length).toBeGreaterThan(0);
     expect(block.chunks[0]).toBeTruthy();
 
-    const nearBlock = await (near.connection.provider as nearApi.providers.JsonRpcProvider).block({ blockId: Number.parseInt(block.header.height) });
+    const nearBlock = await (near.connection.provider as nearApi.providers.JsonRpcProvider).block({
+      blockId: Number.parseInt(block.header.height),
+    });
     expect(block.author).toStrictEqual(nearBlock.author);
     expect(block.header.hash).toStrictEqual(nearBlock.header.hash);
     expect(block.header.signature).toStrictEqual(nearBlock.header.signature);
@@ -119,7 +121,7 @@ describe("e2e", () => {
       }`,
       variables: {
         accountId: workingAccount.accountId,
-      }
+      },
     });
     expect(result.errors).toBeFalsy();
     expect(result.data).toBeTruthy();
@@ -146,7 +148,7 @@ describe("e2e", () => {
       }`,
       variables: {
         accountId: workingAccount.accountId,
-      }
+      },
     });
     expect(result.errors).toBeFalsy();
     expect(result.data).toBeTruthy();
@@ -157,7 +159,7 @@ describe("e2e", () => {
 
     const apiKey: AccessKey = accessKeyInfo.accessKey;
 
-    const nearKeys = (await workingAccount.getAccessKeys()).filter(k => k.access_key.permission !== "FullAccess");
+    const nearKeys = (await workingAccount.getAccessKeys()).filter((k) => k.access_key.permission !== "FullAccess");
     expect(nearKeys.length).toBeGreaterThan(0);
     const nearKey = nearKeys[0];
     const nearPermission = nearKey.access_key.permission;

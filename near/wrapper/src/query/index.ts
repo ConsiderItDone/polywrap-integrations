@@ -12,7 +12,10 @@ import {
   Near_Transaction,
   Near_SignTransactionResult,
   AccessKeyInfo,
-  AccessKey, AccountView,
+  AccessKey,
+  AccountView,
+  Input_getAccountBalance,
+  AccountBalance,
 } from "./w3";
 import JsonRpcProvider from "../utils/JsonRpcProvider";
 import * as bs58 from "as-base58";
@@ -26,19 +29,19 @@ export function requestSignIn(input: Input_requestSignIn): boolean {
     methodNames: input.methodNames,
     successUrl: input.successUrl,
     failureUrl: input.failureUrl,
-  });
+  }).unwrap();
 }
 
 export function signOut(): boolean {
-  return Near_Query.signOut({});
+  return Near_Query.signOut({}).unwrap();
 }
 
 export function isSignedIn(): boolean {
-  return Near_Query.isSignedIn({});
+  return Near_Query.isSignedIn({}).unwrap();
 }
 
 export function getAccountId(): string | null {
-  return Near_Query.getAccountId({});
+  return Near_Query.getAccountId({}).unwrap();
 }
 
 export function getBlock(input: Input_getBlock): BlockResult {
@@ -95,7 +98,44 @@ export function findAccessKey(input: Input_findAccessKey): AccessKeyInfo | null 
 }
 
 export function getPublicKey(input: Input_getPublicKey): Near_PublicKey | null {
-  return Near_Query.getPublicKey({ accountId: input.accountId });
+  return Near_Query.getPublicKey({ accountId: input.accountId }).unwrap();
+}
+
+export function getAccountBalance(input: Input_getAccountBalance): AccountBalance {
+  // prepare params
+  const encoder = new JSONEncoder();
+  encoder.pushObject(null);
+  encoder.setString("request_type", "view_account");
+  encoder.setString("account_id", input.accountId);
+  encoder.setString("finality", "optimistic");
+  encoder.popObject();
+  const params: JSON.Obj = <JSON.Obj>JSON.parse(encoder.serialize());
+  // send rpc
+  const provider: JsonRpcProvider = new JsonRpcProvider(null);
+  const result: JSON.Obj = provider.sendJsonRpc("query", params);
+  // parse and return result
+  const state = getAccountState({ accountId: input.accountId });
+
+  const protocolConfig = provider.getProtocolConfig({
+    finality: "final",
+    blockId: null,
+    syncCheckpoint: null,
+  });
+
+  const costPerByte = protocolConfig.runtime_config.storage_amount_per_byte;
+
+  const stateStaked = state.storageUsage.mul(BigInt.fromString(costPerByte));
+  const staked = BigInt.fromString(state.locked);
+  const totalBalance = BigInt.fromString(state.amount).add(staked);
+  const minus = staked.gt(stateStaked) ? staked : stateStaked;
+  const availableBalance = totalBalance.sub(minus);
+
+  return {
+    total: totalBalance.toString(),
+    stateStaked: stateStaked.toString(),
+    staked: staked.toString(),
+    available: availableBalance.toString(),
+  } as AccountBalance;
 }
 
 export function createTransaction(input: Input_createTransaction): Near_Transaction {
@@ -103,10 +143,12 @@ export function createTransaction(input: Input_createTransaction): Near_Transact
     return Near_Query.createTransactionWithWallet({
       receiverId: input.receiverId,
       actions: input.actions,
-    });
+    }).unwrap();
   }
-  const signerId: string = input.signerId!
-  const accessKeyInfo: AccessKeyInfo | null  = findAccessKey({ accountId: signerId });
+  const signerId: string = input.signerId!;
+  const accessKeyInfo: AccessKeyInfo | null = findAccessKey({
+    accountId: signerId,
+  });
   if (accessKeyInfo == null) {
     throw new Error(
       `Can not sign transactions for account ${signerId} on requested network, no matching key pair found in signer.`
@@ -135,5 +177,7 @@ export function createTransaction(input: Input_createTransaction): Near_Transact
 }
 
 export function signTransaction(input: Input_signTransaction): Near_SignTransactionResult {
-  return Near_Query.signTransaction({ transaction: input.transaction });
+  return Near_Query.signTransaction({
+    transaction: input.transaction,
+  }).unwrap();
 }

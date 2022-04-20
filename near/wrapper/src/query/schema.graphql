@@ -30,6 +30,10 @@ type Query {
     accountId: String!
   ): Near_PublicKey
 
+  getAccountBalance(
+    accountId: String!
+  ): AccountBalance!
+
   createTransaction(
     receiverId: String!
     actions: [Near_Action!]!
@@ -110,6 +114,14 @@ type BlockResult {
   chunks: [Chunk!]!
 }
 
+type NearProtocolConfig {
+  runtime_config: NearProtocolRuntimeConfig!
+}
+
+type NearProtocolRuntimeConfig {
+  storage_amount_per_byte: String!
+}
+
 # All query responses implement QueryResponseKind
 type QueryResponseKind {
   blockHeight: BigInt!
@@ -122,6 +134,13 @@ type AccountView implements QueryResponseKind {
   codeHash: String!
   storageUsage: BigInt!
   storagePaidAt: BigInt!
+}
+
+type AccountBalance {
+  total: String!
+  stateStaked: String!
+  staked: String!
+  available: String!
 }
 
 # Access key permissions determine how an account is allow to interact with a contract

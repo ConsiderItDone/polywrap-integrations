@@ -1,7 +1,11 @@
-import { BlockReference, BlockResult } from "../query/w3";
-import { Near_Mutation, } from "../mutation/w3";
+import { BlockReference, BlockResult, NearProtocolConfig } from "../query/w3";
+import { Near_Mutation } from "../mutation/w3";
 import { JSON } from "@web3api/wasm-as";
-import { fromBlockReference, toBlockResult } from "./jsonMap";
+import {
+  fromBlockReference,
+  toBlockResult,
+  toProtocolResult,
+} from "./jsonMap";
 
 /**
  * Client class to interact with the NEAR RPC API.
@@ -32,12 +36,26 @@ export default class JsonRpcProvider {
   }
 
   /**
+   * Query for protocol configuration
+   * pass block_id OR finality as protocolQuery, not both
+   * @see {@link https://docs.near.org/docs/interaction/rpc/protocol#protocol-config}
+   *
+   * @param protocolQuery {@link ProtocolReference} (passing a {@link BlockId} is deprecated)
+   */
+
+  getProtocolConfig(protocolQuery: BlockReference): NearProtocolConfig {
+    const params: JSON.Obj = fromBlockReference(protocolQuery);
+    const json = this.sendJsonRpc("EXPERIMENTAL_protocol_config", params);
+    return toProtocolResult(json);
+  }
+
+  /**
    * Directly call the RPC specifying the method and params
    *
    * @param method RPC method
    * @param params Parameters to the method
    */
   sendJsonRpc(method: string, params: JSON.Obj): JSON.Obj {
-    return Near_Mutation.sendJsonRpc({ method, params }) as JSON.Obj;
+    return Near_Mutation.sendJsonRpc({ method, params }).unwrap() as JSON.Obj;
   }
 }

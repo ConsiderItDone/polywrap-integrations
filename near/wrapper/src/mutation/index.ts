@@ -24,15 +24,15 @@ export function requestSignTransactions(input: Input_requestSignTransactions): b
     transactions: input.transactions,
     callbackUrl: input.callbackUrl,
     meta: input.meta,
-  });
+  }).unwrap();
 }
 
 export function sendTransaction(input: Input_sendTransaction): Near_FinalExecutionOutcome {
-  return Near_Mutation.sendTransaction({ signedTx: input.signedTx });
+  return Near_Mutation.sendTransaction({ signedTx: input.signedTx }).unwrap();
 }
 
 export function sendTransactionAsync(input: Input_sendTransactionAsync): string {
-  return Near_Mutation.sendTransactionAsync({ signedTx: input.signedTx });
+  return Near_Mutation.sendTransactionAsync({ signedTx: input.signedTx }).unwrap();
 }
 
 export function signAndSendTransaction(input: Input_signAndSendTransaction): Near_FinalExecutionOutcome {
