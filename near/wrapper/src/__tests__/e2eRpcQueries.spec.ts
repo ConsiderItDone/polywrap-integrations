@@ -188,6 +188,31 @@ describe("e2e", () => {
     expect(authorizedApps).toEqual(nearAuthorizedApps);
   });
 
+  it("Get access keys", async () => {
+    const result = await client.query<{ getAccessKeys: AccessKeyInfo[] }>({
+      uri: apiUri,
+      query: `query {
+        getAccessKeys(
+          accountId: $accountId
+        )
+      }`,
+      variables: {
+        accountId: workingAccount.accountId,
+      },
+    });
+    expect(result.errors).toBeFalsy();
+    expect(result.data).toBeTruthy();
+
+    const accessKeys: AccessKeyInfo[] = result.data!.getAccessKeys;
+    expect(accessKeys).toBeTruthy();
+    expect(accessKeys).toBeInstanceOf(Array);
+
+    const nearAccessKeys = await workingAccount.getAccessKeys();
+
+    expect(accessKeys.length).toEqual(nearAccessKeys.length);
+    expect(accessKeys).toEqual(nearAccessKeys);
+  });
+
   it("Find access key", async () => {
     const result = await client.query<{ findAccessKey: AccessKeyInfo }>({
       uri: apiUri,
