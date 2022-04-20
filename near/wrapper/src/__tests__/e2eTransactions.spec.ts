@@ -50,6 +50,7 @@ describe("e2e", () => {
       plugins: [
         {
           uri: "w3://ens/nearPlugin.web3api.eth",
+          //@ts-ignore
           plugin: nearPlugin(nearConfig),
         },
         {

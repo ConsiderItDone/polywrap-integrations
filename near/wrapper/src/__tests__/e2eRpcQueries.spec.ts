@@ -10,6 +10,7 @@ import { ethereumPlugin } from "@web3api/ethereum-plugin-js";
 import path from "path";
 const BN = require("bn.js");
 import { HELLO_WASM_METHODS, networkId, publicKeyToStr } from "./testUtils";
+import { AccountBalance } from "near-api-js/lib/account";
 
 jest.setTimeout(360000);
 
@@ -134,6 +135,32 @@ describe("e2e", () => {
     expect(state.codeHash).toStrictEqual(nearState.code_hash);
     expect(state.storagePaidAt).toStrictEqual(nearState.storage_paid_at.toString());
     expect(state.storageUsage).toStrictEqual(nearState.storage_usage.toString());
+  });
+
+  it("Get account balance", async () => {
+    const result = await client.query<{ getAccountBalance: AccountBalance }>({
+      uri: apiUri,
+      query: `query {
+        getAccountBalance(
+          accountId: $accountId
+        )
+      }`,
+      variables: {
+        accountId: workingAccount.accountId,
+      },
+    });
+    expect(result.errors).toBeFalsy();
+    expect(result.data).toBeTruthy();
+
+    const resultBalance: AccountBalance = result.data!.getAccountBalance;
+    expect(resultBalance).toBeTruthy();
+
+    const actualBalance = await workingAccount.getAccountBalance();
+
+    expect(resultBalance.available).toStrictEqual(actualBalance.available);
+    expect(resultBalance.staked).toStrictEqual(actualBalance.staked);
+    expect(resultBalance.stateStaked).toStrictEqual(actualBalance.stateStaked);
+    expect(resultBalance.total).toStrictEqual(actualBalance.total);
   });
 
   it("Find access key", async () => {
