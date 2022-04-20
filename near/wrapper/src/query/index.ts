@@ -20,10 +20,10 @@ import {
 import JsonRpcProvider from "../utils/JsonRpcProvider";
 import * as bs58 from "as-base58";
 import { BigInt, JSON, JSONEncoder } from "@web3api/wasm-as";
-import { publicKeyFromStr, publicKeyToStr } from "../utils/typeUtils";
+import { publicKeyFromStr, publicKeyToStr, stringify } from "../utils/typeUtils";
 import { toAccessKey } from "../utils/jsonMap";
 import { AccountAuthorizedApp } from "./w3/AccountAuthorizedApp";
-import { Input_getAccessKeys, Input_getAccountDetails } from "./w3/Query/serialization";
+import { Input_getAccessKeys, Input_getAccountDetails, Input_viewFunction } from "./w3/Query/serialization";
 
 export function requestSignIn(input: Input_requestSignIn): boolean {
   return Near_Query.requestSignIn({
@@ -179,6 +179,11 @@ export function getAccessKeys(input: Input_getAccessKeys): AccessKeyInfo[] {
       accessKey: toAccessKey(accessKey),
     };
   });
+}
+
+export function viewFunction(input: Input_viewFunction): JSON.Obj {
+  const provider: JsonRpcProvider = new JsonRpcProvider(null);
+  return provider.viewFunction(input.contractId, input.contractId, input.args);
 }
 
 export function createTransaction(input: Input_createTransaction): Near_Transaction {

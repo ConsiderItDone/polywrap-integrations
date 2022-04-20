@@ -8,7 +8,7 @@ import {
   NearProtocolConfig,
 } from "../query/w3";
 import { BigInt, JSON, JSONEncoder } from "@web3api/wasm-as";
-import { publicKeyFromStr } from "./typeUtils";
+import { publicKeyFromStr, stringify } from "./typeUtils";
 
 export function fromBlockReference(blockQuery: BlockReference): JSON.Obj {
   const encoder = new JSONEncoder();
@@ -22,6 +22,18 @@ export function fromBlockReference(blockQuery: BlockReference): JSON.Obj {
   if (blockQuery.syncCheckpoint != null) {
     encoder.setString("sync_ checkpoint", blockQuery.syncCheckpoint!);
   }
+  encoder.popObject();
+  return <JSON.Obj>JSON.parse(encoder.serialize());
+}
+
+export function fromViewFunction(contractId: string, methodName: string, args: JSON.Value): JSON.Obj {
+  const encoder = new JSONEncoder();
+  encoder.pushObject(null);
+  encoder.setString("request_type", "call_function");
+  encoder.setString("account_id", contractId);
+  encoder.setString("method_name", methodName);
+  encoder.setString("args_base64", Buffer.from(stringify(args)).toString("base64"));
+  encoder.setString("finality", "optimistic");
   encoder.popObject();
   return <JSON.Obj>JSON.parse(encoder.serialize());
 }

@@ -33,3 +33,5 @@ export const publicKeyFromStr = (str: string): Near_PublicKey => {
 
   return { keyType: type, data: decodedData };
 };
+
+export const stringify = JSON.stringify

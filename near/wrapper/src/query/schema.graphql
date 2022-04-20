@@ -42,6 +42,12 @@ type Query {
     accountId: String!
   ): [AccessKeyInfo]!
 
+  viewFunction(
+    contractId: String!
+    methodName: String!
+    args: JSON!
+  ): JSON!
+
   createTransaction(
     receiverId: String!
     actions: [Near_Action!]!

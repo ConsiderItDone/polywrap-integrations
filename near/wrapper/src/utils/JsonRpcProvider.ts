@@ -1,7 +1,7 @@
 import { BlockReference, BlockResult, NearProtocolConfig } from "../query/w3";
 import { Near_Mutation } from "../mutation/w3";
 import { JSON } from "@web3api/wasm-as";
-import { fromBlockReference, toBlockResult, toProtocolResult } from "./jsonMap";
+import { fromBlockReference, fromViewFunction, toBlockResult, toProtocolResult } from "./jsonMap";
 
 /**
  * Client class to interact with the NEAR RPC API.
@@ -53,5 +53,20 @@ export default class JsonRpcProvider {
    */
   sendJsonRpc(method: string, params: JSON.Obj): JSON.Obj {
     return Near_Mutation.sendJsonRpc({ method, params }).unwrap() as JSON.Obj;
+  }
+
+  /**
+   * Invoke a contract view function using the RPC API.
+   * @see {@link https://docs.near.org/docs/develop/front-end/rpc#call-a-contract-function}
+   *
+   * @param contractId NEAR account where the contract is deployed
+   * @param methodName The view-only method (no state mutations) name on the contract as it is written in the contract code
+   * @param args Any arguments to the view contract method, wrapped in JSON
+   * @returns {Promise<any>}
+   */
+
+  viewFunction(contractId: string, methodName: string, args: JSON.Value): JSON.Obj {
+    const params: JSON.Obj = fromViewFunction(contractId, methodName, args);
+    return this.sendJsonRpc("query", params);
   }
 }
