@@ -10,7 +10,7 @@ import { ethereumPlugin } from "@web3api/ethereum-plugin-js";
 import path from "path";
 const BN = require("bn.js");
 import { HELLO_WASM_METHODS, networkId, publicKeyToStr } from "./testUtils";
-import { AccountBalance } from "near-api-js/lib/account";
+import { AccountAuthorizedApp, AccountBalance } from "near-api-js/lib/account";
 
 jest.setTimeout(360000);
 
@@ -161,6 +161,31 @@ describe("e2e", () => {
     expect(resultBalance.staked).toStrictEqual(actualBalance.staked);
     expect(resultBalance.stateStaked).toStrictEqual(actualBalance.stateStaked);
     expect(resultBalance.total).toStrictEqual(actualBalance.total);
+  });
+
+  it("Get account details", async () => {
+    const result = await client.query<{ getAccountDetails: AccountAuthorizedApp[] }>({
+      uri: apiUri,
+      query: `query {
+        getAccountDetails(
+          accountId: $accountId
+        )
+      }`,
+      variables: {
+        accountId: workingAccount.accountId,
+      },
+    });
+    expect(result.errors).toBeFalsy();
+    expect(result.data).toBeTruthy();
+
+    const authorizedApps: AccountAuthorizedApp[] = result.data!.getAccountDetails;
+    expect(authorizedApps).toBeTruthy();
+    expect(authorizedApps).toBeInstanceOf(Array);
+
+    const { authorizedApps: nearAuthorizedApps } = await workingAccount.getAccountDetails();
+
+    expect(authorizedApps.length).toEqual(nearAuthorizedApps.length);
+    expect(authorizedApps).toEqual(nearAuthorizedApps);
   });
 
   it("Find access key", async () => {
