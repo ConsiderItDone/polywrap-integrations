@@ -282,4 +282,38 @@ describe("e2e", () => {
     const nearKeyStr = nearApi.utils.PublicKey.from(nearKey).toString();
     expect(publicKeyStr).toStrictEqual(nearKeyStr);
   });
+
+  it("view function via account", async () => {
+    const methodName = "hello";
+    const args = { name: "trex" };
+
+    const result = await client.query<{ viewFunction: JSON }>({
+      uri: apiUri,
+      query: `query {
+        viewFunction(
+          contractId: $contractId
+          methodName: $methodName
+          args: $args
+        )
+      }`,
+      variables: {
+        contractId: workingAccount.accountId,
+        methodName: methodName,
+        args: args,
+      },
+    });
+    expect(result.errors).toBeFalsy();
+    expect(result.data).toBeTruthy();
+
+    const viewFunctionResult: JSON = result.data!.viewFunction;
+
+    expect(viewFunctionResult).toBeTruthy();
+
+    const nearViewFunctionResult = await workingAccount.viewFunction(
+      contractId,
+      "hello", // this is the function defined in hello.wasm file that we are calling
+      args
+    );
+    expect(viewFunctionResult).toEqual(nearViewFunctionResult);
+  });
 });
