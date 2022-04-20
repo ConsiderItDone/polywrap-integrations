@@ -39,7 +39,7 @@ export function signAndSendTransaction(input: Input_signAndSendTransaction): Nea
   const transaction: Near_Transaction = createTransaction({
     receiverId: input.receiverId,
     actions: input.actions,
-    signerId: input.signerId
+    signerId: input.signerId,
   });
   const signedTxResult: Near_SignTransactionResult = signTransaction({ transaction: transaction });
   return sendTransaction({ signedTx: signedTxResult.signedTx });
@@ -49,7 +49,7 @@ export function signAndSendTransactionAsync(input: Input_signAndSendTransactionA
   const transaction: Near_Transaction = createTransaction({
     receiverId: input.receiverId,
     actions: input.actions,
-    signerId: input.signerId
+    signerId: input.signerId,
   });
   const signedTxResult: Near_SignTransactionResult = signTransaction({ transaction: transaction });
   return sendTransactionAsync({ signedTx: signedTxResult.signedTx });

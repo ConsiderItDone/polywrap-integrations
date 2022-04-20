@@ -1,11 +1,7 @@
 import { BlockReference, BlockResult, NearProtocolConfig } from "../query/w3";
 import { Near_Mutation } from "../mutation/w3";
 import { JSON } from "@web3api/wasm-as";
-import {
-  fromBlockReference,
-  toBlockResult,
-  toProtocolResult,
-} from "./jsonMap";
+import { fromBlockReference, toBlockResult, toProtocolResult } from "./jsonMap";
 
 /**
  * Client class to interact with the NEAR RPC API.
@@ -31,7 +27,7 @@ export default class JsonRpcProvider {
    */
   block(blockQuery: BlockReference): BlockResult {
     const params: JSON.Obj = fromBlockReference(blockQuery);
-    const json = this.sendJsonRpc('block', params);
+    const json = this.sendJsonRpc("block", params);
     return toBlockResult(json);
   }
 

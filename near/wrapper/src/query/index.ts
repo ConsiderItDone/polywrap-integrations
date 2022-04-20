@@ -70,12 +70,12 @@ export function getAccountState(input: Input_getAccountState): AccountView {
     storagePaidAt: BigInt.fromString(result.getValue("storage_paid_at")!.stringify()),
     blockHeight: BigInt.fromString(result.getValue("block_height")!.stringify()),
     blockHash: result.getString("block_hash")!.valueOf(),
-  }
+  };
 }
 
 export function findAccessKey(input: Input_findAccessKey): AccessKeyInfo | null {
   // get public key
-  const publicKey: Near_PublicKey | null  = getPublicKey({ accountId: input.accountId });
+  const publicKey: Near_PublicKey | null = getPublicKey({ accountId: input.accountId });
   if (publicKey == null) {
     return null;
   }
@@ -161,7 +161,7 @@ export function createTransaction(input: Input_createTransaction): Near_Transact
       finality: "final",
       blockId: null,
       syncCheckpoint: null,
-    }
+    },
   });
   const blockHash: ArrayBuffer = <ArrayBuffer>bs58.decode(block.header.hash).buffer;
   const nonce = accessKey.nonce.addInt(1);

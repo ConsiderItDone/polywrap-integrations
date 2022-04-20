@@ -120,11 +120,9 @@ export enum KeyTypeEnum {
   ed25519,
 }
 
-export type KeyTypeString =
-  | "ed25519"
+export type KeyTypeString = "ed25519";
 
 export type KeyType = KeyTypeEnum | KeyTypeString;
-
 
 export interface BlockReference {
   blockId?: string;
@@ -149,7 +147,7 @@ export interface BlockHeader {
   timestamp_nanosec: string;
   random_value: string;
   validator_proposals: string[];
-  chunk_mask: boolean[]
+  chunk_mask: boolean[];
   gas_price: string;
   rent_paid: string;
   validator_reward: string;

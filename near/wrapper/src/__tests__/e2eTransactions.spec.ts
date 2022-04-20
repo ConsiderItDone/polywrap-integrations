@@ -1,5 +1,5 @@
 import { Web3ApiClient } from "@web3api/client-js";
-import { nearPlugin, KeyPair, NearPluginConfig, } from "near-polywrap-js";
+import { nearPlugin, KeyPair, NearPluginConfig } from "near-polywrap-js";
 import {
   ExecutionOutcomeWithId,
   FinalExecutionOutcome,
@@ -10,7 +10,7 @@ import {
 } from "./tsTypes";
 import * as testUtils from "./testUtils";
 import * as nearApi from "near-api-js";
-const BN = require('bn.js');
+const BN = require("bn.js");
 import { HELLO_WASM_METHODS } from "./testUtils";
 import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
 import { ipfsPlugin } from "@web3api/ipfs-plugin-js";
@@ -21,7 +21,6 @@ import path from "path";
 jest.setTimeout(360000);
 
 describe("e2e", () => {
-
   let client: Web3ApiClient;
   let apiUri: string;
 
@@ -31,12 +30,12 @@ describe("e2e", () => {
   let contractId: string;
 
   const prepActions = (): Action[] => {
-    const setCallValue = testUtils.generateUniqueString('setCallPrefix');
+    const setCallValue = testUtils.generateUniqueString("setCallPrefix");
     const args = { value: setCallValue };
     const stringify = (obj: unknown): Buffer => Buffer.from(JSON.stringify(obj));
     const value: Buffer = stringify(args);
     return [{ methodName: "setValue", args: value, gas: "3000000000000", deposit: "0" }];
-  }
+  };
 
   beforeAll(async () => {
     // set up test env and deploy api
@@ -51,7 +50,7 @@ describe("e2e", () => {
       plugins: [
         {
           uri: "w3://ens/nearPlugin.web3api.eth",
-          plugin: nearPlugin(nearConfig)
+          plugin: nearPlugin(nearConfig),
         },
         {
           uri: "w3://ens/ipfs.web3api.eth",
@@ -66,21 +65,26 @@ describe("e2e", () => {
           plugin: ethereumPlugin({
             networks: {
               testnet: {
-                provider: ethereum
+                provider: ethereum,
               },
             },
-            defaultNetwork: "testnet"
+            defaultNetwork: "testnet",
           }),
         },
-      ]
+      ],
     });
     // set up contract account
-    contractId = testUtils.generateUniqueString('test');
+    contractId = testUtils.generateUniqueString("test");
     workingAccount = await testUtils.createAccount(near);
     await testUtils.deployContract(workingAccount, contractId);
     // set up access key
-    const keyPair = KeyPair.fromRandom('ed25519');
-    await workingAccount.addKey(keyPair.getPublicKey(), contractId, HELLO_WASM_METHODS.allMethods, new BN(  "2000000000000000000000000"));
+    const keyPair = KeyPair.fromRandom("ed25519");
+    await workingAccount.addKey(
+      keyPair.getPublicKey(),
+      contractId,
+      HELLO_WASM_METHODS.allMethods,
+      new BN("2000000000000000000000000")
+    );
     await nearConfig.keyStore.setKey(testUtils.networkId, workingAccount.accountId, keyPair);
   });
 
@@ -103,7 +107,7 @@ describe("e2e", () => {
         receiverId: contractId,
         actions: actions,
         signerId: workingAccount.accountId,
-      }
+      },
     });
     expect(result.errors).toBeFalsy();
     expect(result.data).toBeTruthy();
@@ -143,14 +147,14 @@ describe("e2e", () => {
         receiverId: contractId,
         actions: actions,
         signerId: workingAccount.accountId,
-      }
+      },
     });
     expect(txQuery.errors).toBeFalsy();
     expect(txQuery.data).toBeTruthy();
     const transaction: Transaction = txQuery.data!.createTransaction;
 
     const result = await client.query<{
-      signTransaction: SignTransactionResult
+      signTransaction: SignTransactionResult;
     }>({
       uri: apiUri,
       query: `query {
@@ -160,7 +164,7 @@ describe("e2e", () => {
       }`,
       variables: {
         transaction: transaction,
-      }
+      },
     });
     expect(result.errors).toBeFalsy();
     expect(result.data).toBeTruthy();
@@ -187,7 +191,7 @@ describe("e2e", () => {
         receiverId: contractId,
         actions: actions,
         signerId: workingAccount.accountId,
-      }
+      },
     });
     expect(result.errors).toBeFalsy();
     expect(result.data).toBeTruthy();
@@ -218,7 +222,7 @@ describe("e2e", () => {
         receiverId: contractId,
         actions: actions,
         signerId: workingAccount.accountId,
-      }
+      },
     });
     expect(result.errors).toBeFalsy();
     expect(result.data).toBeTruthy();
@@ -227,4 +231,3 @@ describe("e2e", () => {
     expect(txHash).toBeTruthy();
   });
 });
-

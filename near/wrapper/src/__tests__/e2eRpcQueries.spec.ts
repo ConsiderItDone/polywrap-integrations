@@ -1,13 +1,6 @@
 import { Web3ApiClient } from "@web3api/client-js";
 import { nearPlugin, NearPluginConfig, KeyPair } from "near-polywrap-js";
-import {
-  BlockReference,
-  BlockResult,
-  AccountView,
-  PublicKey,
-  AccessKeyInfo,
-  AccessKey,
-} from "./tsTypes";
+import { BlockReference, BlockResult, AccountView, PublicKey, AccessKeyInfo, AccessKey } from "./tsTypes";
 import * as testUtils from "./testUtils";
 import * as nearApi from "near-api-js";
 import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
@@ -15,7 +8,7 @@ import { ipfsPlugin } from "@web3api/ipfs-plugin-js";
 import { ensPlugin } from "@web3api/ens-plugin-js";
 import { ethereumPlugin } from "@web3api/ethereum-plugin-js";
 import path from "path";
-const BN = require('bn.js');
+const BN = require("bn.js");
 import { HELLO_WASM_METHODS, networkId, publicKeyToStr } from "./testUtils";
 
 jest.setTimeout(360000);
@@ -58,21 +51,26 @@ describe("e2e", () => {
           plugin: ethereumPlugin({
             networks: {
               testnet: {
-                provider: ethereum
+                provider: ethereum,
               },
             },
-            defaultNetwork: "testnet"
+            defaultNetwork: "testnet",
           }),
         },
-      ]
+      ],
     });
     // set up contract account
-    contractId = testUtils.generateUniqueString('test');
+    contractId = testUtils.generateUniqueString("test");
     workingAccount = await testUtils.createAccount(near);
     await testUtils.deployContract(workingAccount, contractId);
     // set up access key
-    const keyPair = KeyPair.fromRandom('ed25519');
-    await workingAccount.addKey(keyPair.getPublicKey(), contractId, HELLO_WASM_METHODS.changeMethods, new BN(  "2000000000000000000000000"));
+    const keyPair = KeyPair.fromRandom("ed25519");
+    await workingAccount.addKey(
+      keyPair.getPublicKey(),
+      contractId,
+      HELLO_WASM_METHODS.changeMethods,
+      new BN("2000000000000000000000000")
+    );
     await nearConfig.keyStore.setKey(testUtils.networkId, workingAccount.accountId, keyPair);
   });
 
@@ -192,7 +190,7 @@ describe("e2e", () => {
       }`,
       variables: {
         accountId: workingAccount.accountId,
-      }
+      },
     });
     expect(result.errors).toBeFalsy();
     expect(result.data).toBeTruthy();
