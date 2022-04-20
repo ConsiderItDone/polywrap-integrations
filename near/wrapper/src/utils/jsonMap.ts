@@ -1,5 +1,14 @@
-import { AccessKey, AccessKeyPermission, BlockReference, BlockResult, Chunk, NearProtocolConfig } from "../query/w3";
+import {
+  AccessKey,
+  AccessKeyInfo,
+  AccessKeyPermission,
+  BlockReference,
+  BlockResult,
+  Chunk,
+  NearProtocolConfig,
+} from "../query/w3";
 import { BigInt, JSON, JSONEncoder } from "@web3api/wasm-as";
+import { publicKeyFromStr } from "./typeUtils";
 
 export function fromBlockReference(blockQuery: BlockReference): JSON.Obj {
   const encoder = new JSONEncoder();
@@ -82,6 +91,15 @@ export function toBlockResult(json: JSON.Obj): BlockResult {
         signature: chunk.getString("signature")!.valueOf(),
       };
     }),
+  };
+}
+
+export function toAccessKeyInfo(json: JSON.Obj): AccessKeyInfo {
+  const jsonAccessKeyVal: JSON.Obj = json.getObj("access_key")!;
+  const publicKey = json.getString("public_key")!.valueOf();
+  return {
+    publicKey: publicKeyFromStr(publicKey),
+    accessKey: toAccessKey(jsonAccessKeyVal),
   };
 }
 

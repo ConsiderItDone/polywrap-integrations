@@ -25,3 +25,11 @@ export const publicKeyToStr = (key: Near_PublicKey): string => {
   const encodedData = bs58.encode(Uint8Array.wrap(key.data));
   return `${keyTypeStr}:${encodedData}`;
 };
+
+export const publicKeyFromStr = (str: string): Near_PublicKey => {
+  const [keyType, keyData] = str.split(":");
+  const type = keyTypeFromStr(keyType);
+  const decodedData = bs58.decode(keyData);
+
+  return { keyType: type, data: decodedData };
+};

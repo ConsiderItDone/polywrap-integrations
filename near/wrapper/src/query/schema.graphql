@@ -34,6 +34,14 @@ type Query {
     accountId: String!
   ): AccountBalance!
 
+  getAccountDetails(
+    accountId: String!
+  ): [AccountAuthorizedApp]!
+
+  getAccessKeys(
+    accountId: String!
+  ): [AccessKeyInfo]!
+
   createTransaction(
     receiverId: String!
     actions: [Near_Action!]!
@@ -141,6 +149,12 @@ type AccountBalance {
   stateStaked: String!
   staked: String!
   available: String!
+}
+
+type AccountAuthorizedApp {
+  contractId: String!
+  amount: String!
+  publicKey: String!
 }
 
 # Access key permissions determine how an account is allow to interact with a contract

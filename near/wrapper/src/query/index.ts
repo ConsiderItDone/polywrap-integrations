@@ -20,8 +20,10 @@ import {
 import JsonRpcProvider from "../utils/JsonRpcProvider";
 import * as bs58 from "as-base58";
 import { BigInt, JSON, JSONEncoder } from "@web3api/wasm-as";
-import { publicKeyToStr } from "../utils/typeUtils";
+import { publicKeyFromStr, publicKeyToStr } from "../utils/typeUtils";
 import { toAccessKey } from "../utils/jsonMap";
+import { AccountAuthorizedApp } from "./w3/AccountAuthorizedApp";
+import { Input_getAccessKeys, Input_getAccountDetails } from "./w3/Query/serialization";
 
 export function requestSignIn(input: Input_requestSignIn): boolean {
   return Near_Query.requestSignIn({
@@ -136,6 +138,47 @@ export function getAccountBalance(input: Input_getAccountBalance): AccountBalanc
     staked: staked.toString(),
     available: availableBalance.toString(),
   } as AccountBalance;
+}
+
+export function getAccountDetails(input: Input_getAccountDetails): AccountAuthorizedApp[] {
+  const accessKeys = getAccessKeys(input);
+  const authorizedApps = accessKeys
+    .filter((item) => item.accessKey.permission.isFullAccess === false)
+    .map((item) => {
+      const perm = item.accessKey.permission;
+      const app: AccountAuthorizedApp = {
+        contractId: perm.receiverId,
+        amount: perm.allowance.toString(),
+        publicKey: publicKeyToStr(item.publicKey),
+      };
+      return app;
+    });
+  return authorizedApps;
+}
+
+export function getAccessKeys(input: Input_getAccessKeys): AccessKeyInfo[] {
+  // prepare params
+  const encoder = new JSONEncoder();
+  encoder.pushObject(null);
+  encoder.setString("request_type", "view_access_key_list");
+  encoder.setString("account_id", input.accountId);
+  encoder.setString("finality", "optimistic");
+  encoder.popObject();
+  const params: JSON.Obj = <JSON.Obj>JSON.parse(encoder.serialize());
+  // send rpc
+  const provider: JsonRpcProvider = new JsonRpcProvider(null);
+  const result: JSON.Obj = provider.sendJsonRpc("query", params);
+
+  const keys = result.getArr("keys")!.valueOf() as JSON.Obj[];
+
+  return keys.map((key) => {
+    const publicKey = key.getString("public_key")!.valueOf();
+    const accessKey = key.getObj("access_key");
+    return {
+      publicKey: publicKeyFromStr(publicKey),
+      accessKey: toAccessKey(accessKey),
+    };
+  });
 }
 
 export function createTransaction(input: Input_createTransaction): Near_Transaction {
