@@ -20,10 +20,13 @@ import {
 import JsonRpcProvider from "../utils/JsonRpcProvider";
 import * as bs58 from "as-base58";
 import { BigInt, JSON, JSONEncoder } from "@web3api/wasm-as";
-import { publicKeyToStr } from "../utils/typeUtils";
-import { toAccessKey } from "../utils/jsonMap";
-import { AccountAuthorizedApp } from "./w3/AccountAuthorizedApp";
-import { Input_getAccessKeys, Input_getAccountDetails, Input_viewFunction } from "./w3/Query/serialization";
+import { /* publicKeyFromStr, */ publicKeyToStr } from "../utils/typeUtils";
+import { toAccessKey /* toAccessKeyInfo */ } from "../utils/jsonMap";
+//import { AccountAuthorizedApp } from "./w3/AccountAuthorizedApp";
+import {
+  //Input_getAccessKeys, Input_getAccountDetails,
+  Input_viewFunction,
+} from "./w3/Query/serialization";
 
 export function requestSignIn(input: Input_requestSignIn): boolean {
   return Near_Query.requestSignIn({
@@ -140,19 +143,27 @@ export function getAccountBalance(input: Input_getAccountBalance): AccountBalanc
   } as AccountBalance;
 }
 
+/* 
 export function getAccountDetails(input: Input_getAccountDetails): AccountAuthorizedApp[] {
   const accessKeys = getAccessKeys({ accountId: input.accountId });
-  const authorizedApps = accessKeys
-    .filter((item) => item.accessKey.permission.isFullAccess === false)
-    .map<AccountAuthorizedApp>((item) => {
-      const perm = item.accessKey.permission;
-      const app: AccountAuthorizedApp = {
-        contractId: perm.receiverId,
-        amount: perm.allowance.toString(),
-        publicKey: publicKeyToStr(item.publicKey),
-      };
-      return app;
-    });
+
+  const authorizedApps: AccountAuthorizedApp[] = [];
+
+  for (let i = 0; i < accessKeys.length; i++) {
+    const key = accessKeys[i];
+    if (key.accessKey.permission.isFullAccess === true) continue;
+    const permission = key.accessKey.permission;
+    const allowance: BigInt = permission.allowance === null ? permission.allowance! : BigInt.ZERO;
+    const contractId: string = permission.receiverId === null ? permission.receiverId! : "";
+
+    const app: AccountAuthorizedApp = {
+      contractId: contractId,
+      amount: allowance.toString(),
+      publicKey: publicKeyToStr(key.publicKey),
+    };
+    authorizedApps.push(app);
+  }
+
   return authorizedApps;
 }
 
@@ -168,18 +179,18 @@ export function getAccessKeys(input: Input_getAccessKeys): AccessKeyInfo[] {
   // send rpc
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
   const result: JSON.Obj = provider.sendJsonRpc("query", params);
-  return [];
 
-  /*   const keys = JSON.parse(result.getArr("keys")!.stringify())
-  return (keys as JSON.Obj[]).map((key) => {
-    const publicKey = key.getString("public_key")!.valueOf();
-    const accessKey = key.getObj("access_key");
-    return {
-      publicKey: publicKey, // publicKeyFromStr(publicKey),
-      accessKey: toAccessKey(accessKey),
-    };
-  }); */
+  const keys = result.getArr("keys")!.valueOf();
+  const accessKeysInfo: AccessKeyInfo[] = [];
+
+  for (let i = 0; i < keys.length; i++) {
+    const key: JSON.Obj = <JSON.Obj>keys[i];
+    const accessKeyInfo: AccessKeyInfo = toAccessKeyInfo(key);
+    accessKeysInfo.push(accessKeyInfo);
+  }
+  return accessKeysInfo;
 }
+ */
 
 export function viewFunction(input: Input_viewFunction): JSON.Obj {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);

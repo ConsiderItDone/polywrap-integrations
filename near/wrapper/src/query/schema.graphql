@@ -34,13 +34,13 @@ type Query {
     accountId: String!
   ): AccountBalance!
 
-  getAccountDetails(
-    accountId: String!
-  ): [AccountAuthorizedApp]!
+#  getAccountDetails(
+#    accountId: String!
+#  ): [AccountAuthorizedApp]!
 
-  getAccessKeys(
-    accountId: String!
-  ): [AccessKeyInfo]!
+#  getAccessKeys(
+#    accountId: String!
+#  ): [AccessKeyInfo]!
 
   viewFunction(
     contractId: String!
@@ -157,11 +157,11 @@ type AccountBalance {
   available: String!
 }
 
-type AccountAuthorizedApp {
-  contractId: String!
-  amount: String!
-  publicKey: String!
-}
+# type AccountAuthorizedApp {
+#   contractId: String!
+#   amount: String!
+#   publicKey: String!
+# }
 
 # Access key permissions determine how an account is allow to interact with a contract
 type AccessKeyPermission {

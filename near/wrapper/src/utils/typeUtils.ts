@@ -11,12 +11,8 @@ export function keyTypeToStr(keyType: Near_KeyType): string {
 }
 
 export function keyTypeFromStr(keyType: string): Near_KeyType {
-  switch (keyType) {
-    case "ed25519":
-      return Near_KeyType.ed25519;
-    default:
-      throw new Error(`Unknown key type ${keyType}`);
-  }
+  if (keyType === "ed25519") return Near_KeyType.ed25519;
+  else throw new Error(`Unknown key type ${keyType}`);
 }
 
 export const publicKeyToStr = (key: Near_PublicKey): string => {

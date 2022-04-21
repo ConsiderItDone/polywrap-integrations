@@ -9,6 +9,7 @@ import {
 } from "../query/w3";
 import { BigInt, JSON, JSONEncoder } from "@web3api/wasm-as";
 import { publicKeyFromStr } from "./typeUtils";
+import * as bs58 from "as-base58";
 
 export function fromBlockReference(blockQuery: BlockReference): JSON.Obj {
   const encoder = new JSONEncoder();
@@ -32,7 +33,7 @@ export function fromViewFunction(contractId: string, methodName: string, args: J
   encoder.setString("request_type", "call_function");
   encoder.setString("account_id", contractId);
   encoder.setString("method_name", methodName);
-  encoder.setString("args_base64", Buffer.from(args.stringify()).toString("base64"));
+  encoder.setString("args_base64", bs58.decode(args.stringify()).toString());
   encoder.setString("finality", "optimistic");
   encoder.popObject();
   return <JSON.Obj>JSON.parse(encoder.serialize());
