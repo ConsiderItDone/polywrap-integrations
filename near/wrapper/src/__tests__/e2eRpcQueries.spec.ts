@@ -1,19 +1,15 @@
 import { Web3ApiClient } from "@web3api/client-js";
-import { nearPlugin, NearPluginConfig, KeyPair } from "near-polywrap-js";
-import { BlockReference, BlockResult, AccountView, PublicKey, AccessKeyInfo, AccessKey } from "./tsTypes";
+import { NearPluginConfig, KeyPair } from "near-polywrap-js";
+import { BlockReference, BlockResult /* , AccountView, PublicKey, AccessKeyInfo, AccessKey */ } from "./tsTypes";
 import * as testUtils from "./testUtils";
 import * as nearApi from "near-api-js";
-import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
-import { ipfsPlugin } from "@web3api/ipfs-plugin-js";
-import { ensPlugin } from "@web3api/ens-plugin-js";
-import { ethereumPlugin } from "@web3api/ethereum-plugin-js";
+import { buildAndDeployApi, initTestEnvironment /* stopTestEnvironment */ } from "@web3api/test-env-js";
 import path from "path";
 const BN = require("bn.js");
-import { HELLO_WASM_METHODS, networkId, publicKeyToStr } from "./testUtils";
-import { AccountAuthorizedApp, AccountBalance } from "near-api-js/lib/account";
+import { HELLO_WASM_METHODS /* , networkId, publicKeyToStr */ } from "./testUtils";
+//import { AccountAuthorizedApp, AccountBalance } from "near-api-js/lib/account";
 
 jest.setTimeout(360000);
-jasmine.DEFAULT_TIMEOUT_INTERVAL = 50000;
 
 describe("e2e", () => {
   let client: Web3ApiClient;
@@ -29,38 +25,15 @@ describe("e2e", () => {
     const { ethereum, ensAddress, ipfs } = await initTestEnvironment();
     const apiPath: string = path.resolve(__dirname + "/../../");
     const api = await buildAndDeployApi(apiPath, ipfs, ensAddress);
+
     apiUri = `ens/testnet/${api.ensDomain}`;
     // set up client
     nearConfig = await testUtils.setUpTestConfig();
     near = await nearApi.connect(nearConfig);
-    client = new Web3ApiClient({
-      plugins: [
-        {
-          uri: "w3://ens/nearPlugin.web3api.eth",
-          //@ts-ignore
-          plugin: nearPlugin(nearConfig),
-        },
-        {
-          uri: "w3://ens/ipfs.web3api.eth",
-          plugin: ipfsPlugin({ provider: ipfs }),
-        },
-        {
-          uri: "w3://ens/ens.web3api.eth",
-          plugin: ensPlugin({ addresses: { testnet: ensAddress } }),
-        },
-        {
-          uri: "w3://ens/ethereum.web3api.eth",
-          plugin: ethereumPlugin({
-            networks: {
-              testnet: {
-                provider: ethereum,
-              },
-            },
-            defaultNetwork: "testnet",
-          }),
-        },
-      ],
-    });
+
+    const polywrapConfig = testUtils.getPlugins(ethereum, ensAddress, ipfs, nearConfig);
+    client = new Web3ApiClient(polywrapConfig);
+
     // set up contract account
     contractId = testUtils.generateUniqueString("test");
     workingAccount = await testUtils.createAccount(near);
@@ -77,7 +50,7 @@ describe("e2e", () => {
   });
 
   afterAll(async () => {
-    await stopTestEnvironment();
+    //await stopTestEnvironment();
   });
 
   it("Get block information", async () => {
@@ -111,7 +84,7 @@ describe("e2e", () => {
     expect(block.chunks[0].chunk_hash).toStrictEqual(nearBlock.chunks[0].chunk_hash);
   });
 
-  it("Get account state", async () => {
+  /*   it("Get account state", async () => {
     const result = await client.query<{ getAccountState: AccountView }>({
       uri: apiUri,
       query: `query {
@@ -186,7 +159,7 @@ describe("e2e", () => {
     const { authorizedApps: nearAuthorizedApps } = await workingAccount.getAccountDetails();
 
     expect(authorizedApps.length).toEqual(nearAuthorizedApps.length);
-    expect(authorizedApps).toEqual(jasmine.arrayContaining(nearAuthorizedApps));
+    expect(authorizedApps).toEqual(nearAuthorizedApps);
   });
 
   it("Get access keys", async () => {
@@ -316,5 +289,5 @@ describe("e2e", () => {
       args
     );
     expect(viewFunctionResult).toEqual(nearViewFunctionResult);
-  });
+  }); */
 });

@@ -1,14 +1,19 @@
 // copied and modified from https://github.com/near/near-api-js/blob/master/test/test-utils.js
+import { ClientConfig } from "@web3api/client-js";
+import { ensPlugin } from "@web3api/ens-plugin-js";
+import { ethereumPlugin } from "@web3api/ethereum-plugin-js";
+import { ipfsPlugin } from "@web3api/ipfs-plugin-js";
 import * as fs from "fs/promises";
 const BN = require("bn.js");
 import * as nearApi from "near-api-js";
-import { KeyPair, KeyStores, NearPluginConfig } from "near-polywrap-js";
+import { KeyPair, KeyStores, nearPlugin, NearPluginConfig } from "near-polywrap-js";
 import * as path from "path";
 import { PublicKey } from "./tsTypes";
 
 export const networkId = "testnet";
-export const testAccountId = "polywraptest.testnet";
-const PRIVATE_KEY = "ed25519:3ZASru2hHvoDpT4jut4b8LqRBnz4GqMhtp24AzkLwdhuLDm6xgptkNmXVGWwfdyFHnnnG512Xb5RJcA7Cup3yjcG";
+export const testAccountId = "polywrap.testnet";
+const PRIVATE_KEY = "ed25519:2pN4qAFA94qXMzSLYtTG3qSmXS29cGfjXcZWwvb21TSsVm4awSruDiFd91XCoq2wp5hHXtDM5ZFwjabz2SLPAPjD";
+//const PRIVATE_KEY = "ed25519:3ZASru2hHvoDpT4jut4b8LqRBnz4GqMhtp24AzkLwdhuLDm6xgptkNmXVGWwfdyFHnnnG512Xb5RJcA7Cup3yjcG";
 
 const HELLO_WASM_PATH = path.resolve(__dirname + "../../../node_modules/near-hello/dist/main.wasm");
 const HELLO_WASM_BALANCE = new BN("1000000000000000000000000");
@@ -66,4 +71,41 @@ export async function deployContract(workingAccount: nearApi.Account, contractId
 export const publicKeyToStr = (key: PublicKey): string => {
   const encodedData = nearApi.utils.serialize.base_encode(Uint8Array.from(key.data));
   return `ed25519:${encodedData}`;
+};
+
+export const getPlugins = (
+  ethereum: string,
+  ensAddress: string,
+  ipfs: string,
+  nearConfig: NearPluginConfig
+): ClientConfig => {
+  return {
+    redirects: [],
+    plugins: [
+      {
+        uri: "w3://ens/nearPlugin.web3api.eth",
+        //@ts-ignore
+        plugin: nearPlugin(nearConfig),
+      },
+      {
+        uri: "w3://ens/ipfs.web3api.eth",
+        plugin: ipfsPlugin({ provider: ipfs }),
+      },
+      {
+        uri: "w3://ens/ens.web3api.eth",
+        plugin: ensPlugin({ addresses: { testnet: ensAddress } }),
+      },
+      {
+        uri: "w3://ens/ethereum.web3api.eth",
+        plugin: ethereumPlugin({
+          networks: {
+            testnet: {
+              provider: ethereum,
+            },
+          },
+          defaultNetwork: "testnet",
+        }),
+      },
+    ],
+  };
 };
