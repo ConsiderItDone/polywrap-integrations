@@ -20,7 +20,7 @@ import {
 import JsonRpcProvider from "../utils/JsonRpcProvider";
 import * as bs58 from "as-base58";
 import { BigInt, JSON, JSONEncoder } from "@web3api/wasm-as";
-import { publicKeyFromStr, publicKeyToStr } from "../utils/typeUtils";
+import { publicKeyToStr } from "../utils/typeUtils";
 import { toAccessKey } from "../utils/jsonMap";
 import { AccountAuthorizedApp } from "./w3/AccountAuthorizedApp";
 import { Input_getAccessKeys, Input_getAccountDetails, Input_viewFunction } from "./w3/Query/serialization";
@@ -141,10 +141,10 @@ export function getAccountBalance(input: Input_getAccountBalance): AccountBalanc
 }
 
 export function getAccountDetails(input: Input_getAccountDetails): AccountAuthorizedApp[] {
-  const accessKeys = getAccessKeys(input);
+  const accessKeys = getAccessKeys({ accountId: input.accountId });
   const authorizedApps = accessKeys
     .filter((item) => item.accessKey.permission.isFullAccess === false)
-    .map((item) => {
+    .map<AccountAuthorizedApp>((item) => {
       const perm = item.accessKey.permission;
       const app: AccountAuthorizedApp = {
         contractId: perm.receiverId,
@@ -168,17 +168,17 @@ export function getAccessKeys(input: Input_getAccessKeys): AccessKeyInfo[] {
   // send rpc
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
   const result: JSON.Obj = provider.sendJsonRpc("query", params);
+  return [];
 
-  const keys = result.getArr("keys")!.valueOf() as JSON.Obj[];
-
-  return keys.map((key) => {
+  /*   const keys = JSON.parse(result.getArr("keys")!.stringify())
+  return (keys as JSON.Obj[]).map((key) => {
     const publicKey = key.getString("public_key")!.valueOf();
     const accessKey = key.getObj("access_key");
     return {
-      publicKey: publicKeyFromStr(publicKey),
+      publicKey: publicKey, // publicKeyFromStr(publicKey),
       accessKey: toAccessKey(accessKey),
     };
-  });
+  }); */
 }
 
 export function viewFunction(input: Input_viewFunction): JSON.Obj {

@@ -26,12 +26,13 @@ export const publicKeyToStr = (key: Near_PublicKey): string => {
   return `${keyTypeStr}:${encodedData}`;
 };
 
-export const publicKeyFromStr = (str: string): Near_PublicKey => {
-  const [keyType, keyData] = str.split(":");
-  const type = keyTypeFromStr(keyType);
-  const decodedData = bs58.decode(keyData);
-
-  return { keyType: type, data: decodedData };
+export const publicKeyFromStr = (encodedKey: string): Near_PublicKey => {
+  const parts = encodedKey.split(":");
+  if (parts.length === 1) {
+    return { keyType: Near_KeyType.ed25519, data: bs58.decode(parts[0]).buffer };
+  } else if (parts.length === 2) {
+    return { keyType: keyTypeFromStr(parts[0]), data: bs58.decode(parts[1]).buffer };
+  } else {
+    throw new Error("Invalid encoded key format, must be <curve>:<encoded key>");
+  }
 };
-
-export const stringify = JSON.stringify

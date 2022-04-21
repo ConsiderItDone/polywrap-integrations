@@ -13,6 +13,7 @@ import { HELLO_WASM_METHODS, networkId, publicKeyToStr } from "./testUtils";
 import { AccountAuthorizedApp, AccountBalance } from "near-api-js/lib/account";
 
 jest.setTimeout(360000);
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 50000;
 
 describe("e2e", () => {
   let client: Web3ApiClient;
@@ -185,7 +186,7 @@ describe("e2e", () => {
     const { authorizedApps: nearAuthorizedApps } = await workingAccount.getAccountDetails();
 
     expect(authorizedApps.length).toEqual(nearAuthorizedApps.length);
-    expect(authorizedApps).toEqual(nearAuthorizedApps);
+    expect(authorizedApps).toEqual(jasmine.arrayContaining(nearAuthorizedApps));
   });
 
   it("Get access keys", async () => {
@@ -210,7 +211,7 @@ describe("e2e", () => {
     const nearAccessKeys = await workingAccount.getAccessKeys();
 
     expect(accessKeys.length).toEqual(nearAccessKeys.length);
-    expect(accessKeys).toEqual(nearAccessKeys);
+    expect(accessKeys).toEqual(jasmine.arrayContaining(nearAccessKeys));
   });
 
   it("Find access key", async () => {
