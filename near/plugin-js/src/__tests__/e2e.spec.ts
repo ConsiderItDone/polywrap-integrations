@@ -1,6 +1,6 @@
 import { Web3ApiClient } from "@web3api/client-js";
 import { nearPlugin, NearPluginConfig } from "..";
-//import { Action, Transaction } from "../w3";
+//import { Action /* Transaction */ } from "../w3";
 import * as testUtils from "./testUtils";
 import * as nearApi from "near-api-js";
 import { KeyPair } from "near-api-js";
@@ -22,7 +22,7 @@ describe("e2e", () => {
   let contractId: string;
   //let contract: nearApi.Contract;
 
-    const prepActions = (): Action[] => {
+  /* const prepActions = (): Action[] => {
     const setCallValue = testUtils.generateUniqueString("setCallPrefix");
     const args = { value: setCallValue };
     const stringify = (obj: unknown): Buffer =>
@@ -35,7 +35,7 @@ describe("e2e", () => {
         deposit: "0",
       },
     ];
-  }; 
+  };  */
 
   beforeAll(async () => {
     config = await testUtils.setUpTestConfig();
@@ -107,7 +107,7 @@ describe("e2e", () => {
     expect(signature.keyType).toBeDefined();
   });
 
-  it('Requst sigin success', async ()=> {
+  it("Requst sigin success", async () => {
     const result = await client.query<{ requestSignIn: Signature }>({
       uri,
       query: `query {
@@ -119,18 +119,16 @@ describe("e2e", () => {
       )
     }`,
       variables: {
-        contractId: 'signInContract',
-        methodNames: ['hello', 'goodbye'],
-        successUrl:'http://example.com/success',
-        failureUrl: 'http://example.com/fail'
+        contractId: "signInContract",
+        methodNames: ["hello", "goodbye"],
+        successUrl: "http://example.com/success",
+        failureUrl: "http://example.com/fail",
       },
     });
-    
+
     expect(result.errors).toBeFalsy();
     expect(result.data).toBeTruthy();
-
-
-  })
+  });
 
   /*  it("Creates a transaction without wallet", async () => {
     const actions: Action[] = prepActions();

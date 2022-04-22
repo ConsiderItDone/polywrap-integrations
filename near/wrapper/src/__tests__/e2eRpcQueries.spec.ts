@@ -1,13 +1,13 @@
 import { Web3ApiClient } from "@web3api/client-js";
-import { NearPluginConfig, KeyPair } from "near-polywrap-js";
-import { BlockReference, BlockResult /* , AccountView, PublicKey, AccessKeyInfo, AccessKey */ } from "./tsTypes";
+import { NearPluginConfig, KeyPair } from "../../../plugin-js"; //TODO change to appropriate package
+//import { BlockReference, BlockResult, AccountView, PublicKey, AccessKeyInfo, AccessKey } from "./tsTypes";
 import * as testUtils from "./testUtils";
 import * as nearApi from "near-api-js";
-import { buildAndDeployApi, initTestEnvironment /* stopTestEnvironment */ } from "@web3api/test-env-js";
+import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
 import path from "path";
 const BN = require("bn.js");
 import { HELLO_WASM_METHODS /* , networkId, publicKeyToStr */ } from "./testUtils";
-//import { AccountAuthorizedApp, AccountBalance } from "near-api-js/lib/account";
+/* import { AccountAuthorizedApp,  AccountBalance } "near-api-js/lib/account";*/
 
 jest.setTimeout(360000);
 
@@ -50,10 +50,10 @@ describe("e2e", () => {
   });
 
   afterAll(async () => {
-    //await stopTestEnvironment();
+    await stopTestEnvironment();
   });
 
-  it("Get block information", async () => {
+  /*   it("Get block information", async () => {
     const blockQuery: BlockReference = { finality: "final" };
     const result = await client.query<{ getBlock: BlockResult }>({
       uri: apiUri,
@@ -82,9 +82,9 @@ describe("e2e", () => {
     expect(block.header.hash).toStrictEqual(nearBlock.header.hash);
     expect(block.header.signature).toStrictEqual(nearBlock.header.signature);
     expect(block.chunks[0].chunk_hash).toStrictEqual(nearBlock.chunks[0].chunk_hash);
-  });
+  }); */
 
-  /*   it("Get account state", async () => {
+  /* it("Get account state", async () => {
     const result = await client.query<{ getAccountState: AccountView }>({
       uri: apiUri,
       query: `query {
@@ -109,9 +109,9 @@ describe("e2e", () => {
     expect(state.codeHash).toStrictEqual(nearState.code_hash);
     expect(state.storagePaidAt).toStrictEqual(nearState.storage_paid_at.toString());
     expect(state.storageUsage).toStrictEqual(nearState.storage_usage.toString());
-  });
+  }); */
 
-  it("Get account balance", async () => {
+  /*   it("Get account balance", async () => {
     const result = await client.query<{ getAccountBalance: AccountBalance }>({
       uri: apiUri,
       query: `query {
@@ -135,8 +135,9 @@ describe("e2e", () => {
     expect(resultBalance.staked).toStrictEqual(actualBalance.staked);
     expect(resultBalance.stateStaked).toStrictEqual(actualBalance.stateStaked);
     expect(resultBalance.total).toStrictEqual(actualBalance.total);
-  });
+  }); */
 
+  /* 
   it("Get account details", async () => {
     const result = await client.query<{ getAccountDetails: AccountAuthorizedApp[] }>({
       uri: apiUri,

@@ -6,7 +6,8 @@ import { ipfsPlugin } from "@web3api/ipfs-plugin-js";
 import * as fs from "fs/promises";
 const BN = require("bn.js");
 import * as nearApi from "near-api-js";
-import { KeyPair, KeyStores, nearPlugin, NearPluginConfig } from "near-polywrap-js";
+import { KeyPair, KeyStores, NearPluginConfig } from "near-polywrap-js";
+import { nearPlugin } from "../../../plugin-js";
 import * as path from "path";
 import { PublicKey } from "./tsTypes";
 
@@ -78,12 +79,11 @@ export const getPlugins = (
   ensAddress: string,
   ipfs: string,
   nearConfig: NearPluginConfig
-): ClientConfig => {
+): Partial<ClientConfig> => {
   return {
-    redirects: [],
     plugins: [
       {
-        uri: "w3://ens/nearPlugin.web3api.eth",
+        uri: "w3://eyns/nearPlugin.web3api.eth",
         //@ts-ignore
         plugin: nearPlugin(nearConfig),
       },

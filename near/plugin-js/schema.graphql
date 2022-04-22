@@ -109,23 +109,24 @@ type Action {
   beneficiaryId: String
 }
 
-## holds content necessary to create an account
-#type CreateAccount implements Action {}
-## holds content necessary to send a transaction that deploys a contract
-#type DeployContract implements Action { code: Bytes! }
-## holds content necessary to send a transaction that calls a contract function
-## TODO: accept "args" property as JSON object
-#type FunctionCall implements Action { methodName: String! args: Bytes! gas: BigInt! deposit: BigInt! }
-## holds content necessary to send a transaction that transfers NEAR?
-#type Transfer implements Action { deposit: BigInt! }
-## holds content necessary to send a transaction that stakes NEAR
-#type Stake implements Action { stake: BigInt! publicKey: PublicKey! }
-## holds content necessary to send a transaction that adds an access key
-#type AddKey implements Action { publicKey: PublicKey! accessKey: AccessKey! }
-## holds content necessary to send a transaction that deletes an access key
-#type DeleteKey implements Action { publicKey: PublicKey! }
-## holds content necessary to send a transaction that creates a NEAR account
-#type DeleteAccount implements Action { beneficiaryId: String! }
+# TODO switch to union type after support
+# holds content necessary to create an account
+type CreateAccount implements Action {}
+# holds content necessary to send a transaction that deploys a contract
+type DeployContract implements Action {} # code: Bytes!
+# holds content necessary to send a transaction that calls a contract function
+# TODO: accept "args" property as JSON object
+type FunctionCall implements Action {} # methodName: String! args: Bytes! gas: BigInt! deposit: BigInt!
+# holds content necessary to send a transaction that transfers NEAR?
+type Transfer implements Action {} # deposit: BigInt!
+# holds content necessary to send a transaction that stakes NEAR
+type Stake implements Action {} # stake: BigInt! publicKey: PublicKey!
+# holds content necessary to send a transaction that adds an access key
+type AddKey implements Action {} # publicKey: PublicKey! accessKey: AccessKey!
+# holds content necessary to send a transaction that deletes an access key
+type DeleteKey implements Action {} # publicKey: PublicKey!
+# holds content necessary to send a transaction that creates a NEAR account
+type DeleteAccount implements Action {} # beneficiaryId: String!
 
 type Transaction {
   signerId: String!
