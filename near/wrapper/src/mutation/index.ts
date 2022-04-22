@@ -9,6 +9,14 @@ import {
   Near_Transaction,
   Near_SignTransactionResult,
   Near_FinalExecutionOutcome,
+/*   Input_createAccount,
+  Input_deleteAccount,
+  Input_deployContract,
+  Input_sendMoney,
+  Input_functionCall,
+  Input_addKey,
+  Input_deleteKey,
+  Input_createAndDeployContract, */
 } from "./w3";
 import JsonRpcProvider from "../utils/JsonRpcProvider";
 import { JSON } from "@web3api/wasm-as";
@@ -54,3 +62,29 @@ export function signAndSendTransactionAsync(input: Input_signAndSendTransactionA
   const signedTxResult: Near_SignTransactionResult = signTransaction({ transaction: transaction });
   return sendTransactionAsync({ signedTx: signedTxResult.signedTx });
 }
+/* 
+export function createAccount(input: Input_createAccount): Near_FinalExecutionOutcome {
+  return;
+}
+export function deleteAccount(input: Input_deleteAccount): Near_FinalExecutionOutcome {
+  return;
+}
+export function deployContract(input: Input_deployContract): Near_FinalExecutionOutcome {
+  return;
+}
+export function sendMoney(input: Input_sendMoney): Near_FinalExecutionOutcome {
+  return;
+}
+export function functionCall(input: Input_functionCall): Near_FinalExecutionOutcome {
+  return;
+}
+export function addKey(input: Input_addKey): Near_FinalExecutionOutcome {
+  return;
+}
+export function deleteKey(input: Input_deleteKey): Near_FinalExecutionOutcome {
+  return;
+}
+export function createAndDeployContract(input: Input_createAndDeployContract): boolean {
+  return;
+}
+ */
