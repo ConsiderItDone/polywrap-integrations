@@ -58,6 +58,20 @@ type Query {
   signTransaction(
     transaction: Near_Transaction!
   ): Near_SignTransactionResult!
+
+  """
+    Utility Functions
+  """
+
+  # takes amount in Near, returns amount in YoctoNear
+  parseNearAmount(
+    amount: BigInt!
+  ): BigInt!
+
+  # takes amount in YoctoNear, returns amount in Near
+  formatNearAmount(
+    amount: BigInt!
+  ): BigInt!
 }
 
 # Based on these types from near-api-js:
