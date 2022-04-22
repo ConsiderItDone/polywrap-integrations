@@ -53,6 +53,58 @@ describe("e2e", () => {
     await stopTestEnvironment();
   });
 
+  it("Parse near amount", async () => {
+    const amountStr = "0.000008999999999837087887";
+    //exp = "8999999999837087887"
+    //const amountStr = "5.3";
+    //exp = "5300000000000000000000000"
+
+    const result = await client.query<{ parseNearAmount: BigInt }>({
+      uri: apiUri,
+      query: `query {
+        parseNearAmount(
+          amount: $amount
+        )
+      }`,
+      variables: {
+        amount: new BN(amountStr),
+      },
+    });
+    expect(result.errors).toBeFalsy();
+    expect(result.data).toBeTruthy();
+
+    const parsed: string = result.data!.parseNearAmount.toString();
+    expect(parsed).toBeTruthy();
+
+    const nearParsed = nearApi.utils.format.parseNearAmount(amountStr);
+    expect(parsed).toEqual(nearParsed);
+  });
+
+  it("Format near amount", async () => {
+    const amountStr = "8999999999837087887";
+    //exp = 0.000008999999999837087887
+
+    const result = await client.query<{ formatNearAmount: BigInt }>({
+      uri: apiUri,
+      query: `query {
+        formatNearAmount(
+          amount: $amount
+        )
+      }`,
+      variables: {
+        amount: new BN(amountStr),
+      },
+    });
+    expect(result.errors).toBeFalsy();
+    expect(result.data).toBeTruthy();
+
+    const formatted: string = result.data!.formatNearAmount.toString();
+    expect(formatted).toBeTruthy();
+
+    const nearFormatted = nearApi.utils.format.formatNearAmount(amountStr);
+    expect(formatted).toEqual(nearFormatted);
+  });
+
   /*   it("Get block information", async () => {
     const blockQuery: BlockReference = { finality: "final" };
     const result = await client.query<{ getBlock: BlockResult }>({
