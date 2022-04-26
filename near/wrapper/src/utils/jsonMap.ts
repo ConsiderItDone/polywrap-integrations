@@ -5,6 +5,12 @@ import {
   BlockReference,
   BlockResult,
   Chunk,
+  Near_Action,
+  Near_ExecutionStatus,
+  Near_ExecutionProof,
+  Near_ExecutionOutcome,
+  Near_ExecutionOutcomeWithId,
+  Near_FinalExecutionOutcome,
   NearProtocolConfig,
   NodeStatusResult,
 } from "../query/w3";
@@ -178,5 +184,74 @@ export function toNodeStatus(json: JSON.Obj): NodeStatusResult {
       latest_block_time: sync_info.getString("latest_block_time")!.valueOf(),
       syncing: sync_info.getBool("syncing")!.valueOf(),
     },
-  } as NodeStatusResult;
+  };
+}
+
+export function toExecutionOutcome(json: JSON.Obj): Near_ExecutionOutcome {
+  return {
+    logs: json
+      .getArr("logs")!
+      .valueOf()
+      .map((v) => v.stringify()),
+    receipt_ids: json
+      .getArr("receipt_ids")!
+      .valueOf()
+      .map((v) => v.stringify()),
+    gas_burnt: BigInt.fromString(json.getString("gas_burnt")!.valueOf()),
+    tokens_burnt: json.getString("tokens_burnt")!.valueOf(),
+    executor_id: json.getString("executor_id")!.valueOf(),
+    status: {
+      successReceiptId: json.getObj("status")!.getString("SuccessReceiptId")!.valueOf(),
+    } as Near_ExecutionStatus,
+  } as Near_ExecutionOutcome;
+}
+
+export function toExecutionOutcomeWithId(json: JSON.Obj): Near_ExecutionOutcomeWithId {
+  const outcome = json.getObj("outcome")!;
+  return {
+    id: json.getString("id")!.valueOf(),
+    block_hash: json.getString("block_hash")!.valueOf(),
+    outcome: toExecutionOutcome(outcome),
+    proof: json
+      .getArr("proof")!
+      .valueOf()
+      .map((v) => {
+        const proof = <JSON.Obj>v;
+        return {
+          hash: proof.getString("hash")!.valueOf(),
+          direction: proof.getString("direction")!.valueOf(),
+        } as Near_ExecutionProof;
+      }),
+  };
+}
+
+export function toFinalExecutionOutcome(json: JSON.Obj): Near_FinalExecutionOutcome {
+  const status = json.getObj("status")!;
+  const transaction = json.getObj("transaction")!;
+  const transaction_outcome = json.getObj("transaction_outcome")!;
+  const receipts_outcome = json.getArr("receipts_outcome")!;
+
+  return {
+    status: {
+      successValue: status.getString("SuccessValue").valueOf(),
+    },
+    transaction: {
+      signerId: transaction.getString("signer_id")!.valueOf(),
+      publicKey: publicKeyFromStr(transaction.getString("public_key")!.valueOf()),
+      nonce: BigInt.fromString(transaction.getValue("nonce")!.stringify()),
+      receiverId: transaction.getString("receiver_id")!.valueOf(),
+      actions: transaction
+        .getArr("actions")!
+        .valueOf()
+        .map<Near_Action>((v: JSON.Value) => {
+          const action = (<JSON.Obj>v).valueOf();
+          const keys = Object.keys(action);
+          return { methodName: keys[0], deposit: action[keys[0]].deposit } as Near_Action;
+        }),
+      blockHash: bs58.decode(transaction.getString("block_hash").valueOf()).buffer,
+      hash: transaction.getString("hash")!.valueOf(),
+    },
+    transaction_outcome: toExecutionOutcomeWithId(transaction_outcome),
+    receipts_outcome: receipts_outcome.valueOf().map((v) => toExecutionOutcomeWithId(<JSON.Obj>v)),
+  } as Near_FinalExecutionOutcome;
 }

@@ -11,10 +11,12 @@ import {
   Near_Query,
   Near_Transaction,
   Near_SignTransactionResult,
+  Near_FinalExecutionOutcome,
   AccessKeyInfo,
   AccessKey,
   AccountView,
   Input_getAccountBalance,
+  Input_txStatus,
   //Input_parseNearAmount,
   //Input_formatNearAmount,
   AccountBalance,
@@ -24,8 +26,7 @@ import JsonRpcProvider from "../utils/JsonRpcProvider";
 import * as bs58 from "as-base58";
 import { BigInt, JSON, JSONEncoder } from "@web3api/wasm-as";
 import { /* publicKeyFromStr, */ publicKeyToStr } from "../utils/typeUtils";
-import { toAccessKey, /* toAccessKeyInfo */ 
-toNodeStatus} from "../utils/jsonMap";
+import { toAccessKey /* toAccessKeyInfo */, toFinalExecutionOutcome, toNodeStatus } from "../utils/jsonMap";
 //import * as formatUtils from "../utils/format";
 //import { AccountAuthorizedApp } from "./w3/AccountAuthorizedApp";
 
@@ -247,10 +248,16 @@ export function signTransaction(input: Input_signTransaction): Near_SignTransact
   }).unwrap();
 }
 
-export function status(): NodeStatusResult{
+export function status(): NodeStatusResult {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
-  const statusJson = provider.status() 
+  const statusJson = provider.status();
   return toNodeStatus(statusJson);
+}
+
+export function txStatus(input: Input_txStatus): Near_FinalExecutionOutcome {
+  const provider: JsonRpcProvider = new JsonRpcProvider(null);
+  const txStatus = provider.txStatus(input.txHash, input.accountId);
+  return toFinalExecutionOutcome(txStatus);
 }
 
 /* export function parseNearAmount(input: Input_parseNearAmount): String {

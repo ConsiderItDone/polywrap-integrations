@@ -1,4 +1,4 @@
-#import { Query, Transaction, Action, PublicKey, KeyType } into Near from "w3://ens/nearPlugin.web3api.eth"
+#import { Query, Transaction, Action, PublicKey, KeyType, FinalExecutionOutcome } into Near from "w3://ens/nearPlugin.web3api.eth"
 
 type Query {
   requestSignIn(
@@ -26,10 +26,10 @@ type Query {
   """
   status: NodeStatusResult!
 
-  #txStatus(
-  #  txHash: String!, #(Bytes | String)! 
-  #  accountId: String!
-  #): FinalExecutionOutcome!
+  txStatus(
+    txHash: String!, #(Bytes | String)! 
+    accountId: String!
+  ): Near_FinalExecutionOutcome!
 
   getAccountState(
     accountId: String!
@@ -248,7 +248,7 @@ type SignTransactionResult {
 type ExecutionStatus {
   successValue: String
   successReceiptId: String
-  failure: JSON
+  failure: Boolean #JSON
 }
 
 type ExecutionOutcomeWithId {
@@ -283,12 +283,4 @@ type GasProfile {
   cost: String!
   cost_category: String!
   gas_used: String!
-}
-
-# Final outcome of a sent transaction
-type FinalExecutionOutcome {
-  status: ExecutionStatus!
-  transaction: Near_Transaction!
-  transaction_outcome: ExecutionOutcomeWithId!
-  receipts_outcome: [ExecutionOutcomeWithId!]!
 }
