@@ -7,6 +7,7 @@ import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@we
 import path from "path";
 const BN = require("bn.js");
 import { HELLO_WASM_METHODS /* , networkId, publicKeyToStr */ } from "./testUtils";
+import { NodeStatusResult } from "./tsTypes";
 /* import { AccountAuthorizedApp,  AccountBalance } "near-api-js/lib/account";*/
 
 jest.setTimeout(360000);
@@ -51,6 +52,32 @@ describe("e2e", () => {
 
   afterAll(async () => {
     await stopTestEnvironment();
+  });
+
+  it("Get node status", async () => {
+    const result = await client.query<{ status: NodeStatusResult }>({
+      uri: apiUri,
+      query: `query {
+        status()
+      }`,
+    });
+    expect(result.errors).toBeFalsy();
+    expect(result.data).toBeTruthy();
+
+    const status = result.data!.status;
+    expect(status.chain_id).toBeTruthy();
+    expect(status.rpc_addr).toBeTruthy();
+    expect(status.sync_info).toBeTruthy();
+    expect(status.validators).toBeTruthy();
+    expect(status.version).toBeTruthy();
+
+    const nearStatus = await near.connection.provider.status();
+    expect(status.chain_id).toStrictEqual(nearStatus.chain_id);
+    expect(status.rpc_addr).toStrictEqual(nearStatus.rpc_addr);
+    expect(status.sync_info).toStrictEqual(nearStatus.sync_info);
+    expect(status.version).toStrictEqual(nearStatus.version);
+    expect(status.validators.length).toStrictEqual(nearStatus.validators.length);
+    expect(status.validators).toStrictEqual(nearStatus.validators);
   });
 
   /*   it("Get block information", async () => {

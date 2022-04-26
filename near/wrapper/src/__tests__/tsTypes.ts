@@ -189,6 +189,25 @@ export interface BlockResult {
   chunks: Chunk[];
 }
 
+export interface NodeStatusResult {
+  chain_id: string;
+  rpc_addr: string;
+  sync_info: SyncInfo;
+  validators: string[];
+  version: Version;
+}
+
+export interface SyncInfo {
+  latest_block_hash: string;
+  latest_block_height: string;
+  latest_block_time: string;
+  latest_state_root: string;
+  syncing: string;
+}
+export interface Version {
+  version: string
+  build: string
+}
 /// Imported Objects START ///
 
 /// Imported Objects END ///
