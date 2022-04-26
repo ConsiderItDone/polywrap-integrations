@@ -36,6 +36,10 @@ type Query {
     accountId: String!
   ): Near_FinalExecutionOutcomeWithReceipts!
 
+  chunk(
+    chunkId: String!  #  (String | [BigInt!])! chunk hash or [blockId, chunkId]
+  ): ChunkResult!
+
   getAccountState(
     accountId: String!
   ): AccountView!
@@ -152,6 +156,33 @@ type Chunk {
   tx_root: String!
   validator_proposals: [JSON!]!
   signature: String!
+}
+
+type ChunkHeader {
+  balance_burnt: String!
+  chunk_hash: String!
+  encoded_length: BigInt!
+  encoded_merkle_root: String!
+  gas_limit: BigInt!
+  gas_used: String!
+  height_created: BigInt!
+  height_included: BigInt!
+  outgoing_receipts_root: String!
+  prev_block_hash: String!
+  #prev_state_num_parts: BigInt!
+  prev_state_root: String!
+  rent_paid: String!
+  shard_id: BigInt!
+  signature: String!
+  tx_root: String!
+  validator_proposals: [JSON!]!
+  validator_reward: String!
+}
+
+type ChunkResult {
+  header: ChunkHeader!
+  receipts: [JSON!]!
+  transactions: [Near_Transaction!]!
 }
 
 type BlockResult {

@@ -13,9 +13,11 @@ import {
   Near_Receipt,
   Near_ReceiptWithId,
   Near_FinalExecutionOutcome,
+  Near_Transaction,
   NearProtocolConfig,
   NodeStatusResult,
   Near_FinalExecutionOutcomeWithReceipts,
+  ChunkResult,
 } from "../query/w3";
 import { BigInt, JSON, JSONEncoder } from "@web3api/wasm-as";
 import { publicKeyFromStr } from "./typeUtils";
@@ -114,6 +116,36 @@ export function toBlockResult(json: JSON.Obj): BlockResult {
         signature: chunk.getString("signature")!.valueOf(),
       };
     }),
+  };
+}
+
+export function toChunkResult(json: JSON.Obj): ChunkResult {
+  const header = json.getObj("header")!;
+  return {
+    header: {
+      chunk_hash: header.getString("chunk_hash")!.valueOf(),
+      prev_block_hash: header.getString("prev_block_hash")!.valueOf(),
+      prev_state_root: header.getString("prev_state_root")!.valueOf(),
+      encoded_merkle_root: header.getString("encoded_merkle_root")!.valueOf(),
+      encoded_length: BigInt.fromString(header.getValue("encoded_length")!.stringify()),
+      height_created: BigInt.fromString(header.getValue("height_created")!.stringify()),
+      height_included: BigInt.fromString(header.getValue("height_included")!.stringify()),
+      shard_id: BigInt.fromString(header.getValue("shard_id")!.stringify()),
+      gas_used: header.getValue("gas_used")!.stringify(),
+      gas_limit: BigInt.fromString(header.getValue("gas_limit")!.stringify()),
+      rent_paid: header.getString("rent_paid")!.valueOf(),
+      validator_reward: header.getString("validator_reward")!.valueOf(),
+      balance_burnt: header.getString("balance_burnt")!.valueOf(),
+      outgoing_receipts_root: header.getString("outgoing_receipts_root")!.valueOf(),
+      tx_root: header.getString("tx_root")!.valueOf(),
+      validator_proposals: header.getArr("validator_proposals")!.valueOf(),
+      signature: header.getString("signature")!.valueOf(),
+    },
+    receipts: header.getArr("receipts")!.valueOf(),
+    transactions: header
+      .getArr("receipts")!
+      .valueOf()
+      .map<Near_Transaction>((v) => toTransaction(<JSON.Obj>v)),
   };
 }
 
@@ -267,6 +299,21 @@ export function toExecutionOutcomeWithId(json: JSON.Obj): Near_ExecutionOutcomeW
   };
 }
 
+export function toTransaction(transaction: JSON.Obj): Near_Transaction {
+  return {
+    signerId: transaction.getString("signer_id")!.valueOf(),
+    publicKey: publicKeyFromStr(transaction.getString("public_key")!.valueOf()),
+    nonce: BigInt.fromString(transaction.getValue("nonce")!.stringify()),
+    receiverId: transaction.getString("receiver_id")!.valueOf(),
+    actions: transaction
+      .getArr("actions")!
+      .valueOf()
+      .map<Near_Action>((v: JSON.Value) => toAction(<JSON.Obj>v)),
+    blockHash: bs58.decode(transaction.getString("block_hash")!.valueOf()).buffer,
+    hash: transaction.getString("hash")!.valueOf(),
+  };
+}
+
 export function toFinalExecutionOutcome(json: JSON.Obj): Near_FinalExecutionOutcome {
   const status = json.getObj("status")!;
   const transaction = json.getObj("transaction")!;
@@ -277,18 +324,7 @@ export function toFinalExecutionOutcome(json: JSON.Obj): Near_FinalExecutionOutc
     status: {
       successValue: status.getString("SuccessValue")!.valueOf(),
     },
-    transaction: {
-      signerId: transaction.getString("signer_id")!.valueOf(),
-      publicKey: publicKeyFromStr(transaction.getString("public_key")!.valueOf()),
-      nonce: BigInt.fromString(transaction.getValue("nonce")!.stringify()),
-      receiverId: transaction.getString("receiver_id")!.valueOf(),
-      actions: transaction
-        .getArr("actions")!
-        .valueOf()
-        .map<Near_Action>((v: JSON.Value) => toAction(<JSON.Obj>v)),
-      blockHash: bs58.decode(transaction.getString("block_hash")!.valueOf()).buffer,
-      hash: transaction.getString("hash")!.valueOf(),
-    },
+    transaction: toTransaction(transaction),
     transaction_outcome: toExecutionOutcomeWithId(transaction_outcome),
     receipts_outcome: receipts_outcome
       .valueOf()
@@ -316,18 +352,7 @@ export function toFinalExecutionOutcomeWithReceipts(json: JSON.Obj): Near_FinalE
     status: {
       successValue: status.getString("SuccessValue")!.valueOf(),
     } as Near_ExecutionStatus,
-    transaction: {
-      signerId: transaction.getString("signer_id")!.valueOf(),
-      publicKey: publicKeyFromStr(transaction.getString("public_key")!.valueOf()),
-      nonce: BigInt.fromString(transaction.getValue("nonce")!.stringify()),
-      receiverId: transaction.getString("receiver_id")!.valueOf(),
-      actions: transaction
-        .getArr("actions")!
-        .valueOf()
-        .map<Near_Action>((v: JSON.Value) => toAction(<JSON.Obj>v)),
-      blockHash: bs58.decode(transaction.getString("block_hash")!.valueOf()).buffer,
-      hash: transaction.getString("hash")!.valueOf(),
-    },
+    transaction: toTransaction(transaction),
     transaction_outcome: toExecutionOutcomeWithId(transaction_outcome),
     receipts_outcome: receipts_outcome
       .valueOf()

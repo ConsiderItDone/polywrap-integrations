@@ -99,4 +99,12 @@ export default class JsonRpcProvider {
 
     return this.sendJsonRpc("EXPERIMENTAL_tx_status", params);
   }
+  getChunk(chunkId: string): JSON.Obj {
+    const encoder = new JSONEncoder();
+    encoder.pushObject(null);
+    encoder.setString("chunk_id", chunkId);
+    encoder.popObject();
+    const params: JSON.Obj = <JSON.Obj>JSON.parse(encoder.serialize());
+    return this.sendJsonRpc("chunk", params);
+  }
 }

@@ -23,16 +23,24 @@ import {
   AccountBalance,
   NodeStatusResult,
   Near_FinalExecutionOutcomeWithReceipts,
+  ChunkResult,
 } from "./w3";
 import JsonRpcProvider from "../utils/JsonRpcProvider";
 import * as bs58 from "as-base58";
 import { BigInt, JSON, JSONEncoder } from "@web3api/wasm-as";
 import { /* publicKeyFromStr, */ publicKeyToStr } from "../utils/typeUtils";
-import { toAccessKey /* toAccessKeyInfo */, toFinalExecutionOutcome, toFinalExecutionOutcomeWithReceipts, toNodeStatus } from "../utils/jsonMap";
+import {
+  toAccessKey /* toAccessKeyInfo */,
+  toChunkResult,
+  toFinalExecutionOutcome,
+  toFinalExecutionOutcomeWithReceipts,
+  toNodeStatus,
+} from "../utils/jsonMap";
 //import * as formatUtils from "../utils/format";
 //import { AccountAuthorizedApp } from "./w3/AccountAuthorizedApp";
 
 import {
+  Input_chunk,
   //Input_getAccessKeys, Input_getAccountDetails,
   Input_viewFunction,
 } from "./w3/Query/serialization";
@@ -262,10 +270,16 @@ export function txStatus(input: Input_txStatus): Near_FinalExecutionOutcome {
   return toFinalExecutionOutcome(txStatus);
 }
 
-export function txStatusReceipts(input: Input_txStatusReceipts) :Near_FinalExecutionOutcomeWithReceipts {
+export function txStatusReceipts(input: Input_txStatusReceipts): Near_FinalExecutionOutcomeWithReceipts {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
   const txStatus = provider.txStatusReceipts(input.txHash, input.accountId);
   return toFinalExecutionOutcomeWithReceipts(txStatus);
+}
+
+export function chunk(input: Input_chunk): ChunkResult {
+  const provider: JsonRpcProvider = new JsonRpcProvider(null);
+  const chunk = provider.getChunk(input.chunkId);
+  return toChunkResult(chunk);
 }
 
 /* export function parseNearAmount(input: Input_parseNearAmount): String {
