@@ -10,9 +10,12 @@ import {
   Near_ExecutionProof,
   Near_ExecutionOutcome,
   Near_ExecutionOutcomeWithId,
+  Near_Receipt,
+  Near_ReceiptWithId,
   Near_FinalExecutionOutcome,
   NearProtocolConfig,
   NodeStatusResult,
+  Near_FinalExecutionOutcomeWithReceipts,
 } from "../query/w3";
 import { BigInt, JSON, JSONEncoder } from "@web3api/wasm-as";
 import { publicKeyFromStr } from "./typeUtils";
@@ -190,16 +193,40 @@ export function toNodeStatus(json: JSON.Obj): NodeStatusResult {
 export function toAction(json: JSON.Obj): Near_Action {
   const action = {} as Near_Action;
   const obj = json.valueOf();
-  const keys = obj.keys();
-  const values = obj.values();
-  action.methodName = keys[0];
+  //const keys = obj.keys();
+  const values = <JSON.Obj>obj.values()[0];
 
-  const deposit = (<JSON.Obj>values[0]).getString("deposit")!.valueOf();
-
+  const deposit = values.getString("deposit")!.valueOf();
+  const args = values.getString("args")!.valueOf();
+  const gas = values.getString("args")!.valueOf();
+  const method_name = values.getString("method_name")!.valueOf();
   if (deposit) {
     action.deposit = BigInt.fromString(deposit);
   }
+  if (args) {
+    action.args = bs58.decode(args).buffer;
+  }
+  if (gas) {
+    action.gas = BigInt.fromString(gas);
+  }
+  if (method_name) {
+    action.methodName = method_name;
+  }
   return action;
+}
+export function toReceipt(json: JSON.Obj): Near_Receipt {
+  const actions = json.getObj("Action")!.getArr("actions")!.valueOf();
+  return { Action: { actions: actions.map<Near_Action>((v) => toAction(<JSON.Obj>v)) } };
+}
+
+export function toReceiptWithId(json: JSON.Obj): Near_ReceiptWithId {
+  const receipt = json.getObj("receipt")!;
+  return {
+    predecessor_id: json.getString("predecessor_id")!.valueOf(),
+    receipt: toReceipt(receipt),
+    receipt_id: json.getString("receipt_id")!.valueOf(),
+    receiver_id: json.getString("receiver_id")!.valueOf(),
+  };
 }
 
 export function toExecutionOutcome(json: JSON.Obj): Near_ExecutionOutcome {
@@ -267,4 +294,45 @@ export function toFinalExecutionOutcome(json: JSON.Obj): Near_FinalExecutionOutc
       .valueOf()
       .map<Near_ExecutionOutcomeWithId>((v: JSON.Value) => toExecutionOutcomeWithId(<JSON.Obj>v)),
   } as Near_FinalExecutionOutcome;
+}
+
+export function toFinalExecutionOutcomeWithReceipts(json: JSON.Obj): Near_FinalExecutionOutcomeWithReceipts {
+  //const txStatus = toFinalExecutionOutcome(json); // TODO change with this
+
+  const status = json.getObj("status")!;
+  const transaction = json.getObj("transaction")!;
+  const transaction_outcome = json.getObj("transaction_outcome")!;
+  const receipts_outcome = json.getArr("receipts_outcome")!;
+
+  //txStatusReceipts.receipts = receipts;
+
+  const receipts = json
+    .getArr("receipts")!
+    .valueOf()
+    .map<Near_ReceiptWithId>((v) => toReceiptWithId(<JSON.Obj>v));
+
+  const txStatusReceipts: Near_FinalExecutionOutcomeWithReceipts = {
+    receipts: receipts,
+    status: {
+      successValue: status.getString("SuccessValue")!.valueOf(),
+    } as Near_ExecutionStatus,
+    transaction: {
+      signerId: transaction.getString("signer_id")!.valueOf(),
+      publicKey: publicKeyFromStr(transaction.getString("public_key")!.valueOf()),
+      nonce: BigInt.fromString(transaction.getValue("nonce")!.stringify()),
+      receiverId: transaction.getString("receiver_id")!.valueOf(),
+      actions: transaction
+        .getArr("actions")!
+        .valueOf()
+        .map<Near_Action>((v: JSON.Value) => toAction(<JSON.Obj>v)),
+      blockHash: bs58.decode(transaction.getString("block_hash")!.valueOf()).buffer,
+      hash: transaction.getString("hash")!.valueOf(),
+    },
+    transaction_outcome: toExecutionOutcomeWithId(transaction_outcome),
+    receipts_outcome: receipts_outcome
+      .valueOf()
+      .map<Near_ExecutionOutcomeWithId>((v: JSON.Value) => toExecutionOutcomeWithId(<JSON.Obj>v)),
+  };
+
+  return txStatusReceipts;
 }

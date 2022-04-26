@@ -88,4 +88,15 @@ export default class JsonRpcProvider {
 
     return this.sendJsonRpc("tx", params);
   }
+
+  txStatusReceipts(txHash: string, accountId: string): JSON.Obj {
+    const encoder = new JSONEncoder();
+    encoder.pushArray(null);
+    encoder.setString(null, txHash);
+    encoder.setString(null, accountId);
+    encoder.popArray();
+    const params: JSON.Obj = <JSON.Obj>JSON.parse(encoder.serialize());
+
+    return this.sendJsonRpc("EXPERIMENTAL_tx_status", params);
+  }
 }

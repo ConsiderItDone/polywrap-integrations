@@ -201,3 +201,26 @@ type FinalExecutionOutcome {
   transaction_outcome: ExecutionOutcomeWithId!
   receipts_outcome: [ExecutionOutcomeWithId!]!
 }
+
+type FinalExecutionOutcomeWithReceipts {
+  status: ExecutionStatus!
+  transaction: Transaction!
+  transaction_outcome: ExecutionOutcomeWithId!
+  receipts_outcome: [ExecutionOutcomeWithId!]!
+  receipts: [ReceiptWithId!]!
+}
+
+type ReceiptWithId {
+  predecessor_id: String!
+  receipt: Receipt!
+  receipt_id: String!
+  receiver_id: String!
+}
+
+type Receipt {
+  Action: ActionContainer!
+}
+
+type ActionContainer {
+  actions: [Action!]!
+}

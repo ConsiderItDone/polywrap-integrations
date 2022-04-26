@@ -17,16 +17,18 @@ import {
   AccountView,
   Input_getAccountBalance,
   Input_txStatus,
+  Input_txStatusReceipts,
   //Input_parseNearAmount,
   //Input_formatNearAmount,
   AccountBalance,
   NodeStatusResult,
+  Near_FinalExecutionOutcomeWithReceipts,
 } from "./w3";
 import JsonRpcProvider from "../utils/JsonRpcProvider";
 import * as bs58 from "as-base58";
 import { BigInt, JSON, JSONEncoder } from "@web3api/wasm-as";
 import { /* publicKeyFromStr, */ publicKeyToStr } from "../utils/typeUtils";
-import { toAccessKey /* toAccessKeyInfo */, toFinalExecutionOutcome, toNodeStatus } from "../utils/jsonMap";
+import { toAccessKey /* toAccessKeyInfo */, toFinalExecutionOutcome, toFinalExecutionOutcomeWithReceipts, toNodeStatus } from "../utils/jsonMap";
 //import * as formatUtils from "../utils/format";
 //import { AccountAuthorizedApp } from "./w3/AccountAuthorizedApp";
 
@@ -258,6 +260,12 @@ export function txStatus(input: Input_txStatus): Near_FinalExecutionOutcome {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
   const txStatus = provider.txStatus(input.txHash, input.accountId);
   return toFinalExecutionOutcome(txStatus);
+}
+
+export function txStatusReceipts(input: Input_txStatusReceipts) :Near_FinalExecutionOutcomeWithReceipts {
+  const provider: JsonRpcProvider = new JsonRpcProvider(null);
+  const txStatus = provider.txStatusReceipts(input.txHash, input.accountId);
+  return toFinalExecutionOutcomeWithReceipts(txStatus);
 }
 
 /* export function parseNearAmount(input: Input_parseNearAmount): String {
