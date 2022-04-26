@@ -18,12 +18,14 @@ import {
   //Input_parseNearAmount,
   //Input_formatNearAmount,
   AccountBalance,
+  NodeStatusResult,
 } from "./w3";
 import JsonRpcProvider from "../utils/JsonRpcProvider";
 import * as bs58 from "as-base58";
 import { BigInt, JSON, JSONEncoder } from "@web3api/wasm-as";
 import { /* publicKeyFromStr, */ publicKeyToStr } from "../utils/typeUtils";
-import { toAccessKey /* toAccessKeyInfo */ } from "../utils/jsonMap";
+import { toAccessKey, /* toAccessKeyInfo */ 
+toNodeStatus} from "../utils/jsonMap";
 //import * as formatUtils from "../utils/format";
 //import { AccountAuthorizedApp } from "./w3/AccountAuthorizedApp";
 
@@ -243,6 +245,12 @@ export function signTransaction(input: Input_signTransaction): Near_SignTransact
   return Near_Query.signTransaction({
     transaction: input.transaction,
   }).unwrap();
+}
+
+export function status(): NodeStatusResult{
+  const provider: JsonRpcProvider = new JsonRpcProvider(null);
+  const statusJson = provider.status() 
+  return toNodeStatus(statusJson);
 }
 
 /* export function parseNearAmount(input: Input_parseNearAmount): String {

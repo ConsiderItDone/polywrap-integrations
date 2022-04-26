@@ -1,6 +1,6 @@
 import { BlockReference, BlockResult, NearProtocolConfig } from "../query/w3";
 import { Near_Mutation } from "../mutation/w3";
-import { JSON } from "@web3api/wasm-as";
+import { JSON, JSONEncoder } from "@web3api/wasm-as";
 import { fromBlockReference, fromViewFunction, toBlockResult, toProtocolResult } from "./jsonMap";
 
 /**
@@ -68,5 +68,13 @@ export default class JsonRpcProvider {
   viewFunction(contractId: string, methodName: string, args: JSON.Value): JSON.Obj {
     const params: JSON.Obj = fromViewFunction(contractId, methodName, args);
     return this.sendJsonRpc("query", params);
+  }
+
+  status(): JSON.Obj {
+    const encoder = new JSONEncoder();
+    encoder.pushObject(null);
+    encoder.popObject();
+    const params: JSON.Obj = <JSON.Obj>JSON.parse(encoder.serialize());
+    return this.sendJsonRpc("status", params);
   }
 }

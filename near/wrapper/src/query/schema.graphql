@@ -14,9 +14,22 @@ type Query {
 
   getAccountId: String
 
+  """
+    JsonRpcProvider Query Functions (Implemented, Tested)
+  """
   getBlock(
     blockQuery: BlockReference!
   ): BlockResult!
+
+  """
+    JsonRpcProvider Query Functions (Not Implemented)
+  """
+  status: NodeStatusResult!
+
+  #txStatus(
+  #  txHash: String!, #(Bytes | String)! 
+  #  accountId: String!
+  #): FinalExecutionOutcome!
 
   getAccountState(
     accountId: String!
@@ -142,6 +155,27 @@ type BlockResult {
   chunks: [Chunk!]!
 }
 
+type SyncInfo {
+  latest_block_hash: String!
+  latest_block_height: BigInt!
+  latest_block_time: String!
+  latest_state_root: String!
+  syncing: Boolean!
+}
+
+type Version {
+  version: String!
+  build: String!
+}
+
+type NodeStatusResult {
+  chain_id: String!
+  rpc_addr: String!
+  sync_info: SyncInfo!
+  validators: [String!]!
+  version: Version!
+}
+
 type NearProtocolConfig {
   runtime_config: NearProtocolRuntimeConfig!
 }
@@ -194,4 +228,67 @@ type AccessKey {
 type AccessKeyInfo {
   publicKey: Near_PublicKey!
   accessKey: AccessKey!
+}
+
+"""
+Common Types
+"""
+
+type SignedTransaction {
+  transaction: Near_Transaction!
+  signature: Near_Signature!
+}
+
+# Return value of Mutation.signTransaction(...); contains transaction hash and signed transaction
+type SignTransactionResult {
+  hash: Bytes!
+  signedTx: SignedTransaction!
+}
+
+type ExecutionStatus {
+  successValue: String
+  successReceiptId: String
+  failure: JSON
+}
+
+type ExecutionOutcomeWithId {
+  block_hash: String
+  id: String!
+  outcome: ExecutionOutcome!
+  proof: [ExecutionProof!]
+}
+
+type ExecutionProof {
+  direction: String!
+  hash: String!
+}
+
+# Execution status of a sent transaction
+type ExecutionOutcome {
+  executor_id: String
+  gas_burnt: BigInt!
+  logs: [String!]
+  metadata: OutcomeMetaData
+  receipt_ids: [String!]!
+  status: ExecutionStatus!
+  tokens_burnt: String
+}
+
+type OutcomeMetaData {
+  gas_profile: [GasProfile]!
+  version: UInt!
+}
+
+type GasProfile {
+  cost: String!
+  cost_category: String!
+  gas_used: String!
+}
+
+# Final outcome of a sent transaction
+type FinalExecutionOutcome {
+  status: ExecutionStatus!
+  transaction: Near_Transaction!
+  transaction_outcome: ExecutionOutcomeWithId!
+  receipts_outcome: [ExecutionOutcomeWithId!]!
 }

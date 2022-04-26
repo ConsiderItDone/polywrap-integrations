@@ -6,6 +6,7 @@ import {
   BlockResult,
   Chunk,
   NearProtocolConfig,
+  NodeStatusResult,
 } from "../query/w3";
 import { BigInt, JSON, JSONEncoder } from "@web3api/wasm-as";
 import { publicKeyFromStr } from "./typeUtils";
@@ -155,4 +156,27 @@ export function toProtocolResult(json: JSON.Obj): NearProtocolConfig {
       storage_amount_per_byte: runtime_config.getString("storage_amount_per_byte")!.valueOf(),
     },
   };
+}
+
+export function toNodeStatus(json: JSON.Obj): NodeStatusResult {
+  const version = json.getObj("version")!;
+  const sync_info = json.getObj("sync_info")!;
+  const validators = json.getArr("validators")!.valueOf();
+
+  return {
+    version: {
+      build: version.getString("build")!.valueOf(),
+      version: version.getString("version")!.valueOf(),
+    },
+    chain_id: json.getString("chain_id")!.valueOf(),
+    rpc_addr: json.getString("rpc_addr")!.valueOf(),
+    validators: validators.map<string>((v: JSON.Value) => (<JSON.Str>v).valueOf()),
+    sync_info: {
+      latest_block_hash: sync_info.getString("latest_block_hash")!.valueOf(),
+      latest_block_height: BigInt.fromString(sync_info.getValue("latest_block_hash")!.stringify()),
+      latest_state_root: sync_info.getString("latest_state_root")!.valueOf(),
+      latest_block_time: sync_info.getString("latest_block_time")!.valueOf(),
+      syncing: sync_info.getBool("syncing")!.valueOf(),
+    },
+  } as NodeStatusResult;
 }
