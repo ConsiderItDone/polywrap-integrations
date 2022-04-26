@@ -41,6 +41,7 @@ import {
 
 import {
   Input_chunk,
+  Input_gasPrice,
   //Input_getAccessKeys, Input_getAccountDetails,
   Input_viewFunction,
 } from "./w3/Query/serialization";
@@ -280,6 +281,12 @@ export function chunk(input: Input_chunk): ChunkResult {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
   const chunk = provider.getChunk(input.chunkId);
   return toChunkResult(chunk);
+}
+
+export function gasPrice(input: Input_gasPrice): BigInt {
+  const provider: JsonRpcProvider = new JsonRpcProvider(null);
+  const gasPrice = provider.gasPrice(input.blockId.toString());
+  return BigInt.fromString(gasPrice.getString("gas_price")!.valueOf());
 }
 
 /* export function parseNearAmount(input: Input_parseNearAmount): String {

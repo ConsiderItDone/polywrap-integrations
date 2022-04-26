@@ -107,6 +107,9 @@ type Query {
     chunkId: String!  #  (String | [BigInt!])! chunk hash or [blockId, chunkId]
   ): ChunkResult!
 
+  gasPrice(
+    blockId: BigInt
+  ): BigInt!
 }
 
 # Based on these types from near-api-js:
