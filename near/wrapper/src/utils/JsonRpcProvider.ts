@@ -108,10 +108,12 @@ export default class JsonRpcProvider {
     return this.sendJsonRpc("chunk", params);
   }
 
-  gasPrice(blockId:string): JSON.Obj {
+  gasPrice(blockId: string | null): JSON.Obj {
     const encoder = new JSONEncoder();
     encoder.pushArray(null);
-    encoder.setString(null, blockId);
+    if (blockId !== null) {
+      encoder.setString(null, blockId);
+    }
     encoder.popArray();
     const params: JSON.Obj = <JSON.Obj>JSON.parse(encoder.serialize());
     return this.sendJsonRpc("gas_price", params);

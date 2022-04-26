@@ -7,7 +7,7 @@ import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@we
 import path from "path";
 const BN = require("bn.js");
 import { HELLO_WASM_METHODS /* , networkId, publicKeyToStr */ } from "./testUtils";
-import { NodeStatusResult } from "./tsTypes";
+//import { NodeStatusResult } from "./tsTypes";
 /* import { AccountAuthorizedApp,  AccountBalance } "near-api-js/lib/account";*/
 
 jest.setTimeout(360000);
@@ -54,7 +54,7 @@ describe("e2e", () => {
     await stopTestEnvironment();
   });
 
-  it("Get node status", async () => {
+  /*   it("Get node status", async () => {
     const result = await client.query<{ status: NodeStatusResult }>({
       uri: apiUri,
       query: `query {
@@ -78,6 +78,31 @@ describe("e2e", () => {
     expect(status.version).toStrictEqual(nearStatus.version);
     expect(status.validators.length).toStrictEqual(nearStatus.validators.length);
     expect(status.validators).toStrictEqual(nearStatus.validators);
+  }); */
+
+  it("Get gas price", async () => {
+    const blockId = "AXa8CHDQSA8RdFCt12rtpFraVq4fDUgJbLPxwbaZcZrj";
+    const result = await client.query<{ gasPrice: BigInt }>({
+      uri: apiUri,
+      query: `query {
+        gasPrice(
+          blockId: $blockId
+        )
+      }`,
+      variables: {
+        blockId: blockId,
+      },
+    });
+    expect(result.errors).toBeFalsy();
+    expect(result.data).toBeTruthy();
+
+    const gasPrice: BigInt = result.data!.gasPrice;
+
+    expect(gasPrice).toBeTruthy();
+    expect(gasPrice).toBeInstanceOf(BigInt);
+
+    const { gas_price } = await near.connection.provider.gasPrice(blockId);
+    expect(gasPrice.toString()).toStrictEqual(gas_price);
   });
 
   /*   it("Get block information", async () => {

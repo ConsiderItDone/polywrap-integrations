@@ -285,7 +285,11 @@ export function chunk(input: Input_chunk): ChunkResult {
 
 export function gasPrice(input: Input_gasPrice): BigInt {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
-  const gasPrice = provider.gasPrice(input.blockId.toString());
+  let blockId: string | null = null;
+  if (input.blockId !== null) {
+    blockId = (<BigInt>input.blockId).toString();
+  }
+  const gasPrice = provider.gasPrice(blockId);
   return BigInt.fromString(gasPrice.getString("gas_price")!.valueOf());
 }
 
