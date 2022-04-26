@@ -15,6 +15,73 @@ type Query {
   getAccountId: String
 
   """
+    RPC Query Functions not part of JsonRpcProvider (Implemented, Tested)
+  """
+  getAccountState(
+    accountId: String!
+  ): AccountView!
+
+  findAccessKey(
+    accountId: String!
+  ): AccessKeyInfo
+
+  getPublicKey(
+    accountId: String!
+  ): Near_PublicKey
+
+  """
+    RPC Query Functions not part of JsonRpcProvider (Not Implemented)
+  """
+
+  getAccountBalance(
+    accountId: String!
+  ): AccountBalance!
+
+  #  getAccountDetails(
+  #    accountId: String!
+  #  ): [AccountAuthorizedApp]!
+
+  #  getAccessKeys(
+  #    accountId: String!
+  #  ): [AccessKeyInfo]!
+
+  viewFunction(
+    contractId: String!
+    methodName: String!
+    args: JSON!
+  ): JSON!
+
+  """
+    Transaction Query Functions (Implemented, Tested)
+  """
+
+  # creates a transaction. If signerId is not provided, creates transaction with wallet.
+  createTransaction(
+    receiverId: String!
+    actions: [Near_Action!]!
+    signerId: String
+  ): Near_Transaction!
+
+  # signs a transaction without wallet
+  signTransaction(
+    transaction: Near_Transaction!
+  ): Near_SignTransactionResult!
+
+  #"""
+  #  Utility Functions
+  #"""
+
+  # takes amount in Near, returns amount in YoctoNear
+  #parseNearAmount(
+  #  amount: String!
+  #): String!
+
+  # takes amount in YoctoNear, returns amount in Near
+  #formatNearAmount(
+  #  amount: String! 
+  #): String!
+
+  """
     JsonRpcProvider Query Functions (Implemented, Tested)
   """
   getBlock(
@@ -40,60 +107,6 @@ type Query {
     chunkId: String!  #  (String | [BigInt!])! chunk hash or [blockId, chunkId]
   ): ChunkResult!
 
-  getAccountState(
-    accountId: String!
-  ): AccountView!
-
-  findAccessKey(
-    accountId: String!
-  ): AccessKeyInfo
-
-  getPublicKey(
-    accountId: String!
-  ): Near_PublicKey
-
-  getAccountBalance(
-    accountId: String!
-  ): AccountBalance!
-
-  #  getAccountDetails(
-  #    accountId: String!
-  #  ): [AccountAuthorizedApp]!
-
-  #  getAccessKeys(
-  #    accountId: String!
-  #  ): [AccessKeyInfo]!
-
-  viewFunction(
-    contractId: String!
-    methodName: String!
-    args: JSON!
-  ): JSON!
-
-  createTransaction(
-    receiverId: String!
-    actions: [Near_Action!]!
-    signerId: String
-  ): Near_Transaction!
-
-  """
-    Utility Functions
-  """
-
-  # takes amount in Near, returns amount in YoctoNear
-  #parseNearAmount(
-  #  amount: String!
-  #): String!
-
-  # takes amount in YoctoNear, returns amount in Near
-  #formatNearAmount(
-  #  amount: String! 
-  #): String!
-
-  # signs a transaction without wallet
-  signTransaction(
-    transaction: Near_Transaction!
-  ): Near_SignTransactionResult!
 }
 
 # Based on these types from near-api-js:
