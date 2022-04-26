@@ -5,8 +5,8 @@ import { BigInt } from "@web3api/wasm-as";
  */
 export const NEAR_NOMINATION_EXP = 24;
 
-export function parseNearAmount(input: BigInt): BigInt {
-  const amount: string = cleanupAmount(input.toString());
+export function parseNearAmount(input: String): String {
+  const amount: String = cleanupAmount(input.toString());
   const split = amount.split(".");
   const wholePart = split[0];
   const fracPart = split[1] || "";
@@ -14,11 +14,11 @@ export function parseNearAmount(input: BigInt): BigInt {
     throw new Error(`Cannot parse '${amount}' as NEAR amount`);
   }
   const result = trimLeadingZeroes(wholePart + fracPart.padEnd(NEAR_NOMINATION_EXP, "0"));
-  return BigInt.fromString(result);
+  return result; // BigInt.fromString(result);
 }
 
-export function formatNearAmount(input: BigInt): BigInt {
-  const balance = input.toString();
+export function formatNearAmount(input: String): String {
+  const balance = input;
   const wholeStr = balance.substring(0, balance.length - NEAR_NOMINATION_EXP) || "0";
   const fractionStr = balance
     .substring(balance.length - NEAR_NOMINATION_EXP)
@@ -26,16 +26,17 @@ export function formatNearAmount(input: BigInt): BigInt {
     .substring(0, NEAR_NOMINATION_EXP);
 
   const result = trimTrailingZeroes(`${formatWithCommas(wholeStr)}.${fractionStr}`);
-  return BigInt.fromString(result);
+  console.log(result);
+  return result; //BigInt.fromString(result);
 }
 
-function cleanupAmount(amount: string): string {
+function cleanupAmount(amount: String): String {
   //TODO replace after implementation:  Not implemented: Regular expressions
   // return amount.replace(/,/g, "").trim();
   return amount.replace(",", "").trim();
 }
 
-function trimTrailingZeroes(value: string): string {
+function trimTrailingZeroes(value: String): String {
   //TODO replace after implementation:  Not implemented: Regular expressions
   // return value.replace(/\.?0*$/, "");
   const split = value.split(".");
@@ -54,7 +55,7 @@ function trimTrailingZeroes(value: string): string {
   return value;
 }
 
-function trimLeadingZeroes(value: string): string {
+function trimLeadingZeroes(value: String): String {
   //TODO replace after implementation:  Not implemented: Regular expressions
   // value = value.replace(/^0+/, "");
   // if (value === "") {
@@ -71,14 +72,15 @@ function trimLeadingZeroes(value: string): string {
   return value;
 }
 
-function formatWithCommas(value: string): string {
+function formatWithCommas(value: String): String {
   //TODO replace after implementation:  Not implemented: Regular expressions
   // const pattern = /(-?\d+)(\d{3})/;
   // while (pattern.test(value)) {
   //   value = value.replace(pattern, "$1,$2");
   // }
+  if (value === "0") return "0";
   const reversed = value.split("").reverse().join("");
-  let result: string[] = [];
+  let result: String[] = [];
   for (let i = 1; i <= reversed.length; i++) {
     result.push(reversed[i - 1]);
     if (i % 3 === 0) {

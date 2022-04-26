@@ -19,19 +19,20 @@
     "test:ci": "yarn test:e2e"
   },
   "dependencies": {
-    "as-base58": "^0.1.1"
+    "as-base58": "^0.1.1",
+    "as-fraction": "^0.2.0"
   },
   "devDependencies": {
     "@types/jest": "27.0.2",
     "@typescript-eslint/eslint-plugin": "4.11.1",
     "@typescript-eslint/parser": "4.11.1",
-    "@web3api/cli": "^0.0.1-prealpha.71",
-    "@web3api/client-js": "^0.0.1-prealpha.71",
-    "@web3api/ens-plugin-js": "^0.0.1-prealpha.71",
-    "@web3api/ethereum-plugin-js": "^0.0.1-prealpha.71",
-    "@web3api/ipfs-plugin-js": "^0.0.1-prealpha.71",
-    "@web3api/test-env-js": "^0.0.1-prealpha.71",
-    "@web3api/wasm-as": "^0.0.1-prealpha.71",
+    "@web3api/cli": "^0.0.1-prealpha.74",
+    "@web3api/client-js": "^0.0.1-prealpha.74",
+    "@web3api/ens-plugin-js": "^0.0.1-prealpha.74",
+    "@web3api/ethereum-plugin-js": "^0.0.1-prealpha.74",
+    "@web3api/ipfs-plugin-js": "^0.0.1-prealpha.74",
+    "@web3api/test-env-js": "^0.0.1-prealpha.74",
+    "@web3api/wasm-as": "^0.0.1-prealpha.74",
     "assemblyscript": "0.19.1",
     "bn.js": "5.2.0",
     "eslint": "7.16.0",

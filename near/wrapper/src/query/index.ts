@@ -15,8 +15,8 @@ import {
   AccessKey,
   AccountView,
   Input_getAccountBalance,
-  Input_parseNearAmount,
-  Input_formatNearAmount,
+  //Input_parseNearAmount,
+  //Input_formatNearAmount,
   AccountBalance,
 } from "./w3";
 import JsonRpcProvider from "../utils/JsonRpcProvider";
@@ -24,8 +24,9 @@ import * as bs58 from "as-base58";
 import { BigInt, JSON, JSONEncoder } from "@web3api/wasm-as";
 import { /* publicKeyFromStr, */ publicKeyToStr } from "../utils/typeUtils";
 import { toAccessKey /* toAccessKeyInfo */ } from "../utils/jsonMap";
-import * as formatUtils from "../utils/format";
+//import * as formatUtils from "../utils/format";
 //import { AccountAuthorizedApp } from "./w3/AccountAuthorizedApp";
+
 import {
   //Input_getAccessKeys, Input_getAccountDetails,
   Input_viewFunction,
@@ -244,10 +245,10 @@ export function signTransaction(input: Input_signTransaction): Near_SignTransact
   }).unwrap();
 }
 
-export function parseNearAmount(input: Input_parseNearAmount): BigInt {
+/* export function parseNearAmount(input: Input_parseNearAmount): String {
   return formatUtils.parseNearAmount(input.amount);
-}
+} */
 
-export function formatNearAmount(input: Input_formatNearAmount): BigInt {
+/* export function formatNearAmount(input: Input_formatNearAmount): String {
   return formatUtils.formatNearAmount(input.amount);
-}
+} */

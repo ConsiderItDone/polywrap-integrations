@@ -34,13 +34,13 @@ type Query {
     accountId: String!
   ): AccountBalance!
 
-#  getAccountDetails(
-#    accountId: String!
-#  ): [AccountAuthorizedApp]!
+  #  getAccountDetails(
+  #    accountId: String!
+  #  ): [AccountAuthorizedApp]!
 
-#  getAccessKeys(
-#    accountId: String!
-#  ): [AccessKeyInfo]!
+  #  getAccessKeys(
+  #    accountId: String!
+  #  ): [AccessKeyInfo]!
 
   viewFunction(
     contractId: String!
@@ -54,24 +54,24 @@ type Query {
     signerId: String
   ): Near_Transaction!
 
-  # signs a transaction without wallet
-  signTransaction(
-    transaction: Near_Transaction!
-  ): Near_SignTransactionResult!
-
   """
     Utility Functions
   """
 
   # takes amount in Near, returns amount in YoctoNear
-  parseNearAmount(
-    amount: BigInt!
-  ): BigInt!
+  #parseNearAmount(
+  #  amount: String!
+  #): String!
 
   # takes amount in YoctoNear, returns amount in Near
-  formatNearAmount(
-    amount: BigInt!
-  ): BigInt!
+  #formatNearAmount(
+  #  amount: String! 
+  #): String!
+
+  # signs a transaction without wallet
+  signTransaction(
+    transaction: Near_Transaction!
+  ): Near_SignTransactionResult!
 }
 
 # Based on these types from near-api-js:
