@@ -1,7 +1,19 @@
-import { AccessKeyWithPublicKey, BlockReference, BlockResult, NearProtocolConfig } from "../query/w3";
+import {
+  AccessKeyWithPublicKey,
+  BlockReference,
+  BlockResult,
+  LightClientProofRequest,
+  NearProtocolConfig,
+} from "../query/w3";
 import { Near_Mutation } from "../mutation/w3";
 import { JSON, JSONEncoder } from "@web3api/wasm-as";
-import { fromBlockReference, fromViewFunction, toBlockResult, toProtocolResult } from "./jsonMap";
+import {
+  fromBlockReference,
+  fromLightClientProofRequest,
+  fromViewFunction,
+  toBlockResult,
+  toProtocolResult,
+} from "./jsonMap";
 
 /**
  * Client class to interact with the NEAR RPC API.
@@ -161,7 +173,7 @@ export default class JsonRpcProvider {
     return this.sendJsonRpc("EXPERIMENTAL_changes", params);
   }
 
-  contractStateChanges(account_ids: string[], blockQuery: BlockReference, keyPrefix: string) {
+  contractStateChanges(account_ids: string[], blockQuery: BlockReference, keyPrefix: string): JSON.Obj {
     const encoder = new JSONEncoder();
     encoder.pushObject(null);
     encoder.setString("changes_type", "data_changes");
@@ -186,7 +198,7 @@ export default class JsonRpcProvider {
     return this.sendJsonRpc("EXPERIMENTAL_changes", params);
   }
 
-  contractCodeChanges(account_ids: string[], blockQuery: BlockReference) {
+  contractCodeChanges(account_ids: string[], blockQuery: BlockReference): JSON.Obj {
     const encoder = new JSONEncoder();
     encoder.pushObject(null);
     encoder.setString("changes_type", "contract_code_changes");
@@ -210,6 +222,11 @@ export default class JsonRpcProvider {
   blockChanges(blockQuery: BlockReference): JSON.Obj {
     const params: JSON.Obj = fromBlockReference(blockQuery);
     return this.sendJsonRpc("EXPERIMENTAL_changes_in_block", params);
+  }
+
+  lightClientProof(request: LightClientProofRequest): JSON.Obj {
+    const params: JSON.Obj = fromLightClientProofRequest(request);
+    return this.sendJsonRpc("EXPERIMENTAL_light_client_proof", params);
   }
 
   singleAccessKeyChanges(accessKeyArray: AccessKeyWithPublicKey[], blockQuery: BlockReference): JSON.Obj {

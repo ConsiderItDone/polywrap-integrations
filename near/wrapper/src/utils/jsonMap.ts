@@ -25,6 +25,9 @@ import {
   CurrentEpochValidatorInfo,
   NextEpochValidatorInfo,
   ValidatorStakeView,
+  LightClientProof,
+  LightClientProofRequest,
+  LightClientBlockLiteView,
 } from "../query/w3";
 import { BigInt, JSON, JSONEncoder } from "@web3api/wasm-as";
 import { publicKeyFromStr } from "./typeUtils";
@@ -41,6 +44,28 @@ export function fromBlockReference(blockQuery: BlockReference): JSON.Obj {
   }
   if (blockQuery.syncCheckpoint != null) {
     encoder.setString("sync_ checkpoint", blockQuery.syncCheckpoint!);
+  }
+  encoder.popObject();
+  return <JSON.Obj>JSON.parse(encoder.serialize());
+}
+
+export function fromLightClientProofRequest(request: LightClientProofRequest): JSON.Obj {
+  const encoder = new JSONEncoder();
+  encoder.pushObject(null);
+  encoder.setString("light_client_head", request.light_client_head);
+  encoder.setString("m_type", request.m_type.toString());
+
+  if (request.receipt_id !== null) {
+    encoder.setString("receipt_id", request.receipt_id);
+  }
+  if (request.receiver_id !== null) {
+    encoder.setString("receiver_id", request.receiver_id);
+  }
+  if (request.sender_id !== null) {
+    encoder.setString("sender_id", request.sender_id);
+  }
+  if (request.transaction_hash !== null) {
+    encoder.setString("transaction_hash", request.transaction_hash);
   }
   encoder.popObject();
   return <JSON.Obj>JSON.parse(encoder.serialize());
@@ -309,20 +334,13 @@ export function toExecutionOutcome(json: JSON.Obj): Near_ExecutionOutcome {
 
 export function toExecutionOutcomeWithId(json: JSON.Obj): Near_ExecutionOutcomeWithId {
   const outcome = json.getObj("outcome")!;
+  const proof = json.getArr("proof")!.valueOf();
+
   return {
     id: json.getString("id")!.valueOf(),
     block_hash: json.getString("block_hash")!.valueOf(),
     outcome: toExecutionOutcome(outcome),
-    proof: json
-      .getArr("proof")!
-      .valueOf()
-      .map<Near_ExecutionProof>((v: JSON.Value) => {
-        const proof = <JSON.Obj>v;
-        return {
-          hash: proof.getString("hash")!.valueOf(),
-          direction: proof.getString("direction")!.valueOf(),
-        } as Near_ExecutionProof;
-      }),
+    proof: proof.map<Near_ExecutionProof>((v) => toExecutionProof(<JSON.Obj>v)),
   };
 }
 
@@ -411,7 +429,7 @@ export function toEpochValidatorInfo(json: JSON.Obj): EpochValidatorInfo {
   } as EpochValidatorInfo;
 }
 
-function toCurrentEpochValidatorInfo(json: JSON.Obj) {
+function toCurrentEpochValidatorInfo(json: JSON.Obj): CurrentEpochValidatorInfo {
   return {
     account_id: json.getString("account_id")!.valueOf(),
     public_key: json.getString("public_key")!.valueOf(),
@@ -426,7 +444,7 @@ function toCurrentEpochValidatorInfo(json: JSON.Obj) {
   };
 }
 
-function toNextEpochValidatorInfo(json: JSON.Obj) {
+function toNextEpochValidatorInfo(json: JSON.Obj): NextEpochValidatorInfo {
   return {
     account_id: json.getString("account_id")!.valueOf(),
     public_key: json.getString("public_key")!.valueOf(),
@@ -438,10 +456,46 @@ function toNextEpochValidatorInfo(json: JSON.Obj) {
   };
 }
 
-function toValidatorStakeView(json: JSON.Obj) {
+function toValidatorStakeView(json: JSON.Obj): ValidatorStakeView {
   return {
     account_id: json.getString("account_id")!.valueOf(),
     public_key: json.getString("public_key")!.valueOf(),
     stake: json.getString("stake")!.valueOf(),
   };
+}
+
+export function toLightClientProof(json: JSON.Obj): LightClientProof {
+  const block_header_lite = json.getObj("block_header_lite")!;
+  const block_proof = json.getArr("block_proof")!.valueOf();
+  const outcome_proof = json.getObj("outcome_proof")!;
+  const outcome_root_proof = json.getArr("outcome_root_proof")!.valueOf();
+
+  return {
+    block_header_lite: toBlockHeaderLite(block_header_lite),
+    block_proof: block_proof.map<Near_ExecutionProof>((v) => toExecutionProof(<JSON.Obj>v)),
+    outcome_proof: toExecutionOutcomeWithId(outcome_proof),
+    outcome_root_proof: outcome_root_proof.map<Near_ExecutionProof>((v) => toExecutionProof(<JSON.Obj>v)),
+  };
+}
+
+function toBlockHeaderLite(json: JSON.Obj): LightClientBlockLiteView {
+  const inner_lite = json.getObj("inner_lite")!;
+  return {
+    inner_lite: {
+      block_merkle_root: inner_lite.getString("block_merkle_root")!.valueOf(),
+      epoch_id: inner_lite.getString("epoch_id")!.valueOf(),
+      height: BigInt.fromString(inner_lite.getValue("height")!.stringify()),
+      next_bp_hash: inner_lite.getString("next_bp_hash")!.valueOf(),
+      next_epoch_id: inner_lite.getString("next_epoch_id")!.valueOf(),
+      outcome_root: inner_lite.getString("outcome_root")!.valueOf(),
+      prev_state_root: inner_lite.getString("prev_state_root")!.valueOf(),
+      timestamp: BigInt.fromString(inner_lite.getValue("timestamp")!.stringify()),
+    },
+    inner_rest_hash: json.getString("inner_rest_hash")!.valueOf(),
+    prev_block_hash: json.getString("prev_block_hash")!.valueOf(),
+  } as LightClientBlockLiteView;
+}
+
+function toExecutionProof(json: JSON.Obj): Near_ExecutionProof {
+  return { hash: json.getString("hash")!.valueOf(), direction: json.getString("direction")!.valueOf() };
 }

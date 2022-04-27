@@ -26,6 +26,7 @@ import {
   Input_singleAccessKeyChanges,
   Input_contractCodeChanges,
   Input_contractStateChanges,
+  Input_lightClientProof,
   Input_validators,
   //Input_parseNearAmount,
   //Input_formatNearAmount,
@@ -34,6 +35,7 @@ import {
   Near_FinalExecutionOutcomeWithReceipts,
   ChunkResult,
   BlockChangeResult,
+  LightClientProof,
 } from "./w3";
 import JsonRpcProvider from "../utils/JsonRpcProvider";
 import * as bs58 from "as-base58";
@@ -48,6 +50,7 @@ import {
   toEpochValidatorInfo,
   toFinalExecutionOutcome,
   toFinalExecutionOutcomeWithReceipts,
+  toLightClientProof,
   toNodeStatus,
 } from "../utils/jsonMap";
 //import * as formatUtils from "../utils/format";
@@ -265,6 +268,12 @@ export function createTransaction(input: Input_createTransaction): Near_Transact
     actions: input.actions,
     hash: null,
   };
+}
+
+export function lightClientProof(input: Input_lightClientProof): LightClientProof {
+  const provider: JsonRpcProvider = new JsonRpcProvider(null);
+  const lightClientProof = provider.lightClientProof(input.request);
+  return toLightClientProof(lightClientProof);
 }
 
 export function signTransaction(input: Input_signTransaction): Near_SignTransactionResult {
