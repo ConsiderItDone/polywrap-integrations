@@ -1,5 +1,5 @@
 import { Web3ApiClient } from "@web3api/client-js";
-import { nearPlugin, KeyPair, NearPluginConfig } from "near-polywrap-js";
+import { KeyPair, NearPluginConfig } from "near-polywrap-js";
 import {
   ExecutionOutcomeWithId,
   FinalExecutionOutcome,
@@ -13,9 +13,6 @@ import * as nearApi from "near-api-js";
 const BN = require("bn.js");
 import { HELLO_WASM_METHODS } from "./testUtils";
 import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
-import { ipfsPlugin } from "@web3api/ipfs-plugin-js";
-import { ensPlugin } from "@web3api/ens-plugin-js";
-import { ethereumPlugin } from "@web3api/ethereum-plugin-js";
 import path from "path";
 
 jest.setTimeout(360000);
