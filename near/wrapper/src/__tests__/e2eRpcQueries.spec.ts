@@ -181,6 +181,40 @@ describe("e2e", () => {
     expect(accountChanges.changes).toEqual(nearBlockChanges.changes);
   });
 
+  it("Get single access key changes", async () => {
+    const blockQuery = { block_id: "AXa8CHDQSA8RdFCt12rtpFraVq4fDUgJbLPxwbaZcZrj" };
+    const accessKeyArray = [
+      { account_id: workingAccount.accountId, public_key: (await near.connection.signer.getPublicKey()).toString() },
+    ];
+    const result = await client.query<{ singleAccessKeyChanges: ChangeResult }>({
+      uri: apiUri,
+      query: `query {
+        singleAccessKeyChanges(
+          accessKeyArray: $accessKeyArray
+          blockQuery: $blockQuery
+        )
+      }`,
+      variables: {
+        accessKeyArray: accessKeyArray,
+        blockQuery: blockQuery,
+      },
+    });
+    expect(result.errors).toBeFalsy();
+    expect(result.data).toBeTruthy();
+
+    const singleAccessKeyChanges: ChangeResult = result.data!.singleAccessKeyChanges;
+    expect(singleAccessKeyChanges.block_hash).toBeTruthy();
+    expect(singleAccessKeyChanges.changes).toBeInstanceOf(Array);
+
+    const nearBlockChanges = await near.connection.provider.singleAccessKeyChanges(accessKeyArray, {
+      blockId: blockQuery.block_id,
+    });
+
+    expect(singleAccessKeyChanges.block_hash).toStrictEqual(nearBlockChanges.block_hash);
+    expect(singleAccessKeyChanges.changes.length).toEqual(nearBlockChanges.changes.length);
+    expect(singleAccessKeyChanges.changes).toEqual(nearBlockChanges.changes);
+  });
+
   /*   it("Get block information", async () => {
     const blockQuery: BlockReference = { finality: "final" };
     const result = await client.query<{ getBlock: BlockResult }>({
