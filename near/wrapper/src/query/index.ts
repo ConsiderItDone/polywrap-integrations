@@ -1,5 +1,6 @@
 import {
   BlockResult,
+  Input_accountChanges,
   Input_getAccountState,
   Input_createTransaction,
   Input_requestSignIn,
@@ -15,6 +16,7 @@ import {
   AccessKeyInfo,
   AccessKey,
   AccountView,
+  ChangeResult,
   Input_getAccountBalance,
   Input_txStatus,
   Input_txStatusReceipts,
@@ -35,6 +37,7 @@ import {
   fromBlockReference,
   toAccessKey /* toAccessKeyInfo */,
   toBlockChanges,
+  toChangeResult,
   toChunkResult,
   toFinalExecutionOutcome,
   toFinalExecutionOutcomeWithReceipts,
@@ -295,6 +298,12 @@ export function gasPrice(input: Input_gasPrice): BigInt {
   }
   const gasPrice = provider.gasPrice(blockId);
   return BigInt.fromString(gasPrice.getString("gas_price")!.valueOf());
+}
+
+export function accountChanges(input: Input_accountChanges): ChangeResult {
+  const provider: JsonRpcProvider = new JsonRpcProvider(null);
+  const accountChanges = provider.accountChanges(input.accountIdArray, input.blockQuery);
+  return toChangeResult(accountChanges);
 }
 
 export function blockChanges(input: Input_blockChanges): BlockChangeResult {

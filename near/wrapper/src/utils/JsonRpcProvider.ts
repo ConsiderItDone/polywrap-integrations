@@ -119,8 +119,29 @@ export default class JsonRpcProvider {
     return this.sendJsonRpc("gas_price", params);
   }
 
+  accountChanges(account_ids: string[], blockQuery: BlockReference): JSON.Obj {
+    const encoder = new JSONEncoder();
+    encoder.pushObject(null);
+    encoder.setString("changes_type", "account_changes");
+    encoder.pushArray("account_ids");
+    for (const account_id of account_ids) {
+      encoder.setString(null, account_id);
+    }
+    encoder.popArray();
+
+    if (blockQuery.blockId != null) {
+      encoder.setString("block_id", blockQuery.blockId!);
+    }
+    if (blockQuery.finality != null) {
+      encoder.setString("finality", blockQuery.finality!);
+    }
+    encoder.popObject();
+    const params: JSON.Obj = <JSON.Obj>JSON.parse(encoder.serialize());
+    return this.sendJsonRpc("EXPERIMENTAL_changes", params);
+  }
+
   blockChanges(blockQuery: BlockReference): JSON.Obj {
     const params: JSON.Obj = fromBlockReference(blockQuery);
-    return this.sendJsonRpc('EXPERIMENTAL_changes_in_block', params)
+    return this.sendJsonRpc("EXPERIMENTAL_changes_in_block", params);
   }
 }

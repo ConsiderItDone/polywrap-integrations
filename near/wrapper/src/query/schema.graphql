@@ -111,6 +111,11 @@ type Query {
     chunkId: String!  #  (String | [BigInt!])! chunk hash or [blockId, chunkId]
   ): ChunkResult!
 
+  accountChanges(
+    accountIdArray: [String!]!
+    blockQuery: BlockReference!
+  ): ChangeResult!
+
   gasPrice(
     blockId: BigInt
   ): BigInt!
@@ -294,6 +299,11 @@ type AccessKey {
 type AccessKeyInfo {
   publicKey: Near_PublicKey!
   accessKey: AccessKey!
+}
+
+type ChangeResult {
+  block_hash: String!
+  changes: [JSON!]!
 }
 
 """

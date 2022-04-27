@@ -20,6 +20,7 @@ import {
   ChunkResult,
   BlockChangeResult,
   BlockChange,
+  ChangeResult,
 } from "../query/w3";
 import { BigInt, JSON, JSONEncoder } from "@web3api/wasm-as";
 import { publicKeyFromStr } from "./typeUtils";
@@ -135,6 +136,10 @@ export function toBlockResult(json: JSON.Obj): BlockResult {
       };
     }),
   };
+}
+
+export function toChangeResult(json: JSON.Obj): ChangeResult {
+  return { block_hash: json.getString("block_hash")!.valueOf(), changes: json.getArr("changes")!.valueOf() };
 }
 
 export function toChunkResult(json: JSON.Obj): ChunkResult {
