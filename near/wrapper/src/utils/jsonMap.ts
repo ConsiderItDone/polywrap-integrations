@@ -21,6 +21,10 @@ import {
   BlockChangeResult,
   BlockChange,
   ChangeResult,
+  EpochValidatorInfo,
+  CurrentEpochValidatorInfo,
+  NextEpochValidatorInfo,
+  ValidatorStakeView,
 } from "../query/w3";
 import { BigInt, JSON, JSONEncoder } from "@web3api/wasm-as";
 import { publicKeyFromStr } from "./typeUtils";
@@ -383,4 +387,61 @@ export function toFinalExecutionOutcomeWithReceipts(json: JSON.Obj): Near_FinalE
   };
 
   return txStatusReceipts;
+}
+
+export function toEpochValidatorInfo(json: JSON.Obj): EpochValidatorInfo {
+  const current_validators = json.getArr("current_validators")!.valueOf();
+  const next_validators = json.getArr("next_validators")!.valueOf();
+  const current_fisherman = json.getArr("current_fisherman")!.valueOf();
+  const next_fisherman = json.getArr("next_fisherman")!.valueOf();
+  const current_proposals = json.getArr("current_proposals")!.valueOf();
+  const prev_epoch_kickout = json.getArr("prev_epoch_kickout")!.valueOf();
+
+  return {
+    current_validators: current_validators.map<CurrentEpochValidatorInfo>((v) =>
+      toCurrentEpochValidatorInfo(<JSON.Obj>v)
+    ),
+    next_validators: next_validators.map<NextEpochValidatorInfo>((v) => toNextEpochValidatorInfo(<JSON.Obj>v)),
+    current_fisherman: current_fisherman.map<ValidatorStakeView>((v) => toValidatorStakeView(<JSON.Obj>v)),
+    next_fisherman: next_fisherman.map<ValidatorStakeView>((v) => toValidatorStakeView(<JSON.Obj>v)),
+    current_proposals: current_proposals.map<ValidatorStakeView>((v) => toValidatorStakeView(<JSON.Obj>v)),
+    prev_epoch_kickout: prev_epoch_kickout.map<ValidatorStakeView>((v) => toValidatorStakeView(<JSON.Obj>v)),
+    epoch_start_height: BigInt.fromString(json.getValue("epoch_start_height")!.stringify()),
+    epoch_height: BigInt.fromString(json.getValue("epoch_height")!.stringify()),
+  } as EpochValidatorInfo;
+}
+
+function toCurrentEpochValidatorInfo(json: JSON.Obj) {
+  return {
+    account_id: json.getString("account_id")!.valueOf(),
+    public_key: json.getString("public_key")!.valueOf(),
+    is_slashed: json.getBool("is_slashed").valueOf(),
+    stake: json.getString("stake")!.valueOf(),
+    shards: json
+      .getArr("shards")!
+      .valueOf()
+      .map<BigInt>((v) => BigInt.fromString((<JSON.Value>v).stringify())),
+    num_produced_blocks: BigInt.from(json.getValue("num_produced_blocks")!.stringify()).toUInt32(),
+    num_expected_blocks: BigInt.from(json.getValue("num_expected_blocks")!.stringify()).toUInt32(),
+  };
+}
+
+function toNextEpochValidatorInfo(json: JSON.Obj) {
+  return {
+    account_id: json.getString("account_id")!.valueOf(),
+    public_key: json.getString("public_key")!.valueOf(),
+    stake: json.getString("stake")!.valueOf(),
+    shards: json
+      .getArr("shards")!
+      .valueOf()
+      .map<BigInt>((v) => BigInt.fromString((<JSON.Value>v).stringify())),
+  };
+}
+
+function toValidatorStakeView(json: JSON.Obj) {
+  return {
+    account_id: json.getString("account_id")!.valueOf(),
+    public_key: json.getString("public_key")!.valueOf(),
+    stake: json.getString("stake")!.valueOf(),
+  };
 }

@@ -235,4 +235,18 @@ export default class JsonRpcProvider {
     const params: JSON.Obj = <JSON.Obj>JSON.parse(encoder.serialize());
     return this.sendJsonRpc("EXPERIMENTAL_changes", params);
   }
+
+  validators(blockId: string): JSON.Obj {
+    const encoder = new JSONEncoder();
+    encoder.pushArray(null);
+
+    if (blockId != null) {
+      encoder.setString(null, blockId);
+    }
+
+    encoder.popArray();
+
+    const params: JSON.Obj = <JSON.Obj>JSON.parse(encoder.serialize());
+    return this.sendJsonRpc("validators", params);
+  }
 }

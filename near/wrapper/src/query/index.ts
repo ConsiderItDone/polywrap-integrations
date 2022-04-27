@@ -1,5 +1,6 @@
 import {
   BlockResult,
+  EpochValidatorInfo,
   Input_accountChanges,
   Input_getAccountState,
   Input_createTransaction,
@@ -25,6 +26,7 @@ import {
   Input_singleAccessKeyChanges,
   Input_contractCodeChanges,
   Input_contractStateChanges,
+  Input_validators,
   //Input_parseNearAmount,
   //Input_formatNearAmount,
   AccountBalance,
@@ -43,6 +45,7 @@ import {
   toBlockChanges,
   toChangeResult,
   toChunkResult,
+  toEpochValidatorInfo,
   toFinalExecutionOutcome,
   toFinalExecutionOutcomeWithReceipts,
   toNodeStatus,
@@ -341,6 +344,16 @@ export function singleAccessKeyChanges(input: Input_singleAccessKeyChanges): Cha
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
   const singleAccessKeyChanges = provider.singleAccessKeyChanges(input.accessKeyArray, input.blockQuery);
   return toChangeResult(singleAccessKeyChanges);
+}
+
+export function validators(input: Input_validators): EpochValidatorInfo {
+  const provider: JsonRpcProvider = new JsonRpcProvider(null);
+  let blockId: string = null;
+  if (input.blockId !== null) {
+    blockId = input.blockId.toString();
+  }
+  const validators = provider.validators(blockId);
+  return toEpochValidatorInfo(validators);
 }
 
 /* export function parseNearAmount(input: Input_parseNearAmount): String {

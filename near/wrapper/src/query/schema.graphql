@@ -111,6 +111,10 @@ type Query {
     chunkId: String!  #  (String | [BigInt!])! chunk hash or [blockId, chunkId]
   ): ChunkResult!
 
+  validators(
+    blockId: BigInt
+  ): EpochValidatorInfo!
+
   accessKeyChanges(
     accountIdArray: [String!]!
     blockQuery: BlockReference!
@@ -266,6 +270,40 @@ type NodeStatusResult {
   sync_info: SyncInfo!
   validators: [String!]!
   version: Version!
+}
+
+type CurrentEpochValidatorInfo {
+  account_id: String!
+  public_key: String!
+  is_slashed: Boolean!
+  stake: String!
+  shards: [BigInt!]!
+  num_produced_blocks: UInt!
+  num_expected_blocks: UInt!
+}
+
+type NextEpochValidatorInfo {
+  account_id: String!
+  public_key: String!
+  stake: String!
+  shards: [BigInt!]!
+}
+
+type ValidatorStakeView {
+  account_id: String!
+  public_key: String!
+  stake: String!
+}
+
+type EpochValidatorInfo {
+  next_validators: [NextEpochValidatorInfo!]!
+  current_validators: [CurrentEpochValidatorInfo!]!
+  next_fisherman: [ValidatorStakeView!]!
+  current_fisherman: [ValidatorStakeView!]!
+  current_proposals: [ValidatorStakeView!]!
+  prev_epoch_kickout: [ValidatorStakeView!]!
+  epoch_start_height: BigInt!
+  epoch_height: BigInt!
 }
 
 type NearProtocolConfig {
