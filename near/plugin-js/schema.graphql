@@ -87,7 +87,7 @@ type FunctionCallPermission implements AccessKeyPermission {
 
 type AccessKey {
   nonce: BigInt!
-  permission: AccessKeyPermission!
+  permission: AccessKeyPermission! #| FullAccessPermission | FunctionCallPermission
 }
 
 # Access keys contain access key permissions, which determine how an account is allowed to interact with a contract
@@ -122,11 +122,16 @@ type Transfer implements Action {} # deposit: BigInt!
 # holds content necessary to send a transaction that stakes NEAR
 type Stake implements Action {} # stake: BigInt! publicKey: PublicKey!
 # holds content necessary to send a transaction that adds an access key
-type AddKey implements Action {} # publicKey: PublicKey! accessKey: AccessKey!
+#type AddKey implements Action {} # publicKey: PublicKey! accessKey: AccessKey!
 # holds content necessary to send a transaction that deletes an access key
 type DeleteKey implements Action {} # publicKey: PublicKey!
 # holds content necessary to send a transaction that creates a NEAR account
 type DeleteAccount implements Action {} # beneficiaryId: String!
+
+type AddKey {
+  publicKey: PublicKey!
+  accessKey: AccessKey!
+}
 
 type Transaction {
   signerId: String!

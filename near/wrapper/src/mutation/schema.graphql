@@ -47,4 +47,12 @@ type Mutation {
     signerId: String!
   ): String!
 
+  addKey(
+    publicKey: Near_PublicKey! # | String
+    contractId: String
+    methodNames: [String!],
+    amount: BigInt
+    signerId: String!
+  ): Near_FinalExecutionOutcome!
+
 }
