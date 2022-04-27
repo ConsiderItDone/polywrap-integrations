@@ -3,6 +3,7 @@ import { NearPluginConfig, KeyPair } from "../../../plugin-js"; //TODO change to
 import {
   BlockChangeResult /* BlockReference, BlockResult, AccountView, PublicKey, AccessKeyInfo, AccessKey */,
   ChangeResult,
+  EpochValidatorInfo,
 } from "./tsTypes";
 import * as testUtils from "./testUtils";
 import * as nearApi from "near-api-js";
@@ -316,6 +317,65 @@ describe("e2e", () => {
     expect(singleAccessKeyChanges.block_hash).toStrictEqual(nearBlockChanges.block_hash);
     expect(singleAccessKeyChanges.changes.length).toEqual(nearBlockChanges.changes.length);
     expect(singleAccessKeyChanges.changes).toEqual(nearBlockChanges.changes);
+  });
+
+  it("Get validators", async () => {
+    const blockId = "AXa8CHDQSA8RdFCt12rtpFraVq4fDUgJbLPxwbaZcZrj";
+
+    const result = await client.query<{ validators: EpochValidatorInfo }>({
+      uri: apiUri,
+      query: `query {
+        validators(
+          blockId: $blockId
+        )
+      }`,
+      variables: {
+        blockQuery: blockId,
+      },
+    });
+
+    expect(result.errors).toBeFalsy();
+    expect(result.data).toBeTruthy();
+
+    const validators: EpochValidatorInfo = result.data!.validators;
+    expect(validators).toBeTruthy();
+    expect(validators.current_validators).toBeTruthy();
+    expect(validators.current_validators).toBeInstanceOf(Array);
+    expect(validators.next_validators).toBeTruthy();
+    expect(validators.next_validators).toBeInstanceOf(Array);
+    expect(validators.current_fisherman).toBeTruthy();
+    expect(validators.current_fisherman).toBeInstanceOf(Array);
+    expect(validators.next_fisherman).toBeTruthy();
+    expect(validators.next_fisherman).toBeInstanceOf(Array);
+    expect(validators.current_proposals).toBeTruthy();
+    expect(validators.current_proposals).toBeInstanceOf(Array);
+    expect(validators.prev_epoch_kickout).toBeTruthy();
+    expect(validators.prev_epoch_kickout).toBeInstanceOf(Array);
+    expect(validators.epoch_height).toBeTruthy();
+    expect(validators.epoch_start_height).toBeTruthy();
+
+    const nearValidators = await near.connection.provider.validators(blockId);
+
+    expect(validators.current_validators.length).toStrictEqual(nearValidators.current_validators.length);
+    expect(validators.current_validators).toEqual(nearValidators.current_validators);
+
+    expect(validators.next_validators.length).toStrictEqual(nearValidators.next_validators.length);
+    expect(validators.next_validators).toEqual(nearValidators.next_validators);
+
+    expect(validators.current_fisherman.length).toStrictEqual(nearValidators.current_fisherman.length);
+    expect(validators.current_fisherman).toEqual(nearValidators.current_fisherman);
+
+    expect(validators.next_fisherman.length).toStrictEqual(nearValidators.next_fisherman.length);
+    expect(validators.next_fisherman).toEqual(nearValidators.next_fisherman);
+
+    expect(validators.current_proposals.length).toStrictEqual(nearValidators.current_proposals.length);
+    expect(validators.current_proposals).toEqual(nearValidators.current_proposals);
+
+    expect(validators.prev_epoch_kickout.length).toStrictEqual(nearValidators.prev_epoch_kickout.length);
+    expect(validators.prev_epoch_kickout).toEqual(nearValidators.prev_epoch_kickout);
+
+    expect(validators.epoch_start_height).toEqual(nearValidators.epoch_start_height);
+    //expect(validators.epoch_height)
   });
 
   /*   it("Get block information", async () => {

@@ -91,6 +91,40 @@ export interface FinalExecutionStatus {
   failure?: Json | null;
 }
 
+export interface CurrentEpochValidatorInfo {
+  account_id: String
+  public_key: String
+  is_slashed: Boolean
+  stake: String
+  shards: [BigInt]
+  num_produced_blocks: UInt
+  num_expected_blocks: UInt
+}
+
+export interface NextEpochValidatorInfo {
+  account_id: String
+  public_key: String
+  stake: String
+  shards: [BigInt]
+}
+
+export interface ValidatorStakeView {
+  account_id: String
+  public_key: String
+  stake: String
+}
+
+export interface EpochValidatorInfo {
+  next_validators: [NextEpochValidatorInfo]
+  current_validators: [CurrentEpochValidatorInfo]
+  next_fisherman: [ValidatorStakeView]
+  current_fisherman: [ValidatorStakeView]
+  current_proposals: [ValidatorStakeView]
+  prev_epoch_kickout: [ValidatorStakeView]
+  epoch_start_height: BigInt
+  epoch_height: BigInt
+}
+
 export interface ExecutionStatus {
   successValue?: String | null;
   successReceiptId?: String | null;
