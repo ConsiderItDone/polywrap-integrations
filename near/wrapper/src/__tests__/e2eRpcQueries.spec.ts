@@ -149,6 +149,38 @@ describe("e2e", () => {
     expect(blockChanges.changes).toEqual(nearBlockChanges.changes);
   });
 
+  it("Get access key changes", async () => {
+    const blockQuery = { block_id: "AXa8CHDQSA8RdFCt12rtpFraVq4fDUgJbLPxwbaZcZrj" };
+    const accountIdArray = [workingAccount.accountId];
+    const result = await client.query<{ accessKeyChanges: ChangeResult }>({
+      uri: apiUri,
+      query: `query {
+        accessKeyChanges(
+          accountIdArray: $accountIdArray
+          blockQuery: $blockQuery
+        )
+      }`,
+      variables: {
+        accountIdArray: accountIdArray,
+        blockQuery: blockQuery,
+      },
+    });
+    expect(result.errors).toBeFalsy();
+    expect(result.data).toBeTruthy();
+
+    const accessKeyChanges: ChangeResult = result.data!.accessKeyChanges;
+    expect(accessKeyChanges.block_hash).toBeTruthy();
+    expect(accessKeyChanges.changes).toBeInstanceOf(Array);
+
+    const nearBlockChanges = await near.connection.provider.accessKeyChanges(accountIdArray, {
+      blockId: blockQuery.block_id,
+    });
+
+    expect(accessKeyChanges.block_hash).toStrictEqual(nearBlockChanges.block_hash);
+    expect(accessKeyChanges.changes.length).toEqual(nearBlockChanges.changes.length);
+    expect(accessKeyChanges.changes).toEqual(nearBlockChanges.changes);
+  });
+
   it("Get account changes", async () => {
     const blockQuery = { block_id: "AXa8CHDQSA8RdFCt12rtpFraVq4fDUgJbLPxwbaZcZrj" };
     const accountIdArray = [workingAccount.accountId];
