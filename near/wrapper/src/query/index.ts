@@ -21,6 +21,7 @@ import {
   Input_txStatus,
   Input_txStatusReceipts,
   Input_blockChanges,
+  Input_singleAccessKeyChanges,
   //Input_parseNearAmount,
   //Input_formatNearAmount,
   AccountBalance,
@@ -311,6 +312,12 @@ export function blockChanges(input: Input_blockChanges): BlockChangeResult {
 
   const blockChanges = provider.blockChanges(input.blockQuery);
   return toBlockChanges(blockChanges);
+}
+
+export function singleAccessKeyChanges(input:Input_singleAccessKeyChanges): ChangeResult {
+  const provider: JsonRpcProvider = new JsonRpcProvider(null);
+  const singleAccessKeyChanges = provider.singleAccessKeyChanges(input.accessKeyArray, input.blockQuery);
+  return toChangeResult(singleAccessKeyChanges);
 }
 
 /* export function parseNearAmount(input: Input_parseNearAmount): String {

@@ -111,6 +111,11 @@ type Query {
     chunkId: String!  #  (String | [BigInt!])! chunk hash or [blockId, chunkId]
   ): ChunkResult!
 
+  singleAccessKeyChanges(
+    accessKeyArray: [AccessKeyWithPublicKey!]!,
+    blockQuery: BlockReference
+  ): ChangeResult
+
   accountChanges(
     accountIdArray: [String!]!
     blockQuery: BlockReference!
@@ -304,6 +309,11 @@ type AccessKeyInfo {
 type ChangeResult {
   block_hash: String!
   changes: [JSON!]!
+}
+
+type AccessKeyWithPublicKey {
+  account_id: String!
+  public_key: String!
 }
 
 """

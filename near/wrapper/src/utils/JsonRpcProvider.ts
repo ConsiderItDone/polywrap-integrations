@@ -1,4 +1,4 @@
-import { BlockReference, BlockResult, NearProtocolConfig } from "../query/w3";
+import { AccessKeyWithPublicKey, BlockReference, BlockResult, NearProtocolConfig } from "../query/w3";
 import { Near_Mutation } from "../mutation/w3";
 import { JSON, JSONEncoder } from "@web3api/wasm-as";
 import { fromBlockReference, fromViewFunction, toBlockResult, toProtocolResult } from "./jsonMap";
@@ -143,5 +143,29 @@ export default class JsonRpcProvider {
   blockChanges(blockQuery: BlockReference): JSON.Obj {
     const params: JSON.Obj = fromBlockReference(blockQuery);
     return this.sendJsonRpc("EXPERIMENTAL_changes_in_block", params);
+  }
+
+  singleAccessKeyChanges(accessKeyArray: AccessKeyWithPublicKey[], blockQuery: BlockReference): JSON.Obj {
+    const encoder = new JSONEncoder();
+    encoder.pushObject(null);
+    encoder.setString("changes_type", "single_access_key_changes");
+    encoder.pushArray("keys");
+    for (let i = 0; i < accessKeyArray.length; i++) {
+      encoder.pushObject(null)
+      encoder.setString("account_id", accessKeyArray[i].account_id);
+      encoder.setString("public_key", accessKeyArray[i].public_key);
+      encoder.popObject()
+    }
+    encoder.popArray();
+
+    if (blockQuery.blockId != null) {
+      encoder.setString("block_id", blockQuery.blockId!);
+    }
+    if (blockQuery.finality != null) {
+      encoder.setString("finality", blockQuery.finality!);
+    }
+    encoder.popObject();
+    const params: JSON.Obj = <JSON.Obj>JSON.parse(encoder.serialize());
+    return this.sendJsonRpc("EXPERIMENTAL_changes", params);
   }
 }
