@@ -1,6 +1,8 @@
 import { Web3ApiClient } from "@web3api/client-js";
 import { NearPluginConfig, KeyPair } from "../../../plugin-js"; //TODO change to appropriate package
-//import { BlockReference, BlockResult, AccountView, PublicKey, AccessKeyInfo, AccessKey } from "./tsTypes";
+import {
+  BlockChangeResult /* BlockReference, BlockResult, AccountView, PublicKey, AccessKeyInfo, AccessKey */,
+} from "./tsTypes";
 import * as testUtils from "./testUtils";
 import * as nearApi from "near-api-js";
 import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
@@ -117,6 +119,33 @@ describe("e2e", () => {
 
     const { gas_price } = await near.connection.provider.gasPrice(blockId);
     expect(gasPrice.toString()).toStrictEqual(gas_price);
+  });
+
+  it("Get block changes", async () => {
+    const block_id = "AXa8CHDQSA8RdFCt12rtpFraVq4fDUgJbLPxwbaZcZrj";
+    const result = await client.query<{ blockChanges: BlockChangeResult }>({
+      uri: apiUri,
+      query: `query {
+        blockChanges(
+          blockId: $blockId
+        )
+      }`,
+      variables: {
+        blockId: block_id,
+      },
+    });
+    expect(result.errors).toBeFalsy();
+    expect(result.data).toBeTruthy();
+
+    const blockChanges: BlockChangeResult = result.data!.blockChanges;
+    expect(blockChanges.block_hash).toBeTruthy();
+    expect(blockChanges.changes).toBeInstanceOf(Array);
+
+    const nearBlockChanges = await near.connection.provider.blockChanges({ blockId: block_id });
+
+    expect(blockChanges.block_hash).toStrictEqual(nearBlockChanges.block_hash);
+    expect(blockChanges.changes.length).toEqual(nearBlockChanges.changes.length);
+    expect(blockChanges.changes).toEqual(nearBlockChanges.changes);
   });
 
   /*   it("Get block information", async () => {

@@ -46,6 +46,16 @@ export interface Action {
   beneficiaryId?: String | null;
 }
 
+export interface BlockChange {
+  chagneType: String;
+  account_id: String;
+}
+
+export interface BlockChangeResult {
+  block_hash: String;
+  changes: BlockChange[];
+}
+
 export interface Transaction {
   signerId: String;
   publicKey: PublicKey;
@@ -205,8 +215,8 @@ export interface SyncInfo {
   syncing: string;
 }
 export interface Version {
-  version: string
-  build: string
+  version: string;
+  build: string;
 }
 /// Imported Objects START ///
 
