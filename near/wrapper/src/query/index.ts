@@ -338,7 +338,7 @@ export function blockChanges(input: Input_blockChanges): BlockChangeResult {
 export function contractStateChanges(input: Input_contractStateChanges): ChangeResult {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
 
-  const contractStateChanges = provider.contractStateChanges(input.accountIdArray, input.blockQuery, input.keyPrefix);
+  const contractStateChanges = provider.contractStateChanges(input.accountIdArray, input.blockQuery, input.keyPrefix!);
   return toChangeResult(contractStateChanges);
 }
 
@@ -351,15 +351,15 @@ export function contractCodeChanges(input: Input_contractCodeChanges): ChangeRes
 
 export function singleAccessKeyChanges(input: Input_singleAccessKeyChanges): ChangeResult {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
-  const singleAccessKeyChanges = provider.singleAccessKeyChanges(input.accessKeyArray, input.blockQuery);
+  const singleAccessKeyChanges = provider.singleAccessKeyChanges(input.accessKeyArray, input.blockQuery!);
   return toChangeResult(singleAccessKeyChanges);
 }
 
 export function validators(input: Input_validators): EpochValidatorInfo {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
-  let blockId: string = null;
+  let blockId: string | null = null;
   if (input.blockId !== null) {
-    blockId = input.blockId.toString();
+    blockId = input.blockId!.toString();
   }
   const validators = provider.validators(blockId);
   return toEpochValidatorInfo(validators);

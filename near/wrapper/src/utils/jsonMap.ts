@@ -56,16 +56,16 @@ export function fromLightClientProofRequest(request: LightClientProofRequest): J
   encoder.setString("m_type", request.m_type.toString());
 
   if (request.receipt_id !== null) {
-    encoder.setString("receipt_id", request.receipt_id);
+    encoder.setString("receipt_id", request.receipt_id!);
   }
   if (request.receiver_id !== null) {
-    encoder.setString("receiver_id", request.receiver_id);
+    encoder.setString("receiver_id", request.receiver_id!);
   }
   if (request.sender_id !== null) {
-    encoder.setString("sender_id", request.sender_id);
+    encoder.setString("sender_id", request.sender_id!);
   }
   if (request.transaction_hash !== null) {
-    encoder.setString("transaction_hash", request.transaction_hash);
+    encoder.setString("transaction_hash", request.transaction_hash!);
   }
   encoder.popObject();
   return <JSON.Obj>JSON.parse(encoder.serialize());
@@ -433,7 +433,7 @@ function toCurrentEpochValidatorInfo(json: JSON.Obj): CurrentEpochValidatorInfo 
   return {
     account_id: json.getString("account_id")!.valueOf(),
     public_key: json.getString("public_key")!.valueOf(),
-    is_slashed: json.getBool("is_slashed").valueOf(),
+    is_slashed: json.getBool("is_slashed")!.valueOf(),
     stake: json.getString("stake")!.valueOf(),
     shards: json
       .getArr("shards")!

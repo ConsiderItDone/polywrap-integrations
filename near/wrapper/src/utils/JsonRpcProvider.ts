@@ -253,12 +253,12 @@ export default class JsonRpcProvider {
     return this.sendJsonRpc("EXPERIMENTAL_changes", params);
   }
 
-  validators(blockId: string): JSON.Obj {
+  validators(blockId: string | null): JSON.Obj {
     const encoder = new JSONEncoder();
     encoder.pushArray(null);
 
     if (blockId != null) {
-      encoder.setString(null, blockId);
+      encoder.setString(null, blockId!);
     }
 
     encoder.popArray();
