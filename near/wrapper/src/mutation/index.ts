@@ -71,11 +71,11 @@ export function addKey(input: Input_addKey): Near_FinalExecutionOutcome {
   // https://github.com/near/near-api-js/blob/e29a41812ac79579cc12b051f8ef04d2f3606a75/src/account.ts#L445
   let methodNames: string[] = [];
   if (input.methodNames !== null) {
-    methodNames = input.methodNames;
+    methodNames = <string[]>input.methodNames;
   }
   let accessKey: Near_AccessKey;
-  if (input.contractId !== null) {
-    accessKey = functionCallAccessKey(input.contractId, methodNames, input.amount);
+  if (input.contractId !== null && input.amount !== null) {
+    accessKey = functionCallAccessKey(<string>input.contractId, methodNames, <BigInt>input.amount);
   } else {
     accessKey = fullAccessKey();
   }
