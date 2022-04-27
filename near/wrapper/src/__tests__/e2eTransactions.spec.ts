@@ -39,41 +39,31 @@ describe("e2e", () => {
 
   beforeAll(async () => {
     // set up test env and deploy api
-    const { ethereum, ensAddress, ipfs } = await initTestEnvironment();
+    const {
+      ethereum,
+      ensAddress,
+      ipfs,
+      registrarAddress,
+      resolverAddress,
+      reverseAddress,
+    } = await initTestEnvironment();
     const apiPath: string = path.resolve(__dirname + "/../../");
-    const api = await buildAndDeployApi(apiPath, ipfs, ensAddress);
+    const api = await buildAndDeployApi({
+      ipfsProvider: ipfs,
+      ensRegistrarAddress: registrarAddress,
+      ensResolverAddress: resolverAddress,
+      ethereumProvider: ethereum,
+      apiAbsPath: apiPath,
+      ensRegistryAddress: reverseAddress,
+    });
     apiUri = `ens/testnet/${api.ensDomain}`;
     // set up client
     nearConfig = await testUtils.setUpTestConfig();
     near = await nearApi.connect(nearConfig);
-    client = new Web3ApiClient({
-      plugins: [
-        {
-          uri: "w3://ens/nearPlugin.web3api.eth",
-          //@ts-ignore
-          plugin: nearPlugin(nearConfig),
-        },
-        {
-          uri: "w3://ens/ipfs.web3api.eth",
-          plugin: ipfsPlugin({ provider: ipfs }),
-        },
-        {
-          uri: "w3://ens/ens.web3api.eth",
-          plugin: ensPlugin({ addresses: { testnet: ensAddress } }),
-        },
-        {
-          uri: "w3://ens/ethereum.web3api.eth",
-          plugin: ethereumPlugin({
-            networks: {
-              testnet: {
-                provider: ethereum,
-              },
-            },
-            defaultNetwork: "testnet",
-          }),
-        },
-      ],
-    });
+
+    const polywrapConfig = testUtils.getPlugins(ethereum, ensAddress, ipfs, nearConfig);
+    client = new Web3ApiClient(polywrapConfig);
+
     // set up contract account
     contractId = testUtils.generateUniqueString("test");
     workingAccount = await testUtils.createAccount(near);

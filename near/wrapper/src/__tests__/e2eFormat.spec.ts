@@ -16,9 +16,23 @@ describe("e2e", () => {
 
   beforeAll(async () => {
     // set up test env and deploy api
-    const { ethereum, ensAddress, ipfs } = await initTestEnvironment();
+    const {
+      ethereum,
+      ensAddress,
+      ipfs,
+      registrarAddress,
+      resolverAddress,
+      reverseAddress,
+    } = await initTestEnvironment();
     const apiPath: string = path.resolve(__dirname + "/../../");
-    const api = await buildAndDeployApi(apiPath, ipfs, ensAddress);
+    const api = await buildAndDeployApi({
+      ipfsProvider: ipfs,
+      ensRegistrarAddress: registrarAddress,
+      ensResolverAddress: resolverAddress,
+      ethereumProvider: ethereum,
+      apiAbsPath: apiPath,
+      ensRegistryAddress: reverseAddress,
+    });
 
     // set up client
     apiUri = `ens/testnet/${api.ensDomain}`;
