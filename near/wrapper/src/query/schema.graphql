@@ -126,6 +126,17 @@ type Query {
     blockQuery: BlockReference!
   ): ChangeResult!
 
+  contractStateChanges(
+    accountIdArray: [String!]!
+    blockQuery: BlockReference!
+    keyPrefix: String
+  ): ChangeResult!
+
+  contractCodeChanges(
+    accountIdArray: [String!]!
+    blockQuery: BlockReference!
+  ): ChangeResult!
+
   gasPrice(
     blockId: BigInt
   ): BigInt!

@@ -23,6 +23,8 @@ import {
   Input_txStatusReceipts,
   Input_blockChanges,
   Input_singleAccessKeyChanges,
+  Input_contractCodeChanges,
+  Input_contractStateChanges,
   //Input_parseNearAmount,
   //Input_formatNearAmount,
   AccountBalance,
@@ -321,7 +323,21 @@ export function blockChanges(input: Input_blockChanges): BlockChangeResult {
   return toBlockChanges(blockChanges);
 }
 
-export function singleAccessKeyChanges(input:Input_singleAccessKeyChanges): ChangeResult {
+export function contractStateChanges(input: Input_contractStateChanges): ChangeResult {
+  const provider: JsonRpcProvider = new JsonRpcProvider(null);
+
+  const contractStateChanges = provider.contractStateChanges(input.accountIdArray, input.blockQuery, input.keyPrefix);
+  return toChangeResult(contractStateChanges);
+}
+
+export function contractCodeChanges(input: Input_contractCodeChanges): ChangeResult {
+  const provider: JsonRpcProvider = new JsonRpcProvider(null);
+
+  const contractCodeChanges = provider.contractCodeChanges(input.accountIdArray, input.blockQuery);
+  return toChangeResult(contractCodeChanges);
+}
+
+export function singleAccessKeyChanges(input: Input_singleAccessKeyChanges): ChangeResult {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
   const singleAccessKeyChanges = provider.singleAccessKeyChanges(input.accessKeyArray, input.blockQuery);
   return toChangeResult(singleAccessKeyChanges);

@@ -139,12 +139,57 @@ export default class JsonRpcProvider {
     const params: JSON.Obj = <JSON.Obj>JSON.parse(encoder.serialize());
     return this.sendJsonRpc("EXPERIMENTAL_changes", params);
   }
-  
 
   accountChanges(account_ids: string[], blockQuery: BlockReference): JSON.Obj {
     const encoder = new JSONEncoder();
     encoder.pushObject(null);
     encoder.setString("changes_type", "account_changes");
+    encoder.pushArray("account_ids");
+    for (let i = 0; i < account_ids.length; i++) {
+      encoder.setString(null, account_ids[i]);
+    }
+    encoder.popArray();
+
+    if (blockQuery.blockId != null) {
+      encoder.setString("block_id", blockQuery.blockId!);
+    }
+    if (blockQuery.finality != null) {
+      encoder.setString("finality", blockQuery.finality!);
+    }
+    encoder.popObject();
+    const params: JSON.Obj = <JSON.Obj>JSON.parse(encoder.serialize());
+    return this.sendJsonRpc("EXPERIMENTAL_changes", params);
+  }
+
+  contractStateChanges(account_ids: string[], blockQuery: BlockReference, keyPrefix: string) {
+    const encoder = new JSONEncoder();
+    encoder.pushObject(null);
+    encoder.setString("changes_type", "data_changes");
+    encoder.pushArray("account_ids");
+    for (let i = 0; i < account_ids.length; i++) {
+      encoder.setString(null, account_ids[i]);
+    }
+    encoder.popArray();
+
+    if (keyPrefix !== null) {
+      encoder.setString("key_prefix_base64", keyPrefix);
+    }
+
+    if (blockQuery.blockId != null) {
+      encoder.setString("block_id", blockQuery.blockId!);
+    }
+    if (blockQuery.finality != null) {
+      encoder.setString("finality", blockQuery.finality!);
+    }
+    encoder.popObject();
+    const params: JSON.Obj = <JSON.Obj>JSON.parse(encoder.serialize());
+    return this.sendJsonRpc("EXPERIMENTAL_changes", params);
+  }
+
+  contractCodeChanges(account_ids: string[], blockQuery: BlockReference) {
+    const encoder = new JSONEncoder();
+    encoder.pushObject(null);
+    encoder.setString("changes_type", "contract_code_changes");
     encoder.pushArray("account_ids");
     for (let i = 0; i < account_ids.length; i++) {
       encoder.setString(null, account_ids[i]);
@@ -173,10 +218,10 @@ export default class JsonRpcProvider {
     encoder.setString("changes_type", "single_access_key_changes");
     encoder.pushArray("keys");
     for (let i = 0; i < accessKeyArray.length; i++) {
-      encoder.pushObject(null)
+      encoder.pushObject(null);
       encoder.setString("account_id", accessKeyArray[i].account_id);
       encoder.setString("public_key", accessKeyArray[i].public_key);
-      encoder.popObject()
+      encoder.popObject();
     }
     encoder.popArray();
 
