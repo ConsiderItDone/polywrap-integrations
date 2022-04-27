@@ -118,4 +118,9 @@ export default class JsonRpcProvider {
     const params: JSON.Obj = <JSON.Obj>JSON.parse(encoder.serialize());
     return this.sendJsonRpc("gas_price", params);
   }
+
+  blockChanges(blockQuery: BlockReference): JSON.Obj {
+    const params: JSON.Obj = fromBlockReference(blockQuery);
+    return this.sendJsonRpc('EXPERIMENTAL_changes_in_block', params)
+  }
 }

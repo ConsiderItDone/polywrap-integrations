@@ -18,19 +18,23 @@ import {
   Input_getAccountBalance,
   Input_txStatus,
   Input_txStatusReceipts,
+  Input_blockChanges,
   //Input_parseNearAmount,
   //Input_formatNearAmount,
   AccountBalance,
   NodeStatusResult,
   Near_FinalExecutionOutcomeWithReceipts,
   ChunkResult,
+  BlockChangeResult,
 } from "./w3";
 import JsonRpcProvider from "../utils/JsonRpcProvider";
 import * as bs58 from "as-base58";
 import { BigInt, JSON, JSONEncoder } from "@web3api/wasm-as";
 import { /* publicKeyFromStr, */ publicKeyToStr } from "../utils/typeUtils";
 import {
+  fromBlockReference,
   toAccessKey /* toAccessKeyInfo */,
+  toBlockChanges,
   toChunkResult,
   toFinalExecutionOutcome,
   toFinalExecutionOutcomeWithReceipts,
@@ -291,6 +295,13 @@ export function gasPrice(input: Input_gasPrice): BigInt {
   }
   const gasPrice = provider.gasPrice(blockId);
   return BigInt.fromString(gasPrice.getString("gas_price")!.valueOf());
+}
+
+export function blockChanges(input: Input_blockChanges): BlockChangeResult {
+  const provider: JsonRpcProvider = new JsonRpcProvider(null);
+
+  const blockChanges = provider.blockChanges(input.blockQuery);
+  return toBlockChanges(blockChanges);
 }
 
 /* export function parseNearAmount(input: Input_parseNearAmount): String {

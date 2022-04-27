@@ -18,6 +18,8 @@ import {
   NodeStatusResult,
   Near_FinalExecutionOutcomeWithReceipts,
   ChunkResult,
+  BlockChangeResult,
+  BlockChange,
 } from "../query/w3";
 import { BigInt, JSON, JSONEncoder } from "@web3api/wasm-as";
 import { publicKeyFromStr } from "./typeUtils";
@@ -49,6 +51,22 @@ export function fromViewFunction(contractId: string, methodName: string, args: J
   encoder.setString("finality", "optimistic");
   encoder.popObject();
   return <JSON.Obj>JSON.parse(encoder.serialize());
+}
+
+export function toBlockChanges(json: JSON.Obj): BlockChangeResult {
+  return {
+    block_hash: json.getString("block_hash")!.valueOf(),
+    changes: json
+      .getArr("changes")!
+      .valueOf()
+      .map<BlockChange>((v) => {
+        const change = <JSON.Obj>v;
+        return {
+          account_id: change.getString("account_id")!.valueOf(),
+          chagneType: change.getString("type")!.valueOf(),
+        } as BlockChange;
+      }),
+  };
 }
 
 export function toBlockResult(json: JSON.Obj): BlockResult {

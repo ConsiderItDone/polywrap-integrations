@@ -103,6 +103,10 @@ type Query {
     accountId: String!
   ): Near_FinalExecutionOutcomeWithReceipts!
 
+  blockChanges(
+    blockQuery: BlockReference!
+  ): BlockChangeResult!
+
   chunk(
     chunkId: String!  #  (String | [BigInt!])! chunk hash or [blockId, chunkId]
   ): ChunkResult!
@@ -174,6 +178,12 @@ type Chunk {
   signature: String!
 }
 
+type BlockResult {
+  author: String!
+  header: BlockHeader!
+  chunks: [Chunk!]!
+}
+
 type ChunkHeader {
   balance_burnt: String!
   chunk_hash: String!
@@ -201,10 +211,14 @@ type ChunkResult {
   transactions: [Near_Transaction!]!
 }
 
-type BlockResult {
-  author: String!
-  header: BlockHeader!
-  chunks: [Chunk!]!
+type BlockChange {
+  chagneType: String!
+  account_id: String!
+}
+
+type BlockChangeResult {
+  block_hash: String!
+  changes: [BlockChange!]!
 }
 
 type SyncInfo {
