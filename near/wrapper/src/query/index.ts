@@ -17,6 +17,7 @@ import {
   AccessKey,
   AccountView,
   ChangeResult,
+  Input_accessKeyChanges,
   Input_getAccountBalance,
   Input_txStatus,
   Input_txStatusReceipts,
@@ -299,6 +300,12 @@ export function gasPrice(input: Input_gasPrice): BigInt {
   }
   const gasPrice = provider.gasPrice(blockId);
   return BigInt.fromString(gasPrice.getString("gas_price")!.valueOf());
+}
+
+export function accessKeyChanges(input: Input_accessKeyChanges): ChangeResult {
+  const provider: JsonRpcProvider = new JsonRpcProvider(null);
+  const accessKeyChanges = provider.accessKeyChanges(input.accountIdArray, input.blockQuery);
+  return toChangeResult(accessKeyChanges);
 }
 
 export function accountChanges(input: Input_accountChanges): ChangeResult {

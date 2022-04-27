@@ -111,6 +111,11 @@ type Query {
     chunkId: String!  #  (String | [BigInt!])! chunk hash or [blockId, chunkId]
   ): ChunkResult!
 
+  accessKeyChanges(
+    accountIdArray: [String!]!
+    blockQuery: BlockReference!
+  ): ChangeResult!
+
   singleAccessKeyChanges(
     accessKeyArray: [AccessKeyWithPublicKey!]!,
     blockQuery: BlockReference
