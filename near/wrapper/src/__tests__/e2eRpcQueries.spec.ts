@@ -2,6 +2,7 @@ import { Web3ApiClient } from "@web3api/client-js";
 import { NearPluginConfig, KeyPair } from "../../../plugin-js"; //TODO change to appropriate package
 import {
   BlockChangeResult /* BlockReference, BlockResult, AccountView, PublicKey, AccessKeyInfo, AccessKey */,
+  ChangeResult,
 } from "./tsTypes";
 import * as testUtils from "./testUtils";
 import * as nearApi from "near-api-js";
@@ -122,16 +123,16 @@ describe("e2e", () => {
   });
 
   it("Get block changes", async () => {
-    const block_id = "AXa8CHDQSA8RdFCt12rtpFraVq4fDUgJbLPxwbaZcZrj";
+    const blockQuery = { block_id: "AXa8CHDQSA8RdFCt12rtpFraVq4fDUgJbLPxwbaZcZrj" };
     const result = await client.query<{ blockChanges: BlockChangeResult }>({
       uri: apiUri,
       query: `query {
         blockChanges(
-          blockId: $blockId
+          blockQuery: $blockQuery
         )
       }`,
       variables: {
-        blockId: block_id,
+        blockQuery: blockQuery,
       },
     });
     expect(result.errors).toBeFalsy();
@@ -141,11 +142,43 @@ describe("e2e", () => {
     expect(blockChanges.block_hash).toBeTruthy();
     expect(blockChanges.changes).toBeInstanceOf(Array);
 
-    const nearBlockChanges = await near.connection.provider.blockChanges({ blockId: block_id });
+    const nearBlockChanges = await near.connection.provider.blockChanges({ blockId: blockQuery.block_id });
 
     expect(blockChanges.block_hash).toStrictEqual(nearBlockChanges.block_hash);
     expect(blockChanges.changes.length).toEqual(nearBlockChanges.changes.length);
     expect(blockChanges.changes).toEqual(nearBlockChanges.changes);
+  });
+
+  it("Get account changes", async () => {
+    const blockQuery = { block_id: "AXa8CHDQSA8RdFCt12rtpFraVq4fDUgJbLPxwbaZcZrj" };
+    const accountIdArray = [workingAccount.accountId];
+    const result = await client.query<{ accountChanges: ChangeResult }>({
+      uri: apiUri,
+      query: `query {
+        accountChanges(
+          accountIdArray: $accountIdArray
+          blockQuery: $blockQuery
+        )
+      }`,
+      variables: {
+        accountIdArray: accountIdArray,
+        blockQuery: blockQuery,
+      },
+    });
+    expect(result.errors).toBeFalsy();
+    expect(result.data).toBeTruthy();
+
+    const accountChanges: ChangeResult = result.data!.accountChanges;
+    expect(accountChanges.block_hash).toBeTruthy();
+    expect(accountChanges.changes).toBeInstanceOf(Array);
+
+    const nearBlockChanges = await near.connection.provider.accountChanges(accountIdArray, {
+      blockId: blockQuery.block_id,
+    });
+
+    expect(accountChanges.block_hash).toStrictEqual(nearBlockChanges.block_hash);
+    expect(accountChanges.changes.length).toEqual(nearBlockChanges.changes.length);
+    expect(accountChanges.changes).toEqual(nearBlockChanges.changes);
   });
 
   /*   it("Get block information", async () => {

@@ -56,6 +56,11 @@ export interface BlockChangeResult {
   changes: BlockChange[];
 }
 
+export interface ChangeResult {
+  block_hash: String
+  changes: [JSON]
+}
+
 export interface Transaction {
   signerId: String;
   publicKey: PublicKey;
