@@ -213,6 +213,77 @@ describe("e2e", () => {
     expect(accountChanges.changes).toEqual(nearBlockChanges.changes);
   });
 
+  it("Get contract code changes", async () => {
+    const blockQuery = { block_id: "AXa8CHDQSA8RdFCt12rtpFraVq4fDUgJbLPxwbaZcZrj" };
+    const accountIdArray = [workingAccount.accountId];
+    const result = await client.query<{ contractCodeChanges: ChangeResult }>({
+      uri: apiUri,
+      query: `query {
+        contractCodeChanges(
+          accountIdArray: $accountIdArray
+          blockQuery: $blockQuery
+        )
+      }`,
+      variables: {
+        accountIdArray: accountIdArray,
+        blockQuery: blockQuery,
+      },
+    });
+    expect(result.errors).toBeFalsy();
+    expect(result.data).toBeTruthy();
+
+    const contractCodeChanges: ChangeResult = result.data!.contractCodeChanges;
+    expect(contractCodeChanges.block_hash).toBeTruthy();
+    expect(contractCodeChanges.changes).toBeInstanceOf(Array);
+
+    const nearBlockChanges = await near.connection.provider.contractCodeChanges(accountIdArray, {
+      blockId: blockQuery.block_id,
+    });
+
+    expect(contractCodeChanges.block_hash).toStrictEqual(nearBlockChanges.block_hash);
+    expect(contractCodeChanges.changes.length).toEqual(nearBlockChanges.changes.length);
+    expect(contractCodeChanges.changes).toEqual(nearBlockChanges.changes);
+  });
+
+  it("Get contract state changes", async () => {
+    const blockQuery = { block_id: "AXa8CHDQSA8RdFCt12rtpFraVq4fDUgJbLPxwbaZcZrj" };
+    const accountIdArray = [workingAccount.accountId];
+    const keyPrefix = "";
+    const result = await client.query<{ contractStateChanges: ChangeResult }>({
+      uri: apiUri,
+      query: `query {
+        contractStateChanges(
+          accountIdArray: $accountIdArray
+          blockQuery: $blockQuery
+          keyPrefix: $keyPrefix
+        )
+      }`,
+      variables: {
+        accountIdArray: accountIdArray,
+        blockQuery: blockQuery,
+        keyPrefix: keyPrefix,
+      },
+    });
+    expect(result.errors).toBeFalsy();
+    expect(result.data).toBeTruthy();
+
+    const contractStateChanges: ChangeResult = result.data!.contractStateChanges;
+    expect(contractStateChanges.block_hash).toBeTruthy();
+    expect(contractStateChanges.changes).toBeInstanceOf(Array);
+
+    const nearBlockChanges = await near.connection.provider.contractStateChanges(
+      accountIdArray,
+      {
+        blockId: blockQuery.block_id,
+      },
+      keyPrefix
+    );
+
+    expect(contractStateChanges.block_hash).toStrictEqual(nearBlockChanges.block_hash);
+    expect(contractStateChanges.changes.length).toEqual(nearBlockChanges.changes.length);
+    expect(contractStateChanges.changes).toEqual(nearBlockChanges.changes);
+  });
+
   it("Get single access key changes", async () => {
     const blockQuery = { block_id: "AXa8CHDQSA8RdFCt12rtpFraVq4fDUgJbLPxwbaZcZrj" };
     const accessKeyArray = [
