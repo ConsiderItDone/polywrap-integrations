@@ -124,8 +124,8 @@ export default class JsonRpcProvider {
     encoder.pushObject(null);
     encoder.setString("changes_type", "account_changes");
     encoder.pushArray("account_ids");
-    for (const account_id of account_ids) {
-      encoder.setString(null, account_id);
+    for (let i = 0; i < account_ids.length; i++) {
+      encoder.setString(null, account_ids[i]);
     }
     encoder.popArray();
 
