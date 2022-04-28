@@ -15,7 +15,7 @@ import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@we
 import path from "path";
 const BN = require("bn.js");
 import { HELLO_WASM_METHODS /* , networkId, publicKeyToStr */ } from "./testUtils";
-import { ChunkResult, FinalExecutionOutcome } from "./tsTypes";
+import { ChunkResult, FinalExecutionOutcome, FinalExecutionOutcomeWithReceipts } from "./tsTypes";
 //import { NodeStatusResult } from "./tsTypes";
 /* import { AccountAuthorizedApp,  AccountBalance } "near-api-js/lib/account";*/
 
@@ -445,12 +445,41 @@ it("Get access key changes", async () => {
 
     const txStatus: FinalExecutionOutcome = result.data!.txStatus;
 
-    const responseWithString = await near.connection.provider.txStatus(outcome.transaction.hash, sender.accountId);
+    const nearTxStatus = await near.connection.provider.txStatus(outcome.transaction.hash, sender.accountId);
 
-    expect(txStatus).toMatchObject(responseWithString);
+    expect(txStatus).toMatchObject(nearTxStatus);
   }); */
-  
-  /* // txStatusReceipts TODO */
+
+ /*  // txStatusReceipts
+  it("txStatusReceipts", async () => {
+    const sender = await testUtils.createAccount(near);
+    const receiver = await testUtils.createAccount(near);
+    const outcome = await sender.sendMoney(receiver.accountId, new BN("1"));
+
+    const result = await client.query<{ txStatusReceipts: FinalExecutionOutcomeWithReceipts }>({
+      uri: apiUri,
+      query: `query {
+        txStatusReceipts(
+          txHash: $txHash
+          accountId: $txHash
+        )
+      }`,
+      variables: {
+        txHash: outcome.transaction.hash,
+        accountId: sender.accountId,
+      },
+    });
+    expect(result.errors).toBeFalsy();
+    expect(result.data).toBeTruthy();
+
+    const txStatusReceipts: FinalExecutionOutcomeWithReceipts = result.data!.txStatusReceipts;
+
+    const nearTxStatusReceipts = await near.connection.provider.txStatusReceipts(outcome.transaction.hash, sender.accountId);
+
+    expect("receipts" in txStatusReceipts).toBe(true);
+    expect(txStatusReceipts.receipts.length).toBeGreaterThanOrEqual(1);
+    expect(txStatusReceipts).toMatchObject(nearTxStatusReceipts);
+  }); */
 
   /*  // chunk
   it("json rpc fetch chunk info", async () => {

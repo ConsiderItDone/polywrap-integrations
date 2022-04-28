@@ -150,6 +150,25 @@ export interface FinalExecutionOutcome {
   receipts_outcome: Array<ExecutionOutcomeWithId>;
 }
 
+export interface FinalExecutionOutcomeWithReceipts extends FinalExecutionOutcome {
+  receipts: [ReceiptWithId]
+}
+
+export interface ReceiptWithId {
+  predecessor_id: String
+  receipt: Receipt
+  receipt_id: String
+  receiver_id: String
+}
+
+export interface Receipt {
+  Action: ActionContainer
+}
+
+export interface ActionContainer {
+  actions: [Action]
+}
+
 export interface QueryResponseKind {
   blockHeight: BigInt;
   blockHash: String;
