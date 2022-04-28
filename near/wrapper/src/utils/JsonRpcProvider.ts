@@ -51,7 +51,9 @@ export default class JsonRpcProvider {
    * @param protocolQuery {@link ProtocolReference} (passing a {@link BlockId} is deprecated)
    */
 
-  getProtocolConfig(protocolQuery: BlockReference): NearProtocolConfig {
+  protocolConfig(
+    protocolQuery: BlockReference = { finality: "final", blockId: null, syncCheckpoint: null }
+  ): NearProtocolConfig {
     const params: JSON.Obj = fromBlockReference(protocolQuery);
     const json = this.sendJsonRpc("EXPERIMENTAL_protocol_config", params);
     return toProtocolResult(json);

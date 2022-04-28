@@ -28,6 +28,7 @@ import {
   Input_contractStateChanges,
   Input_lightClientProof,
   Input_validators,
+  Input_protocolConfig,
   //Input_parseNearAmount,
   //Input_formatNearAmount,
   AccountBalance,
@@ -36,6 +37,7 @@ import {
   ChunkResult,
   BlockChangeResult,
   LightClientProof,
+  NearProtocolConfig,
 } from "./w3";
 import JsonRpcProvider from "../utils/JsonRpcProvider";
 import * as bs58 from "as-base58";
@@ -156,11 +158,7 @@ export function getAccountBalance(input: Input_getAccountBalance): AccountBalanc
   // parse and return result
   const state = getAccountState({ accountId: input.accountId });
 
-  const protocolConfig = provider.getProtocolConfig({
-    finality: "final",
-    blockId: null,
-    syncCheckpoint: null,
-  });
+  const protocolConfig = provider.protocolConfig();
 
   const costPerByte = protocolConfig.runtime_config.storage_amount_per_byte;
 
@@ -363,6 +361,11 @@ export function validators(input: Input_validators): EpochValidatorInfo {
   }
   const validators = provider.validators(blockId);
   return toEpochValidatorInfo(validators);
+}
+
+export function protocolConfig(input: Input_protocolConfig): NearProtocolConfig {
+  const provider: JsonRpcProvider = new JsonRpcProvider(null);
+  return provider.protocolConfig(input.blockReference);
 }
 
 /* export function parseNearAmount(input: Input_parseNearAmount): String {

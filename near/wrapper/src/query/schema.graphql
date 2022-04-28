@@ -115,6 +115,10 @@ type Query {
     blockId: BigInt
   ): EpochValidatorInfo!
 
+  protocolConfig(
+    blockReference: BlockReference!
+  ): NearProtocolConfig!
+
   lightClientProof(
     request: LightClientProofRequest!
   ): LightClientProof!
