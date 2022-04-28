@@ -57,8 +57,8 @@ export interface BlockChangeResult {
 }
 
 export interface ChangeResult {
-  block_hash: String
-  changes: [JSON]
+  block_hash: String;
+  changes: [JSON];
 }
 
 export interface Transaction {
@@ -92,37 +92,37 @@ export interface FinalExecutionStatus {
 }
 
 export interface CurrentEpochValidatorInfo {
-  account_id: String
-  public_key: String
-  is_slashed: Boolean
-  stake: String
-  shards: [BigInt]
-  num_produced_blocks: UInt
-  num_expected_blocks: UInt
+  account_id: String;
+  public_key: String;
+  is_slashed: Boolean;
+  stake: String;
+  shards: [BigInt];
+  num_produced_blocks: UInt;
+  num_expected_blocks: UInt;
 }
 
 export interface NextEpochValidatorInfo {
-  account_id: String
-  public_key: String
-  stake: String
-  shards: [BigInt]
+  account_id: String;
+  public_key: String;
+  stake: String;
+  shards: [BigInt];
 }
 
 export interface ValidatorStakeView {
-  account_id: String
-  public_key: String
-  stake: String
+  account_id: String;
+  public_key: String;
+  stake: String;
 }
 
 export interface EpochValidatorInfo {
-  next_validators: [NextEpochValidatorInfo]
-  current_validators: [CurrentEpochValidatorInfo]
-  next_fisherman: [ValidatorStakeView]
-  current_fisherman: [ValidatorStakeView]
-  current_proposals: [ValidatorStakeView]
-  prev_epoch_kickout: [ValidatorStakeView]
-  epoch_start_height: BigInt
-  epoch_height: BigInt
+  next_validators: [NextEpochValidatorInfo];
+  current_validators: [CurrentEpochValidatorInfo];
+  next_fisherman: [ValidatorStakeView];
+  current_fisherman: [ValidatorStakeView];
+  current_proposals: [ValidatorStakeView];
+  prev_epoch_kickout: [ValidatorStakeView];
+  epoch_start_height: BigInt;
+  epoch_height: BigInt;
 }
 
 export interface ExecutionStatus {
@@ -232,6 +232,12 @@ export interface Chunk {
   signature: string;
 }
 
+export interface ChunkResult {
+  header: Chunk;
+  receipts: [JSON];
+  transactions: [Transaction];
+}
+
 export interface BlockResult {
   author: string;
   header: BlockHeader;
@@ -259,13 +265,55 @@ export interface Version {
 }
 
 export interface NearProtocolConfig {
-  runtime_config: NearProtocolRuntimeConfig
+  runtime_config: NearProtocolRuntimeConfig;
 }
 
 export interface NearProtocolRuntimeConfig {
-  storage_amount_per_byte: String
+  storage_amount_per_byte: String;
 }
 
+export enum IdType {
+  Transaction = "transaction",
+  Receipt = "receipt",
+}
+
+export interface LightClientProofRequest {
+  type: IdType;
+  light_client_head: String;
+  transaction_hash?: String;
+  sender_id?: String;
+  receipt_id?: String;
+  receiver_id?: String;
+}
+
+export interface BlockHeaderInnerLiteView {
+  height: BigInt;
+  epoch_id: String;
+  next_epoch_id: String;
+  prev_state_root: String;
+  outcome_root: String;
+  timestamp: BigInt;
+  next_bp_hash: String;
+  block_merkle_root: String;
+}
+
+export interface LightClientBlockLiteView {
+  prev_block_hash: String;
+  inner_rest_hash: String;
+  inner_lite: BlockHeaderInnerLiteView;
+}
+
+export interface LightClientProof {
+  outcome_proof: ExecutionOutcomeWithId;
+  outcome_root_proof: [ExecutionProof];
+  block_header_lite: LightClientBlockLiteView;
+  block_proof: [ExecutionProof];
+}
+
+export interface ExecutionProof {
+  direction: String;
+  hash: String;
+}
 /// Imported Objects START ///
 
 /// Imported Objects END ///
