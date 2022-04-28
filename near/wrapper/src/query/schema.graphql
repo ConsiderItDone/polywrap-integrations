@@ -37,13 +37,13 @@ type Query {
     accountId: String!
   ): AccountBalance!
 
-  #  getAccountDetails(
-  #    accountId: String!
-  #  ): [AccountAuthorizedApp]!
+  getAccountDetails(
+    accountId: String!
+  ): [AccountAuthorizedApp!]!
 
-  #  getAccessKeys(
-  #    accountId: String!
-  #  ): [AccessKeyInfo]!
+  getAccessKeys(
+    accountId: String!
+  ): [AccessKeyInfo!]!
 
   viewFunction(
     contractId: String!
@@ -67,6 +67,10 @@ type Query {
     transaction: Near_Transaction!
   ): Near_SignTransactionResult!
 
+  """
+    Utility Functions
+  """
+
   parseNearAmount(
     amount: String!
   ): String!
@@ -75,6 +79,9 @@ type Query {
     amount: String!
   ): String!
 
+  """
+    JsonRpcProvider Query Functions (Implemented, Tested)
+  """
   getBlock(
     blockQuery: BlockReference!
   ): BlockResult!
@@ -358,11 +365,11 @@ type AccountBalance {
   available: String!
 }
 
-# type AccountAuthorizedApp {
-#   contractId: String!
-#   amount: String!
-#   publicKey: String!
-# }
+type AccountAuthorizedApp {
+  contractId: String!
+  amount: String!
+  publicKey: String!
+}
 
 # Access key permissions determine how an account is allow to interact with a contract
 type AccessKeyPermission {

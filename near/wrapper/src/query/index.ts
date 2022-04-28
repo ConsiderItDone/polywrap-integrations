@@ -42,9 +42,10 @@ import {
 import JsonRpcProvider from "../utils/JsonRpcProvider";
 import * as bs58 from "as-base58";
 import { BigInt, JSON, JSONEncoder } from "@web3api/wasm-as";
-import { /* publicKeyFromStr, */ publicKeyToStr } from "../utils/typeUtils";
+import { publicKeyToStr } from "../utils/typeUtils";
 import {
   toAccessKey,
+  toAccessKeyInfo,
   toBlockChanges,
   toChangeResult,
   toChunkResult,
@@ -55,12 +56,13 @@ import {
   toNodeStatus,
 } from "../utils/jsonMap";
 import * as formatUtils from "../utils/format";
-//import { AccountAuthorizedApp } from "./w3/AccountAuthorizedApp";
+import { AccountAuthorizedApp } from "./w3/AccountAuthorizedApp";
 
 import {
   Input_chunk,
   Input_gasPrice,
-  //Input_getAccessKeys, Input_getAccountDetails,
+  Input_getAccessKeys,
+  Input_getAccountDetails,
   Input_viewFunction,
 } from "./w3/Query/serialization";
 
@@ -175,11 +177,10 @@ export function getAccountBalance(input: Input_getAccountBalance): AccountBalanc
   } as AccountBalance;
 }
 
-/* 
 export function getAccountDetails(input: Input_getAccountDetails): AccountAuthorizedApp[] {
   const accessKeys = getAccessKeys({ accountId: input.accountId });
 
-  const authorizedApps: AccountAuthorizedApp[] = [];
+  const authorizedApps: AccountAuthorizedApp[] = []!;
 
   for (let i = 0; i < accessKeys.length; i++) {
     const key = accessKeys[i];
@@ -222,7 +223,6 @@ export function getAccessKeys(input: Input_getAccessKeys): AccessKeyInfo[] {
   }
   return accessKeysInfo;
 }
- */
 
 export function viewFunction(input: Input_viewFunction): JSON.Obj {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
