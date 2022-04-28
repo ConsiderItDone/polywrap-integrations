@@ -15,7 +15,7 @@ import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@we
 import path from "path";
 const BN = require("bn.js");
 import { HELLO_WASM_METHODS /* , networkId, publicKeyToStr */ } from "./testUtils";
-import { ChunkResult } from "./tsTypes";
+import { ChunkResult, FinalExecutionOutcome } from "./tsTypes";
 //import { NodeStatusResult } from "./tsTypes";
 /* import { AccountAuthorizedApp,  AccountBalance } "near-api-js/lib/account";*/
 
@@ -421,23 +421,38 @@ it("Get access key changes", async () => {
     );
   }); */
 
-  /* // txStatus TODO
-   it("Get transaction status", async () => {
-    const result = await client.query<{ txStatus: NearProtocolConfig }>({
+  /* // txStatus
+  it("txStatus with string hash", async () => {
+    const sender = await testUtils.createAccount(near);
+    const receiver = await testUtils.createAccount(near);
+    const outcome = await sender.sendMoney(receiver.accountId, new BN("1"));
+
+    const result = await client.query<{ txStatus: FinalExecutionOutcome }>({
       uri: apiUri,
       query: `query {
         txStatus(
-          blockReference: $blockReference
+          txHash: $txHash
+          accountId: $txHash
         )
       }`,
       variables: {
-        blockReference: blockReference,
+        txHash: outcome.transaction.hash,
+        accountId: sender.accountId,
       },
     });
+    expect(result.errors).toBeFalsy();
+    expect(result.data).toBeTruthy();
+
+    const txStatus: FinalExecutionOutcome = result.data!.txStatus;
+
+    const responseWithString = await near.connection.provider.txStatus(outcome.transaction.hash, sender.accountId);
+
+    expect(txStatus).toMatchObject(responseWithString);
   }); */
+  
   /* // txStatusReceipts TODO */
 
-  // chunk
+  /*  // chunk
   it("json rpc fetch chunk info", async () => {
     let stat = await near.connection.provider.status();
     const hash = stat.sync_info.latest_block_hash; // blockHash or chunkHash ?
@@ -463,7 +478,7 @@ it("Get access key changes", async () => {
     const nearChunk = await near.connection.provider.chunk(hash);
 
     expect(chunk.header.chunk_hash).toEqual(nearChunk.header.chunk_hash);
-  });
+  }); */
 
   /*  //lightClientProof
   it("Get lightClientProof", async () => {
