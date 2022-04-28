@@ -29,8 +29,8 @@ import {
   Input_lightClientProof,
   Input_validators,
   Input_experimental_protocolConfig,
-  //Input_parseNearAmount,
-  //Input_formatNearAmount,
+  Input_parseNearAmount,
+  Input_formatNearAmount,
   AccountBalance,
   NodeStatusResult,
   Near_FinalExecutionOutcomeWithReceipts,
@@ -44,8 +44,7 @@ import * as bs58 from "as-base58";
 import { BigInt, JSON, JSONEncoder } from "@web3api/wasm-as";
 import { /* publicKeyFromStr, */ publicKeyToStr } from "../utils/typeUtils";
 import {
-  fromBlockReference,
-  toAccessKey /* toAccessKeyInfo */,
+  toAccessKey,
   toBlockChanges,
   toChangeResult,
   toChunkResult,
@@ -55,7 +54,7 @@ import {
   toLightClientProof,
   toNodeStatus,
 } from "../utils/jsonMap";
-//import * as formatUtils from "../utils/format";
+import * as formatUtils from "../utils/format";
 //import { AccountAuthorizedApp } from "./w3/AccountAuthorizedApp";
 
 import {
@@ -368,10 +367,10 @@ export function experimental_protocolConfig(input: Input_experimental_protocolCo
   return provider.protocolConfig(input.blockReference);
 }
 
-/* export function parseNearAmount(input: Input_parseNearAmount): String {
+export function parseNearAmount(input: Input_parseNearAmount): String {
   return formatUtils.parseNearAmount(input.amount);
-} */
+}
 
-/* export function formatNearAmount(input: Input_formatNearAmount): String {
+export function formatNearAmount(input: Input_formatNearAmount): String {
   return formatUtils.formatNearAmount(input.amount);
-} */
+}

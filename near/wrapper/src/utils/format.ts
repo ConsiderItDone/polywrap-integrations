@@ -1,5 +1,3 @@
-import { BigInt } from "@web3api/wasm-as";
-
 /**
  * Exponent for calculating how many indivisible units are there in one NEAR. See {@link NEAR_NOMINATION}.
  */
@@ -26,7 +24,6 @@ export function formatNearAmount(input: String): String {
     .substring(0, NEAR_NOMINATION_EXP);
 
   const result = trimTrailingZeroes(`${formatWithCommas(wholeStr)}.${fractionStr}`);
-  console.log(result);
   return result; //BigInt.fromString(result);
 }
 

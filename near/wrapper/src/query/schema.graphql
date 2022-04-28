@@ -67,23 +67,14 @@ type Query {
     transaction: Near_Transaction!
   ): Near_SignTransactionResult!
 
-  #"""
-  #  Utility Functions
-  #"""
+  parseNearAmount(
+    amount: String!
+  ): String!
 
-  # takes amount in Near, returns amount in YoctoNear
-  #parseNearAmount(
-  #  amount: String!
-  #): String!
+  formatNearAmount(
+    amount: String!
+  ): String!
 
-  # takes amount in YoctoNear, returns amount in Near
-  #formatNearAmount(
-  #  amount: String! 
-  #): String!
-
-  """
-    JsonRpcProvider Query Functions (Implemented, Tested)
-  """
   getBlock(
     blockQuery: BlockReference!
   ): BlockResult!
