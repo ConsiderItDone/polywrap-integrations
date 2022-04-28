@@ -1,18 +1,23 @@
-import { Web3ApiClient } from "@web3api/client-js";
+import { createWeb3ApiClient, Web3ApiClient } from "@web3api/client-js";
 import { NearPluginConfig, KeyPair } from "../../../plugin-js"; //TODO change to appropriate package
 import {
-  BlockChangeResult /* BlockReference, BlockResult, AccountView, PublicKey, AccessKeyInfo, AccessKey */,
-  ChangeResult,
-  EpochValidatorInfo,
-  NearProtocolConfig,
+  //BlockChangeResult,
+  BlockReference,
+  BlockResult,
+  //AccountView,
+  //PublicKey,
+  //AccessKeyInfo,
+  //AccessKey,
+  //ChangeResult,
+  //EpochValidatorInfo,
+  //NearProtocolConfig,
 } from "./tsTypes";
 import * as testUtils from "./testUtils";
 import * as nearApi from "near-api-js";
-import type { Finality } from "near-api-js/lib/providers/provider";
 import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
 import path from "path";
-const BN = require("bn.js");
-import { HELLO_WASM_METHODS /* , networkId, publicKeyToStr */ } from "./testUtils";
+//const BN = require("bn.js");
+//import { HELLO_WASM_METHODS /* , networkId, publicKeyToStr */ } from "./testUtils";
 //import { NodeStatusResult } from "./tsTypes";
 /* import { AccountAuthorizedApp,  AccountBalance } "near-api-js/lib/account";*/
 
@@ -29,44 +34,64 @@ describe("e2e", () => {
 
   beforeAll(async () => {
     // set up test env and deploy api
-    const {
-      ethereum,
-      ensAddress,
-      ipfs,
-      registrarAddress,
-      resolverAddress,
-      reverseAddress,
-    } = await initTestEnvironment();
+    const { ethereum, ensAddress, ipfs, registrarAddress, resolverAddress } = await initTestEnvironment();
     const apiPath: string = path.resolve(__dirname + "/../../");
+    console.log("before api");
+
     const api = await buildAndDeployApi({
       ipfsProvider: ipfs,
       ensRegistrarAddress: registrarAddress,
       ensResolverAddress: resolverAddress,
       ethereumProvider: ethereum,
       apiAbsPath: apiPath,
-      ensRegistryAddress: reverseAddress,
+      ensRegistryAddress: ensAddress,
     });
-
+    console.log("after api", api);
     apiUri = `ens/testnet/${api.ensDomain}`;
     // set up client
+    console.log("before config");
     nearConfig = await testUtils.setUpTestConfig();
+    console.log("before connect");
     near = await nearApi.connect(nearConfig);
+    console.log("after connect");
 
-    const polywrapConfig = testUtils.getPlugins(ethereum, ensAddress, ipfs, nearConfig);
-    client = new Web3ApiClient(polywrapConfig);
+    const plugins = testUtils.getPlugins(ethereum, ensAddress, ipfs, nearConfig);
+
+    client = await createWeb3ApiClient(
+      {
+        ethereum: {
+          networks: {
+            testnet: {
+              provider: ethereum,
+            },
+          },
+        },
+        ipfs: { provider: ipfs },
+        ens: {
+          query: {
+            addresses: {
+              testnet: ensAddress,
+            },
+          },
+        },
+      },
+      plugins
+    );
 
     // set up contract account
     contractId = testUtils.generateUniqueString("test");
     workingAccount = await testUtils.createAccount(near);
+    console.log("before deploy");
     await testUtils.deployContract(workingAccount, contractId);
+    console.log("after deploy");
     // set up access key
     const keyPair = KeyPair.fromRandom("ed25519");
-    await workingAccount.addKey(
+    /* await workingAccount.addKey(
       keyPair.getPublicKey(),
       contractId,
       HELLO_WASM_METHODS.changeMethods,
       new BN("2000000000000000000000000")
-    );
+    ); */
     await nearConfig.keyStore.setKey(testUtils.networkId, workingAccount.accountId, keyPair);
   });
 
@@ -74,7 +99,7 @@ describe("e2e", () => {
     await stopTestEnvironment();
   });
 
-  /*   it("Get block information", async () => {
+  it("Get block information", async () => {
     const blockQuery: BlockReference = { finality: "final" };
     const result = await client.query<{ getBlock: BlockResult }>({
       uri: apiUri,
@@ -103,7 +128,7 @@ describe("e2e", () => {
     expect(block.header.hash).toStrictEqual(nearBlock.header.hash);
     expect(block.header.signature).toStrictEqual(nearBlock.header.signature);
     expect(block.chunks[0].chunk_hash).toStrictEqual(nearBlock.chunks[0].chunk_hash);
-  }); */
+  });
 
   /* it("Get account state", async () => {
     const result = await client.query<{ getAccountState: AccountView }>({
