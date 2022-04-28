@@ -439,8 +439,8 @@ function toCurrentEpochValidatorInfo(json: JSON.Obj): CurrentEpochValidatorInfo 
       .getArr("shards")!
       .valueOf()
       .map<BigInt>((v) => BigInt.fromString((<JSON.Value>v).stringify())),
-    num_produced_blocks: BigInt.from(json.getValue("num_produced_blocks")!.stringify()).toUInt32(),
-    num_expected_blocks: BigInt.from(json.getValue("num_expected_blocks")!.stringify()).toUInt32(),
+    num_produced_blocks: BigInt.fromString(json.getValue("num_produced_blocks")!.stringify()).toUInt32(),
+    num_expected_blocks: BigInt.fromString(json.getValue("num_expected_blocks")!.stringify()).toUInt32(),
   };
 }
 

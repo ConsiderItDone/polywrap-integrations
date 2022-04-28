@@ -1,4 +1,4 @@
-import { createWeb3ApiClient, Web3ApiClient } from "@web3api/client-js";
+import { Web3ApiClient } from "@web3api/client-js";
 import { NearPluginConfig, KeyPair } from "../../../plugin-js"; //TODO change to appropriate package
 import {
   //BlockChangeResult,
@@ -34,18 +34,11 @@ describe("e2e", () => {
 
   beforeAll(async () => {
     // set up test env and deploy api
-    const { ethereum, ensAddress, ipfs, registrarAddress, resolverAddress } = await initTestEnvironment();
+    const { ethereum, ensAddress, ipfs } = await initTestEnvironment();
     const apiPath: string = path.resolve(__dirname + "/../../");
     console.log("before api");
 
-    const api = await buildAndDeployApi({
-      ipfsProvider: ipfs,
-      ensRegistrarAddress: registrarAddress,
-      ensResolverAddress: resolverAddress,
-      ethereumProvider: ethereum,
-      apiAbsPath: apiPath,
-      ensRegistryAddress: ensAddress,
-    });
+    const api = await buildAndDeployApi(apiPath, ipfs, ensAddress);
     console.log("after api", api);
     apiUri = `ens/testnet/${api.ensDomain}`;
     // set up client
@@ -57,26 +50,7 @@ describe("e2e", () => {
 
     const plugins = testUtils.getPlugins(ethereum, ensAddress, ipfs, nearConfig);
 
-    client = await createWeb3ApiClient(
-      {
-        ethereum: {
-          networks: {
-            testnet: {
-              provider: ethereum,
-            },
-          },
-        },
-        ipfs: { provider: ipfs },
-        ens: {
-          query: {
-            addresses: {
-              testnet: ensAddress,
-            },
-          },
-        },
-      },
-      plugins
-    );
+    client = new Web3ApiClient(plugins);
 
     // set up contract account
     contractId = testUtils.generateUniqueString("test");

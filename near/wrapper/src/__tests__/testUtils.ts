@@ -1,13 +1,12 @@
 // copied and modified from https://github.com/near/near-api-js/blob/master/test/test-utils.js
 import { ClientConfig } from "@web3api/client-js";
-//import { ensPlugin } from "@web3api/ens-plugin-js";
-//import { ethereumPlugin } from "@web3api/ethereum-plugin-js";
-///import { ipfsPlugin } from "@web3api/ipfs-plugin-js";
+import { ensPlugin } from "@web3api/ens-plugin-js";
+import { ethereumPlugin } from "@web3api/ethereum-plugin-js";
+import { ipfsPlugin } from "@web3api/ipfs-plugin-js";
 import * as fs from "fs/promises";
 const BN = require("bn.js");
 import * as nearApi from "near-api-js";
-import { KeyPair, KeyStores, NearPluginConfig } from "near-polywrap-js";
-import { nearPlugin } from "../../../plugin-js";
+import { nearPlugin, KeyPair, KeyStores, NearPluginConfig } from "../../../plugin-js";
 import * as path from "path";
 import { PublicKey } from "./tsTypes";
 
@@ -88,16 +87,15 @@ export const getPlugins = (
     plugins: [
       {
         uri: "w3://ens/nearPlugin.web3api.eth",
-        
         plugin: nearPlugin(nearConfig),
       },
-      /*       {
+      {
         uri: "w3://ens/ipfs.web3api.eth",
         plugin: ipfsPlugin({ provider: ipfs }),
       },
       {
         uri: "w3://ens/ens.web3api.eth",
-        plugin: ensPlugin({ query: { addresses: { testnet: ensAddress } } }),
+        plugin: ensPlugin({ addresses: { testnet: ensAddress } }),
       },
       {
         uri: "w3://ens/ethereum.web3api.eth",
@@ -109,7 +107,7 @@ export const getPlugins = (
           },
           defaultNetwork: "testnet",
         }),
-      }, */
+      },
     ],
   };
 };

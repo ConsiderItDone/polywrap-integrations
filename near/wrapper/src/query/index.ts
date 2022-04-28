@@ -180,7 +180,7 @@ export function getAccountBalance(input: Input_getAccountBalance): AccountBalanc
 export function getAccountDetails(input: Input_getAccountDetails): AccountAuthorizedApp[] {
   const accessKeys = getAccessKeys({ accountId: input.accountId });
 
-  const authorizedApps: AccountAuthorizedApp[] = []!;
+  const authorizedApps: AccountAuthorizedApp[] = [];
 
   for (let i = 0; i < accessKeys.length; i++) {
     const key = accessKeys[i];

@@ -121,8 +121,6 @@ type FunctionCall implements Action {} # methodName: String! args: Bytes! gas: B
 type Transfer implements Action {} # deposit: BigInt!
 # holds content necessary to send a transaction that stakes NEAR
 type Stake implements Action {} # stake: BigInt! publicKey: PublicKey!
-# holds content necessary to send a transaction that adds an access key
-#type AddKey implements Action {} # publicKey: PublicKey! accessKey: AccessKey!
 # holds content necessary to send a transaction that deletes an access key
 type DeleteKey implements Action {} # publicKey: PublicKey!
 # holds content necessary to send a transaction that creates a NEAR account

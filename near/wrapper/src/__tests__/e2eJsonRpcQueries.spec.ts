@@ -15,7 +15,7 @@ import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@we
 import path from "path";
 const BN = require("bn.js");
 import { HELLO_WASM_METHODS /* , networkId, publicKeyToStr */ } from "./testUtils";
-import { ChunkResult, FinalExecutionOutcome, FinalExecutionOutcomeWithReceipts } from "./tsTypes";
+//import { ChunkResult, FinalExecutionOutcome, FinalExecutionOutcomeWithReceipts } from "./tsTypes";
 //import { NodeStatusResult } from "./tsTypes";
 /* import { AccountAuthorizedApp,  AccountBalance } "near-api-js/lib/account";*/
 
@@ -32,23 +32,17 @@ describe("e2e", () => {
 
   beforeAll(async () => {
     // set up test env and deploy api
-    const {
-      ethereum,
-      ensAddress,
-      ipfs,
-      registrarAddress,
-      resolverAddress,
-      reverseAddress,
-    } = await initTestEnvironment();
+    const { ethereum, ensAddress, ipfs } = await initTestEnvironment();
     const apiPath: string = path.resolve(__dirname + "/../../");
-    const api = await buildAndDeployApi({
+    const api = await buildAndDeployApi(apiPath, ipfs, ensAddress);
+    /*       {
       ipfsProvider: ipfs,
       ensRegistrarAddress: registrarAddress,
       ensResolverAddress: resolverAddress,
       ethereumProvider: ethereum,
       apiAbsPath: apiPath,
       ensRegistryAddress: reverseAddress,
-    });
+    }); */
 
     apiUri = `ens/testnet/${api.ensDomain}`;
     // set up client
@@ -450,7 +444,7 @@ it("Get access key changes", async () => {
     expect(txStatus).toMatchObject(nearTxStatus);
   }); */
 
- /*  // txStatusReceipts
+  /*  // txStatusReceipts
   it("txStatusReceipts", async () => {
     const sender = await testUtils.createAccount(near);
     const receiver = await testUtils.createAccount(near);
