@@ -4,9 +4,11 @@ import {
   BlockChangeResult /* BlockReference, BlockResult, AccountView, PublicKey, AccessKeyInfo, AccessKey */,
   ChangeResult,
   EpochValidatorInfo,
+  NearProtocolConfig,
 } from "./tsTypes";
 import * as testUtils from "./testUtils";
 import * as nearApi from "near-api-js";
+import type { Finality } from "near-api-js/lib/providers/provider";
 import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
 import path from "path";
 const BN = require("bn.js");
@@ -376,6 +378,33 @@ describe("e2e", () => {
 
     expect(validators.epoch_start_height).toEqual(nearValidators.epoch_start_height);
     //expect(validators.epoch_height)
+  });
+
+  it("Get protocol config", async () => {
+    const blockReference = { finality: "final" as Finality };
+    const result = await client.query<{ experimental_protocolConfig: NearProtocolConfig }>({
+      uri: apiUri,
+      query: `query {
+        experimental_protocolConfig(
+          blockReference: $blockReference
+        )
+      }`,
+      variables: {
+        blockReference: blockReference,
+      },
+    });
+    expect(result.errors).toBeFalsy();
+    expect(result.data).toBeTruthy();
+
+    const protocolConfig: NearProtocolConfig = result.data!.experimental_protocolConfig;
+    expect(protocolConfig).toBeTruthy();
+    expect(protocolConfig.runtime_config).toBeTruthy();
+    expect(protocolConfig.runtime_config.storage_amount_per_byte).toBeInstanceOf(String);
+
+    const nearProtocolConfig = await near.connection.provider.experimental_protocolConfig(blockReference);
+    expect(protocolConfig.runtime_config.storage_amount_per_byte).toStrictEqual(
+      nearProtocolConfig.runtime_config.storage_amount_per_byte
+    );
   });
 
   /*   it("Get block information", async () => {

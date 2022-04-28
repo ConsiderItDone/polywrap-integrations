@@ -257,6 +257,15 @@ export interface Version {
   version: string;
   build: string;
 }
+
+export interface NearProtocolConfig {
+  runtime_config: NearProtocolRuntimeConfig
+}
+
+export interface NearProtocolRuntimeConfig {
+  storage_amount_per_byte: String
+}
+
 /// Imported Objects START ///
 
 /// Imported Objects END ///

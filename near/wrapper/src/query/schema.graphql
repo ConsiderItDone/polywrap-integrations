@@ -115,7 +115,7 @@ type Query {
     blockId: BigInt
   ): EpochValidatorInfo!
 
-  protocolConfig(
+  experimental_protocolConfig(
     blockReference: BlockReference!
   ): NearProtocolConfig!
 

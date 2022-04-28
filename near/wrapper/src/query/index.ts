@@ -28,7 +28,7 @@ import {
   Input_contractStateChanges,
   Input_lightClientProof,
   Input_validators,
-  Input_protocolConfig,
+  Input_experimental_protocolConfig,
   //Input_parseNearAmount,
   //Input_formatNearAmount,
   AccountBalance,
@@ -363,7 +363,7 @@ export function validators(input: Input_validators): EpochValidatorInfo {
   return toEpochValidatorInfo(validators);
 }
 
-export function protocolConfig(input: Input_protocolConfig): NearProtocolConfig {
+export function experimental_protocolConfig(input: Input_experimental_protocolConfig): NearProtocolConfig {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
   return provider.protocolConfig(input.blockReference);
 }
