@@ -41,7 +41,7 @@
     "eslint-plugin-import": "2.22.1",
     "eslint-plugin-prettier": "3.3.0",
     "jest": "27.0.6",
-    "near-api-js": "0.43.1",
+    "near-api-js": "^0.44.2",
     "near-hello": "0.5.1",
     "near-polywrap-js": "0.0.3",
     "prettier": "2.2.1",

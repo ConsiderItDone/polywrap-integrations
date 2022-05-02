@@ -34,6 +34,7 @@ export async function setUpTestConfig(): Promise<NearPluginConfig> {
   const keyStore = new KeyStores.InMemoryKeyStore();
   const keyPair = KeyPair.fromString(PRIVATE_KEY);
   let config: NearPluginConfig = {
+    headers: {},
     networkId: networkId,
     keyStore: keyStore,
     nodeUrl: "https://rpc.testnet.near.org",
@@ -60,8 +61,12 @@ export function generateUniqueString(prefix: string): string {
 
 export async function createAccount(near: nearApi.Near): Promise<nearApi.Account> {
   const newAccountName = generateUniqueString("test");
+  console.log("before key");
   const newPublicKey = await near.connection.signer.createKey(newAccountName, networkId);
+  console.log("after key", newPublicKey.toString());
+  console.log("before create");
   await near.createAccount(newAccountName, newPublicKey);
+  console.log("after create");
   return new nearApi.Account(near.connection, newAccountName);
 }
 

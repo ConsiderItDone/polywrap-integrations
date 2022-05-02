@@ -110,7 +110,7 @@ type Query {
   ): ChunkResult!
 
   validators(
-    blockId: BigInt
+    blockId: String
   ): EpochValidatorInfo!
 
   experimental_protocolConfig(
@@ -148,7 +148,7 @@ type Query {
   ): ChangeResult!
 
   gasPrice(
-    blockId: BigInt
+    blockId: String
   ): BigInt!
 }
 
@@ -248,7 +248,7 @@ type ChunkResult {
 }
 
 type BlockChange {
-  chagneType: String!
+  changeType: String!
   account_id: String!
 }
 
@@ -391,8 +391,8 @@ type AccessKeyInfo {
 }
 
 enum IdType {
-  Transaction
-  Receipt
+  transaction
+  receipt
 }
 
 type LightClientProofRequest {

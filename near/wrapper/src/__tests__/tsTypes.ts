@@ -273,7 +273,7 @@ export interface NodeStatusResult {
 
 export interface SyncInfo {
   latest_block_hash: string;
-  latest_block_height: string;
+  latest_block_height: BigInt;
   latest_block_time: string;
   latest_state_root: string;
   syncing: string;

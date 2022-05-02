@@ -28,6 +28,7 @@ import {
   LightClientProof,
   LightClientProofRequest,
   LightClientBlockLiteView,
+  getIdTypeKey,
 } from "../query/w3";
 import { BigInt, JSON, JSONEncoder } from "@web3api/wasm-as";
 import { publicKeyFromStr } from "./typeUtils";
@@ -53,7 +54,7 @@ export function fromLightClientProofRequest(request: LightClientProofRequest): J
   const encoder = new JSONEncoder();
   encoder.pushObject(null);
   encoder.setString("light_client_head", request.light_client_head);
-  encoder.setString("m_type", request.m_type.toString());
+  encoder.setString("type", getIdTypeKey(request.m_type));
 
   if (request.receipt_id !== null) {
     encoder.setString("receipt_id", request.receipt_id!);
@@ -93,7 +94,7 @@ export function toBlockChanges(json: JSON.Obj): BlockChangeResult {
         const change = <JSON.Obj>v;
         return {
           account_id: change.getString("account_id")!.valueOf(),
-          chagneType: change.getString("type")!.valueOf(),
+          changeType: change.getString("type")!.valueOf(),
         } as BlockChange;
       }),
   };
@@ -193,8 +194,8 @@ export function toChunkResult(json: JSON.Obj): ChunkResult {
       validator_proposals: header.getArr("validator_proposals")!.valueOf(),
       signature: header.getString("signature")!.valueOf(),
     },
-    receipts: header.getArr("receipts")!.valueOf(),
-    transactions: header
+    receipts: json.getArr("receipts")!.valueOf(),
+    transactions: json
       .getArr("receipts")!
       .valueOf()
       .map<Near_Transaction>((v) => toTransaction(<JSON.Obj>v)),
@@ -263,10 +264,10 @@ export function toNodeStatus(json: JSON.Obj): NodeStatusResult {
     },
     chain_id: json.getString("chain_id")!.valueOf(),
     rpc_addr: json.getString("rpc_addr")!.valueOf(),
-    validators: validators.map<string>((v: JSON.Value) => (<JSON.Str>v).valueOf()),
+    validators: validators.map<string>((v: JSON.Value) => (<JSON.Obj>v).getString("account_id")!.valueOf()),
     sync_info: {
       latest_block_hash: sync_info.getString("latest_block_hash")!.valueOf(),
-      latest_block_height: BigInt.fromString(sync_info.getValue("latest_block_hash")!.stringify()),
+      latest_block_height: BigInt.fromString(sync_info.getValue("latest_block_height")!.stringify()),
       latest_state_root: sync_info.getString("latest_state_root")!.valueOf(),
       latest_block_time: sync_info.getString("latest_block_time")!.valueOf(),
       syncing: sync_info.getBool("syncing")!.valueOf(),

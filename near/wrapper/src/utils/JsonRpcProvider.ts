@@ -65,7 +65,7 @@ export default class JsonRpcProvider {
    * @param method RPC method
    * @param params Parameters to the method
    */
-  sendJsonRpc(method: string, params: JSON.Obj): JSON.Obj {
+  sendJsonRpc(method: string, params: JSON.Value): JSON.Obj {
     return Near_Mutation.sendJsonRpc({ method, params }).unwrap() as JSON.Obj;
   }
 
@@ -88,7 +88,7 @@ export default class JsonRpcProvider {
     const encoder = new JSONEncoder();
     encoder.pushArray(null);
     encoder.popArray();
-    const params: JSON.Obj = <JSON.Obj>JSON.parse(encoder.serialize());
+    const params: JSON.Arr = <JSON.Arr>JSON.parse(encoder.serialize());
     return this.sendJsonRpc("status", params);
   }
 
@@ -98,7 +98,7 @@ export default class JsonRpcProvider {
     encoder.setString(null, txHash);
     encoder.setString(null, accountId);
     encoder.popArray();
-    const params: JSON.Obj = <JSON.Obj>JSON.parse(encoder.serialize());
+    const params: JSON.Arr = <JSON.Arr>JSON.parse(encoder.serialize());
 
     return this.sendJsonRpc("tx", params);
   }
@@ -109,7 +109,7 @@ export default class JsonRpcProvider {
     encoder.setString(null, txHash);
     encoder.setString(null, accountId);
     encoder.popArray();
-    const params: JSON.Obj = <JSON.Obj>JSON.parse(encoder.serialize());
+    const params: JSON.Arr = <JSON.Arr>JSON.parse(encoder.serialize());
 
     return this.sendJsonRpc("EXPERIMENTAL_tx_status", params);
   }
@@ -129,7 +129,7 @@ export default class JsonRpcProvider {
       encoder.setString(null, blockId);
     }
     encoder.popArray();
-    const params: JSON.Obj = <JSON.Obj>JSON.parse(encoder.serialize());
+    const params: JSON.Arr = <JSON.Arr>JSON.parse(encoder.serialize());
     return this.sendJsonRpc("gas_price", params);
   }
 
@@ -265,7 +265,7 @@ export default class JsonRpcProvider {
 
     encoder.popArray();
 
-    const params: JSON.Obj = <JSON.Obj>JSON.parse(encoder.serialize());
+    const params: JSON.Arr = <JSON.Arr>JSON.parse(encoder.serialize());
     return this.sendJsonRpc("validators", params);
   }
 }
