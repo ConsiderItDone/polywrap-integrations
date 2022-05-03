@@ -14,6 +14,7 @@
     "deploy": "npx w3 build --ipfs http://localhost:5001 --test-ens near-api.eth",
     "test:e2e": "jest --passWithNoTests --runInBand --verbose",
     "test:RpcQueries": "jest e2eRpcQueries --passWithNoTests --runInBand --verbose --silent=false",
+    "test:e2eMutations": "jest e2eMutations --passWithNoTests --runInBand --verbose --silent=false",
     "test:JsonRpcQueries": "jest e2eJsonRpcQueries --passWithNoTests --runInBand --verbose --silent=false",
     "test:Format": "jest e2eFormat --passWithNoTests --runInBand --verbose --silent=false",
     "test": "yarn test:e2e",
