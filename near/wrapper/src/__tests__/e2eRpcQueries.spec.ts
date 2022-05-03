@@ -36,30 +36,23 @@ describe("e2e", () => {
     // set up test env and deploy api
     const { ethereum, ensAddress, ipfs } = await initTestEnvironment();
     const apiPath: string = path.resolve(__dirname + "/../../");
-    console.log("before api");
 
     const api = await buildAndDeployApi(apiPath, ipfs, ensAddress);
-    console.log("after api", api);
     apiUri = `ens/testnet/${api.ensDomain}`;
     // set up client
-    console.log("before config");
     nearConfig = await testUtils.setUpTestConfig();
-    console.log("before connect");
     near = await nearApi.connect(nearConfig);
-    console.log("after connect");
 
     const plugins = testUtils.getPlugins(ethereum, ensAddress, ipfs, nearConfig);
-
     client = new Web3ApiClient(plugins);
 
     // set up contract account
     contractId = testUtils.generateUniqueString("test");
-    console.log("before workingAccount");
+
     workingAccount = await testUtils.createAccount(near);
-    console.log("after workingAccount");
-    console.log("before deploy");
+
     await testUtils.deployContract(workingAccount, contractId);
-    console.log("after deploy");
+
     // set up access key
     
     const keyPair = KeyPair.fromRandom("ed25519");
@@ -76,6 +69,7 @@ describe("e2e", () => {
 
   afterAll(async () => {
     await stopTestEnvironment();
+    //await workingAccount.deleteAccount(workingAccount.accountId);
   });
 
   it("Get block information", async () => {
