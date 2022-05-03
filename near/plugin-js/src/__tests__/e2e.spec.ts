@@ -1,6 +1,6 @@
 import { Web3ApiClient } from "@web3api/client-js";
 import { nearPlugin, NearPluginConfig } from "..";
-//import { Action /* Transaction */ } from "../w3";
+//import { Action, Transaction } from "../w3";
 import * as testUtils from "./testUtils";
 import * as nearApi from "near-api-js";
 import { KeyPair } from "near-api-js";
@@ -22,7 +22,7 @@ describe("e2e", () => {
   let contractId: string;
   //let contract: nearApi.Contract;
 
-  /* const prepActions = (): Action[] => {
+  /*  const prepActions = (): Action[] => {
     const setCallValue = testUtils.generateUniqueString("setCallPrefix");
     const args = { value: setCallValue };
     const stringify = (obj: unknown): Buffer =>
@@ -35,7 +35,7 @@ describe("e2e", () => {
         deposit: "0",
       },
     ];
-  };  */
+  }; */
 
   beforeAll(async () => {
     config = await testUtils.setUpTestConfig();
@@ -63,7 +63,7 @@ describe("e2e", () => {
       HELLO_WASM_METHODS.changeMethods,
       new BN("2000000000000000000000000")
     );
-    await config.keyStore.setKey(
+    await config.keyStore!.setKey(
       testUtils.networkId,
       workingAccount.accountId,
       keyPair
@@ -73,7 +73,7 @@ describe("e2e", () => {
   it("Sign a message", async () => {
     const message = Buffer.from(generateUniqueString("msg"));
 
-    const keyPair = await config.keyStore.getKey(
+    const keyPair = await config.keyStore!.getKey(
       config.networkId,
       workingAccount.accountId
     );
@@ -105,29 +105,6 @@ describe("e2e", () => {
     expect(signature.data).toBeTruthy();
     expect(signature.data).toBeInstanceOf(Uint8Array);
     expect(signature.keyType).toBeDefined();
-  });
-
-  it("Requst sigin success", async () => {
-    const result = await client.query<{ requestSignIn: Signature }>({
-      uri,
-      query: `query {
-      requestSignIn(
-        contractId: $contractId
-        methodNames: $methodNames[String!]
-        successUrl: $successUrl
-        failureUrl: $failureUrl
-      )
-    }`,
-      variables: {
-        contractId: "signInContract",
-        methodNames: ["hello", "goodbye"],
-        successUrl: "http://example.com/success",
-        failureUrl: "http://example.com/fail",
-      },
-    });
-
-    expect(result.errors).toBeFalsy();
-    expect(result.data).toBeTruthy();
   });
 
   /*  it("Creates a transaction without wallet", async () => {

@@ -5,6 +5,7 @@ import {
   Mutation,
   Transaction,
   SignedTransaction,
+  Signature,
   SignTransactionResult,
   FinalExecutionOutcome,
   PublicKey,
@@ -88,15 +89,12 @@ export class NearPlugin extends Plugin {
     input: Query.Input_getPublicKey
   ): Promise<PublicKey | null> {
     const { accountId } = input;
-    if (this._config.keyStore) {
-      const keyPair = await this._config.keyStore!.getKey(
-        this._config.networkId,
-        accountId
-      );
-      if (keyPair === null) {
-        return null;
-      }
-      return toPublicKey(keyPair.getPublicKey());
+    const keyPair = await this._config.keyStore!.getKey(
+      this._config.networkId,
+      accountId
+    );
+    if (keyPair === null) {
+      return null;
     }
     return null;
   }
@@ -195,6 +193,22 @@ export class NearPlugin extends Plugin {
       meta: meta ?? undefined,
     });
     return true;
+  }
+  public async signMessage(input: Query.Input_signMessage): Promise<Signature> {
+    const { message, signerId } = input;
+    const {
+      signature,
+      publicKey,
+    } = await this.near.connection.signer.signMessage(
+      message,
+      signerId,
+      this.near.connection.networkId
+    );
+
+    return {
+      data: signature,
+      keyType: toPublicKey(publicKey).keyType,
+    };
   }
 
   public async sendTransaction(
