@@ -13,18 +13,19 @@ import {
   Near_SignTransactionResult,
   Near_FinalExecutionOutcome,
   Input_addKey,
-  /*   Input_createAccount,
+  Input_createAccount,
   Input_deleteAccount,
   Input_deployContract,
   Input_sendMoney,
   Input_functionCall,
   Input_deleteKey,
-  Input_createAndDeployContract, */
+  Input_createAndDeployContract,
 } from "./w3";
 import JsonRpcProvider from "../utils/JsonRpcProvider";
 import { BigInt, JSON } from "@web3api/wasm-as";
 import { createTransaction, signTransaction } from "../query";
 import { Input_createTransaction } from "../query/w3";
+import * as action from "../utils/actionCreators";
 import { fullAccessKey, functionCallAccessKey } from "../utils/typeUtils";
 
 export function sendJsonRpc(input: Input_sendJsonRpc): JSON.Obj {
@@ -67,6 +68,7 @@ export function signAndSendTransactionAsync(input: Input_signAndSendTransactionA
   const signedTxResult: Near_SignTransactionResult = signTransaction({ transaction: transaction });
   return sendTransactionAsync({ signedTx: signedTxResult.signedTx });
 }
+
 export function addKey(input: Input_addKey): Near_FinalExecutionOutcome {
   // https://github.com/near/near-api-js/blob/e29a41812ac79579cc12b051f8ef04d2f3606a75/src/account.ts#L445
   let methodNames: string[] = [];
@@ -88,27 +90,69 @@ export function addKey(input: Input_addKey): Near_FinalExecutionOutcome {
   return sendTransaction({ signedTx: signedTxResult.signedTx });
 }
 
-/* 
 export function createAccount(input: Input_createAccount): Near_FinalExecutionOutcome {
-  return;
+  return signAndSendTransaction({
+    receiverId: input.newAccountId,
+    signerId: input.signerId,
+    actions: [action.createAccount(), action.transfer(input.amount), action.addKey(input.publicKey, fullAccessKey())],
+  });
 }
+
 export function deleteAccount(input: Input_deleteAccount): Near_FinalExecutionOutcome {
-  return;
+  return signAndSendTransaction({
+    receiverId: input.accountId,
+    signerId: input.signerId,
+    actions: [action.deleteAccount(input.beneficiaryId)],
+  });
 }
+
 export function deployContract(input: Input_deployContract): Near_FinalExecutionOutcome {
-  return;
+  return signAndSendTransaction({
+    receiverId: input.contractId,
+    signerId: input.signerId,
+    actions: [action.deployContract(input.data)],
+  });
 }
+
 export function sendMoney(input: Input_sendMoney): Near_FinalExecutionOutcome {
-  return;
+  return signAndSendTransaction({
+    receiverId: input.receiverId,
+    signerId: input.signerId,
+    actions: [action.transfer(input.amount)],
+  });
 }
 export function functionCall(input: Input_functionCall): Near_FinalExecutionOutcome {
-  return;
+  const actions = [action.functionCall(input.methodName, input.args, input.gas, input.deposit)];
+  if (input.signerId !== null) {
+    return signAndSendTransaction({ receiverId: input.contractId, signerId: input.signerId!, actions: actions });
+  }
+  const transaction = createTransaction({
+    receiverId: input.contractId,
+    actions: actions,
+  } as Input_createTransaction);
+
+  const signedTxResult: Near_SignTransactionResult = signTransaction({ transaction: transaction });
+  return sendTransaction({ signedTx: signedTxResult.signedTx });
 }
 
 export function deleteKey(input: Input_deleteKey): Near_FinalExecutionOutcome {
-  return;
+  return signAndSendTransaction({
+    receiverId: input.signerId,
+    signerId: input.signerId,
+    actions: [action.deleteKey(input.publicKey)],
+  });
 }
 export function createAndDeployContract(input: Input_createAndDeployContract): boolean {
-  return;
+  const contractResult = signAndSendTransaction({
+    receiverId: input.contractId,
+    signerId: input.contractId,
+    actions: [
+      action.createAccount(),
+      action.transfer(input.amount),
+      action.addKey(input.publicKey, fullAccessKey()),
+      action.deployContract(input.data),
+    ],
+  });
+  //const contractAccount = createAccount({})
+  return !!contractResult.status.successValue;
 }
- */

@@ -2,6 +2,7 @@ import {
   Near_KeyType,
   Near_PublicKey,
   Near_AccessKey,
+  Near_Action,
   //Near_FunctionCallPermission
 } from "../query/w3";
 import * as bs58 from "as-base58";
