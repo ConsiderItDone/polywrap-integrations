@@ -31,7 +31,10 @@ describe("e2e", () => {
   let nearConfig: NearPluginConfig;
   let near: nearApi.Near;
   let workingAccount: nearApi.Account;
+  let sender: nearApi.Account;
+  let receiver: nearApi.Account;
   let contractId: string;
+  let transactionOutcome: nearApi.providers.FinalExecutionOutcome;
   let latestBlock: NearBlockResult;
 
   beforeAll(async () => {
@@ -61,11 +64,18 @@ describe("e2e", () => {
       HELLO_WASM_METHODS.changeMethods,
       new BN("2000000000000000000000000")
     );
-    //await nearConfig.keyStore!.setKey(testUtils.networkId, workingAccount.accountId, keyPair);
+
+    await nearConfig.keyStore!.setKey(testUtils.networkId, workingAccount.accountId, keyPair);
+
+    sender = await testUtils.createAccount(near);
+    receiver = await testUtils.createAccount(near);
+    transactionOutcome = await sender.sendMoney(receiver.accountId, new BN("1"));
   });
 
   afterAll(async () => {
     await stopTestEnvironment();
+    await sender.deleteAccount(workingAccount.accountId);
+    await receiver.deleteAccount(workingAccount.accountId);
   });
 
   // status +-
@@ -122,8 +132,7 @@ describe("e2e", () => {
 
   // blockChanges +
   it("Get block changes", async () => {
-    const block = await near.connection.provider.block({ finality: "final" });
-    const blockQuery: BlockReference = { blockId: block.header.hash };
+    const blockQuery = { block_id: latestBlock.header.hash, finality: null, syncCheckpoint: null };
     const result = await client.query<{ blockChanges: BlockChangeResult }>({
       uri: apiUri,
       query: `query {
@@ -265,16 +274,10 @@ describe("e2e", () => {
 
   //lightClientProof
   it("Get lightClientProof", async () => {
-    const lightClientHead = latestBlock.header.last_final_block;
-
-    const sender = await testUtils.createAccount(near);
-    const receiver = await testUtils.createAccount(near);
-    const outcome = await sender.sendMoney(receiver.accountId, new BN("1"));
-
     const lightClientProofRequest: LightClientProofRequest = {
       type: IdType.Transaction,
-      light_client_head: lightClientHead,
-      transaction_hash: outcome.transaction.hash!,
+      light_client_head: latestBlock.header.last_final_block,
+      transaction_hash: transactionOutcome.transaction.hash!,
       sender_id: sender.accountId,
     };
 
@@ -310,9 +313,6 @@ describe("e2e", () => {
     expect(lightClientProof.block_proof).toEqual(nearLightClientProof.block_proof);
     expect(lightClientProof.outcome_proof).toEqual(nearLightClientProof.outcome_proof);
     expect(lightClientProof.outcome_root_proof).toEqual(nearLightClientProof.outcome_root_proof);
-
-    await sender.deleteAccount(workingAccount.accountId);
-    await receiver.deleteAccount(workingAccount.accountId);
   });
 
   // accessKeyChanges +
@@ -496,10 +496,6 @@ describe("e2e", () => {
 
   //txStatus +-
   it("txStatus with string hash", async () => {
-    const sender = await testUtils.createAccount(near);
-    const receiver = await testUtils.createAccount(near);
-    const outcome = await sender.sendMoney(receiver.accountId, new BN("1"));
-
     const result = await client.query<{ txStatus: FinalExecutionOutcome }>({
       uri: apiUri,
       query: `query {
@@ -509,12 +505,12 @@ describe("e2e", () => {
         )
       }`,
       variables: {
-        txHash: outcome.transaction.hash,
+        txHash: transactionOutcome.transaction.hash,
         accountId: sender.accountId,
       },
     });
 
-    const nearTxStatus = await near.connection.provider.txStatus(outcome.transaction.hash, sender.accountId);
+    const nearTxStatus = await near.connection.provider.txStatus(transactionOutcome.transaction.hash, sender.accountId);
 
     expect(result.errors).toBeFalsy();
     expect(result.data).toBeTruthy();
@@ -522,16 +518,10 @@ describe("e2e", () => {
     const txStatus: FinalExecutionOutcome = result.data!.txStatus;
 
     expect(txStatus).toMatchObject(nearTxStatus);
-    await sender.deleteAccount(workingAccount.accountId);
-    await receiver.deleteAccount(workingAccount.accountId);
   });
 
   //txStatusReceipts +-
   it("txStatusReceipts", async () => {
-    const sender = await testUtils.createAccount(near);
-    const receiver = await testUtils.createAccount(near);
-    const outcome = await sender.sendMoney(receiver.accountId, new BN("1"));
-
     const result = await client.query<{ txStatusReceipts: FinalExecutionOutcomeWithReceipts }>({
       uri: apiUri,
       query: `query {
@@ -541,7 +531,7 @@ describe("e2e", () => {
         )
       }`,
       variables: {
-        txHash: outcome.transaction.hash,
+        txHash: transactionOutcome.transaction.hash,
         accountId: sender.accountId,
       },
     });
@@ -552,15 +542,12 @@ describe("e2e", () => {
     const txStatusReceipts: FinalExecutionOutcomeWithReceipts = result.data!.txStatusReceipts;
 
     const nearTxStatusReceipts = await near.connection.provider.txStatusReceipts(
-      outcome.transaction.hash,
+      transactionOutcome.transaction.hash,
       sender.accountId
     );
 
     expect("receipts" in txStatusReceipts).toBe(true);
     expect(txStatusReceipts.receipts.length).toBeGreaterThanOrEqual(1);
     expect(txStatusReceipts).toMatchObject(nearTxStatusReceipts);
-
-    await sender.deleteAccount(workingAccount.accountId);
-    await receiver.deleteAccount(workingAccount.accountId);
   });
 });
