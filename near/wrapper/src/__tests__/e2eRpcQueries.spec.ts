@@ -1,25 +1,15 @@
 import { Web3ApiClient } from "@web3api/client-js";
 import { NearPluginConfig, KeyPair } from "../../../plugin-js"; //TODO change to appropriate package
-import {
-  //BlockChangeResult,
-  //BlockReference,
-  //BlockResult,
-  //AccountView,
-  //PublicKey,
-  //AccessKeyInfo,
-  //AccessKey,
-  //ChangeResult,
-  //EpochValidatorInfo,
-  //NearProtocolConfig,
-} from "./tsTypes";
+import { BlockReference, BlockResult, AccountView, PublicKey, AccessKeyInfo, AccessKey } from "./tsTypes";
 import * as testUtils from "./testUtils";
 import * as nearApi from "near-api-js";
 import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
 import path from "path";
-//const BN = require("bn.js");
-//import { HELLO_WASM_METHODS /* , networkId, publicKeyToStr */ } from "./testUtils";
+const BN = require("bn.js");
+import { HELLO_WASM_METHODS /* , networkId, publicKeyToStr */ } from "./testUtils";
 //import { NodeStatusResult } from "./tsTypes";
-/* import { AccountAuthorizedApp,  AccountBalance } "near-api-js/lib/account";*/
+//import { AccountAuthorizedApp } "near-api-js/lib/account";
+import { AccountAuthorizedApp, AccountBalance } from "near-api-js/lib/account";
 
 jest.setTimeout(360000);
 
@@ -50,18 +40,16 @@ describe("e2e", () => {
     contractId = testUtils.generateUniqueString("test");
 
     workingAccount = await testUtils.createAccount(near);
-
     await testUtils.deployContract(workingAccount, contractId);
-
-    // set up access key
-    
     const keyPair = KeyPair.fromRandom("ed25519");
-    /* await workingAccount.addKey(
+    // set up access key
+    await workingAccount.addKey(
       keyPair.getPublicKey(),
       contractId,
       HELLO_WASM_METHODS.changeMethods,
       new BN("2000000000000000000000000")
-    ); */
+    );
+
     console.log("before setKey");
     await nearConfig.keyStore!.setKey(testUtils.networkId, workingAccount.accountId, keyPair);
     console.log("after setKey");
@@ -72,12 +60,9 @@ describe("e2e", () => {
     //await workingAccount.deleteAccount(workingAccount.accountId);
   });
 
+  // block +
   it("Get block information", async () => {
-    client.getPlugins();
-    apiUri.at(1);
-    expect(true).toEqual(true);
-
-    /*     const blockQuery: BlockReference = { finality: "final" };
+    const blockQuery: BlockReference = { finality: "final" };
     const result = await client.query<{ getBlock: BlockResult }>({
       uri: apiUri,
       query: `query {
@@ -104,10 +89,11 @@ describe("e2e", () => {
     expect(block.author).toStrictEqual(nearBlock.author);
     expect(block.header.hash).toStrictEqual(nearBlock.header.hash);
     expect(block.header.signature).toStrictEqual(nearBlock.header.signature);
-    expect(block.chunks[0].chunk_hash).toStrictEqual(nearBlock.chunks[0].chunk_hash); */
+    expect(block.chunks[0].chunk_hash).toStrictEqual(nearBlock.chunks[0].chunk_hash);
   });
 
-  /* it("Get account state", async () => {
+  // account state +
+  it("Get account state", async () => {
     const result = await client.query<{ getAccountState: AccountView }>({
       uri: apiUri,
       query: `query {
@@ -132,9 +118,10 @@ describe("e2e", () => {
     expect(state.codeHash).toStrictEqual(nearState.code_hash);
     expect(state.storagePaidAt).toStrictEqual(nearState.storage_paid_at.toString());
     expect(state.storageUsage).toStrictEqual(nearState.storage_usage.toString());
-  }); */
+  });
 
-  /*   it("Get account balance", async () => {
+  // account balance +
+  it("Get account balance", async () => {
     const result = await client.query<{ getAccountBalance: AccountBalance }>({
       uri: apiUri,
       query: `query {
@@ -158,9 +145,9 @@ describe("e2e", () => {
     expect(resultBalance.staked).toStrictEqual(actualBalance.staked);
     expect(resultBalance.stateStaked).toStrictEqual(actualBalance.stateStaked);
     expect(resultBalance.total).toStrictEqual(actualBalance.total);
-  }); */
+  });
 
-  /* 
+  // account details +
   it("Get account details", async () => {
     const result = await client.query<{ getAccountDetails: AccountAuthorizedApp[] }>({
       uri: apiUri,
@@ -185,7 +172,7 @@ describe("e2e", () => {
     expect(authorizedApps.length).toEqual(nearAuthorizedApps.length);
     expect(authorizedApps).toEqual(nearAuthorizedApps);
   });
-
+  // account details +- TODO
   it("Get access keys", async () => {
     const result = await client.query<{ getAccessKeys: AccessKeyInfo[] }>({
       uri: apiUri,
@@ -208,7 +195,7 @@ describe("e2e", () => {
     const nearAccessKeys = await workingAccount.getAccessKeys();
 
     expect(accessKeys.length).toEqual(nearAccessKeys.length);
-    expect(accessKeys).toEqual(jasmine.arrayContaining(nearAccessKeys));
+    //expect(accessKeys).toEqual(nearAccessKeys);
   });
 
   it("Find access key", async () => {
@@ -249,7 +236,7 @@ describe("e2e", () => {
     }
 
     // public key
-    expect(publicKeyToStr(accessKeyInfo.publicKey)).toStrictEqual(nearKey.public_key);
+    expect(testUtils.publicKeyToStr(accessKeyInfo.publicKey)).toStrictEqual(nearKey.public_key);
     const nearPublicKey = nearApi.utils.PublicKey.fromString(nearKey.public_key);
     const nearPublicKeyData: Uint8Array = Uint8Array.from(nearPublicKey.data);
     expect(accessKeyInfo.publicKey.data).toStrictEqual(nearPublicKeyData);
@@ -273,10 +260,10 @@ describe("e2e", () => {
     const publicKey: PublicKey = result.data!.getPublicKey;
     expect(publicKey).toBeTruthy();
 
-    const nearKey = await near.connection.signer.getPublicKey(workingAccount.accountId, networkId);
+    const nearKey = await near.connection.signer.getPublicKey(workingAccount.accountId, testUtils.networkId);
     expect(publicKey.data).toStrictEqual(nearKey.data);
 
-    const publicKeyStr: string = publicKeyToStr(publicKey);
+    const publicKeyStr: string = testUtils.publicKeyToStr(publicKey);
     const nearKeyStr = nearApi.utils.PublicKey.from(nearKey).toString();
     expect(publicKeyStr).toStrictEqual(nearKeyStr);
   });
@@ -313,5 +300,5 @@ describe("e2e", () => {
       args
     );
     expect(viewFunctionResult).toEqual(nearViewFunctionResult);
-  }); */
+  });
 });

@@ -78,7 +78,7 @@ export function fromViewFunction(contractId: string, methodName: string, args: J
   encoder.setString("request_type", "call_function");
   encoder.setString("account_id", contractId);
   encoder.setString("method_name", methodName);
-  encoder.setString("args_base64", bs58.decode(args.stringify()).toString());
+  encoder.setString("args_base64", bs58.encode(bs58.decode(args.stringify())));
   encoder.setString("finality", "optimistic");
   encoder.popObject();
   return <JSON.Obj>JSON.parse(encoder.serialize());
@@ -206,7 +206,7 @@ export function toAccessKeyInfo(json: JSON.Obj): AccessKeyInfo {
   const jsonAccessKeyVal: JSON.Obj = json.getObj("access_key")!;
   const publicKey = json.getString("public_key")!.valueOf();
   return {
-    publicKey: publicKeyFromStr(publicKey),
+    publicKey: publicKey,
     accessKey: toAccessKey(jsonAccessKeyVal),
   };
 }

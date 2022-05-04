@@ -42,7 +42,7 @@ import {
 import JsonRpcProvider from "../utils/JsonRpcProvider";
 import * as bs58 from "as-base58";
 import { BigInt, JSON, JSONEncoder } from "@web3api/wasm-as";
-import { publicKeyToStr } from "../utils/typeUtils";
+import { publicKeyFromStr, publicKeyToStr } from "../utils/typeUtils";
 import {
   toAccessKey,
   toAccessKeyInfo,
@@ -136,7 +136,7 @@ export function findAccessKey(input: Input_findAccessKey): AccessKeyInfo | null 
   const result: JSON.Obj = provider.sendJsonRpc("query", params);
   return {
     accessKey: toAccessKey(result),
-    publicKey: publicKey,
+    publicKey: publicKeyToStr(publicKey),
   };
 }
 
@@ -186,13 +186,13 @@ export function getAccountDetails(input: Input_getAccountDetails): AccountAuthor
     const key = accessKeys[i];
     if (key.accessKey.permission.isFullAccess === true) continue;
     const permission = key.accessKey.permission;
-    const allowance: BigInt = permission.allowance === null ? permission.allowance! : BigInt.ZERO;
-    const contractId: string = permission.receiverId === null ? permission.receiverId! : "";
+    const allowance: BigInt = permission.allowance !== null ? permission.allowance! : BigInt.ZERO;
+    const contractId: string = permission.receiverId !== null ? permission.receiverId! : "";
 
     const app: AccountAuthorizedApp = {
       contractId: contractId,
       amount: allowance.toString(),
-      publicKey: publicKeyToStr(key.publicKey),
+      publicKey: key.publicKey,
     };
     authorizedApps.push(app);
   }
@@ -246,7 +246,7 @@ export function createTransaction(input: Input_createTransaction): Near_Transact
     );
   }
   const accessKey: AccessKey = accessKeyInfo.accessKey;
-  const publicKey: Near_PublicKey = accessKeyInfo.publicKey;
+  const publicKey = accessKeyInfo.publicKey;
   const block: BlockResult = getBlock({
     blockQuery: {
       finality: "final",
@@ -258,7 +258,7 @@ export function createTransaction(input: Input_createTransaction): Near_Transact
   const nonce = accessKey.nonce.addInt(1);
   return {
     signerId: signerId,
-    publicKey: publicKey,
+    publicKey: publicKeyFromStr(publicKey),
     nonce: nonce,
     receiverId: input.receiverId,
     blockHash: blockHash,

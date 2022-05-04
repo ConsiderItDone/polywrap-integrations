@@ -386,7 +386,7 @@ type AccessKey {
 
 # Access keys contain access key permissions, which determine how an account is allowed to interact with a contract
 type AccessKeyInfo {
-  publicKey: Near_PublicKey!
+  publicKey: String!
   accessKey: AccessKey!
 }
 
