@@ -1,29 +1,25 @@
 import { Web3ApiClient } from "@web3api/client-js";
 import { NearPluginConfig, KeyPair } from "../../../plugin-js";
 import {
-  //BlockChangeResult,
-  //BlockReference,
-  //NearProtocolConfig,
+  BlockChangeResult,
+  BlockReference,
+  NearProtocolConfig,
   ChangeResult,
-  //EpochValidatorInfo,
-  //BlockResult,
-  //AccountView,
-  //PublicKey,
-  //AccessKeyInfo,
-  //AccessKey,
-  //IdType,
-  //LightClientProof,
-  //LightClientProofRequest,
+  EpochValidatorInfo,
+  IdType,
+  LightClientProof,
+  LightClientProofRequest,
+  NodeStatusResult,
 } from "./tsTypes";
 import * as testUtils from "./testUtils";
 import * as nearApi from "near-api-js";
 import { BlockResult as NearBlockResult } from "near-api-js/lib/providers/provider";
-//import type { Finality } from "near-api-js/lib/providers/provider";
+import type { Finality } from "near-api-js/lib/providers/provider";
 import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
 import path from "path";
 const BN = require("bn.js");
 import { HELLO_WASM_METHODS /* , networkId, publicKeyToStr */ } from "./testUtils";
-import { /* ChunkResult, */ FinalExecutionOutcome, FinalExecutionOutcomeWithReceipts } from "./tsTypes";
+import { ChunkResult, FinalExecutionOutcome, FinalExecutionOutcomeWithReceipts } from "./tsTypes";
 //import { AccountAuthorizedApp,  AccountBalance } from "near-api-js/lib/account";
 
 jest.setTimeout(360000);
@@ -73,7 +69,7 @@ describe("e2e", () => {
   });
 
   // status +-
-  /*  it("Get node status", async () => {
+  it("Get node status", async () => {
     const result = await client.query<{ status: NodeStatusResult }>({
       uri: apiUri,
       query: `query {
@@ -97,10 +93,10 @@ describe("e2e", () => {
     expect(status.version).toStrictEqual(nearStatus.version);
     expect(status.validators.length).toStrictEqual(nearStatus.validators.length);
     expect(status.validators).toStrictEqual(nearStatus.validators);
-  });  */
+  });
 
   // gasPrice +
-  /* it("Get gas price", async () => {
+  it("Get gas price", async () => {
     const blockId = latestBlock.header.hash;
     const result = await client.query<{ gasPrice: BigInt }>({
       uri: apiUri,
@@ -122,10 +118,10 @@ describe("e2e", () => {
 
     const { gas_price } = await near.connection.provider.gasPrice(blockId);
     expect(gasPrice.toString()).toStrictEqual(gas_price);
-  }); */
+  });
 
   // blockChanges +
-  /*  it("Get block changes", async () => {
+  it("Get block changes", async () => {
     const block = await near.connection.provider.block({ finality: "final" });
     const blockQuery: BlockReference = { blockId: block.header.hash };
     const result = await client.query<{ blockChanges: BlockChangeResult }>({
@@ -151,10 +147,10 @@ describe("e2e", () => {
     expect(blockChanges.block_hash).toStrictEqual(nearBlockChanges.block_hash);
     expect(blockChanges.changes.length).toEqual(nearBlockChanges.changes.length);
     //expect(blockChanges.changes).toEqual(nearBlockChanges.changes); //TODO change property changeType to type after https://github.com/polywrap/monorepo/issues/721
-  }); */
+  });
 
   //experimental_protocolConfig +
-  /* it("Get protocol config", async () => {
+  it("Get protocol config", async () => {
     const blockReference = { finality: "final" as Finality };
     const result = await client.query<{ experimental_protocolConfig: NearProtocolConfig }>({
       uri: apiUri,
@@ -178,10 +174,10 @@ describe("e2e", () => {
     expect(protocolConfig.runtime_config.storage_amount_per_byte).toStrictEqual(
       nearProtocolConfig.runtime_config.storage_amount_per_byte
     );
-  }); */
+  });
 
   // chunk +
-  /* it("json rpc fetch chunk info", async () => {
+  it("json rpc fetch chunk info", async () => {
     const hash = latestBlock.chunks[0].chunk_hash;
 
     const result = await client.query<{ chunk: ChunkResult }>({
@@ -205,10 +201,10 @@ describe("e2e", () => {
     const nearChunk = await near.connection.provider.chunk(hash);
 
     expect(chunk.header.chunk_hash).toEqual(nearChunk.header.chunk_hash);
-  }); */
+  });
 
   //validators +- response error : Validator info unavailable
-  /*  it("Get validators", async () => {
+  it("Get validators", async () => {
     const blockId = latestBlock.header.hash;
 
     const result = await client.query<{ validators: EpochValidatorInfo }>({
@@ -265,16 +261,21 @@ describe("e2e", () => {
 
     expect(validators.epoch_start_height).toEqual(nearValidators.epoch_start_height);
     //expect(validators.epoch_height)
-  });  */
+  });
 
   //lightClientProof
-  /* it("Get lightClientProof", async () => {
+  it("Get lightClientProof", async () => {
     const lightClientHead = latestBlock.header.last_final_block;
 
-    const lightClientProofRequest:LightClientProofRequest = {
+    const sender = await testUtils.createAccount(near);
+    const receiver = await testUtils.createAccount(near);
+    const outcome = await sender.sendMoney(receiver.accountId, new BN("1"));
+
+    const lightClientProofRequest: LightClientProofRequest = {
       type: IdType.Transaction,
       light_client_head: lightClientHead,
-      transaction_hash: // TODO
+      transaction_hash: outcome.transaction.hash!,
+      sender_id: sender.accountId,
     };
 
     const result = await client.query<{ lightClientProof: LightClientProof }>({
@@ -309,9 +310,12 @@ describe("e2e", () => {
     expect(lightClientProof.block_proof).toEqual(nearLightClientProof.block_proof);
     expect(lightClientProof.outcome_proof).toEqual(nearLightClientProof.outcome_proof);
     expect(lightClientProof.outcome_root_proof).toEqual(nearLightClientProof.outcome_root_proof);
-  }); */
 
-  // accessKeyChanges
+    await sender.deleteAccount(workingAccount.accountId);
+    await receiver.deleteAccount(workingAccount.accountId);
+  });
+
+  // accessKeyChanges +
   it("Get access key changes", async () => {
     const blockQuery = { block_id: latestBlock.header.hash, finality: null, syncCheckpoint: null };
     const accountIdArray = [workingAccount.accountId];
@@ -344,7 +348,7 @@ describe("e2e", () => {
     expect(accessKeyChanges.changes).toEqual(nearBlockChanges.changes);
   });
 
-  //accountChanges
+  //accountChanges +
   it("Get account changes", async () => {
     const blockQuery = { block_id: latestBlock.header.hash, finality: null, syncCheckpoint: null };
     const accountIdArray = [workingAccount.accountId];
@@ -377,7 +381,7 @@ describe("e2e", () => {
     expect(accountChanges.changes).toEqual(nearBlockChanges.changes);
   });
 
-  //contractCodeChanges
+  //contractCodeChanges +
   it("Get contract code changes", async () => {
     const blockQuery = { block_id: latestBlock.header.hash, finality: null, syncCheckpoint: null };
     const accountIdArray = [workingAccount.accountId];
@@ -410,7 +414,7 @@ describe("e2e", () => {
     expect(contractCodeChanges.changes).toEqual(nearBlockChanges.changes);
   });
 
-  //contractStateChanges
+  //contractStateChanges +
   it("Get contract state changes", async () => {
     const blockQuery = { block_id: latestBlock.header.hash, finality: null, syncCheckpoint: null };
     const accountIdArray = [workingAccount.accountId];
@@ -450,11 +454,16 @@ describe("e2e", () => {
     expect(contractStateChanges.changes).toEqual(nearBlockChanges.changes);
   });
 
-  //singleAccessKeyChanges
+  //singleAccessKeyChanges +
   it("Get single access key changes", async () => {
     const blockQuery = { block_id: latestBlock.header.hash, finality: null, syncCheckpoint: null };
     const accessKeyArray = [
-      { account_id: workingAccount.accountId, public_key: (await near.connection.signer.getPublicKey()).toString() },
+      {
+        account_id: workingAccount.accountId,
+        public_key: (
+          await near.connection.signer.getPublicKey(workingAccount.accountId, testUtils.networkId)
+        ).toString(),
+      },
     ];
     const result = await client.query<{ singleAccessKeyChanges: ChangeResult }>({
       uri: apiUri,
@@ -485,7 +494,7 @@ describe("e2e", () => {
     expect(singleAccessKeyChanges.changes).toEqual(nearBlockChanges.changes);
   });
 
-  //txStatus
+  //txStatus +-
   it("txStatus with string hash", async () => {
     const sender = await testUtils.createAccount(near);
     const receiver = await testUtils.createAccount(near);
@@ -496,7 +505,7 @@ describe("e2e", () => {
       query: `query {
         txStatus(
           txHash: $txHash
-          accountId: $txHash
+          accountId: $accountId
         )
       }`,
       variables: {
@@ -504,17 +513,20 @@ describe("e2e", () => {
         accountId: sender.accountId,
       },
     });
+
+    const nearTxStatus = await near.connection.provider.txStatus(outcome.transaction.hash, sender.accountId);
+
     expect(result.errors).toBeFalsy();
     expect(result.data).toBeTruthy();
 
     const txStatus: FinalExecutionOutcome = result.data!.txStatus;
 
-    const nearTxStatus = await near.connection.provider.txStatus(outcome.transaction.hash, sender.accountId);
-
     expect(txStatus).toMatchObject(nearTxStatus);
+    await sender.deleteAccount(workingAccount.accountId);
+    await receiver.deleteAccount(workingAccount.accountId);
   });
 
-  //txStatusReceipts
+  //txStatusReceipts +-
   it("txStatusReceipts", async () => {
     const sender = await testUtils.createAccount(near);
     const receiver = await testUtils.createAccount(near);
@@ -525,7 +537,7 @@ describe("e2e", () => {
       query: `query {
         txStatusReceipts(
           txHash: $txHash
-          accountId: $txHash
+          accountId: $accountId
         )
       }`,
       variables: {
@@ -533,6 +545,7 @@ describe("e2e", () => {
         accountId: sender.accountId,
       },
     });
+
     expect(result.errors).toBeFalsy();
     expect(result.data).toBeTruthy();
 
@@ -546,5 +559,8 @@ describe("e2e", () => {
     expect("receipts" in txStatusReceipts).toBe(true);
     expect(txStatusReceipts.receipts.length).toBeGreaterThanOrEqual(1);
     expect(txStatusReceipts).toMatchObject(nearTxStatusReceipts);
+
+    await sender.deleteAccount(workingAccount.accountId);
+    await receiver.deleteAccount(workingAccount.accountId);
   });
 });

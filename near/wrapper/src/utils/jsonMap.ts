@@ -13,6 +13,8 @@ import {
   Near_Receipt,
   Near_ReceiptWithId,
   Near_FinalExecutionOutcome,
+  Near_OutcomeMetaData,
+  Near_GasProfile,
   Near_Transaction,
   NearProtocolConfig,
   NodeStatusResult,
@@ -281,21 +283,21 @@ export function toAction(json: JSON.Obj): Near_Action {
   //const keys = obj.keys();
   const values = <JSON.Obj>obj.values()[0];
 
-  const deposit = values.getString("deposit")!.valueOf();
-  const args = values.getString("args")!.valueOf();
-  const gas = values.getString("args")!.valueOf();
-  const method_name = values.getString("method_name")!.valueOf();
-  if (deposit) {
-    action.deposit = BigInt.fromString(deposit);
+  const depositValue = values.getString("deposit");
+  const argsValue = values.getString("args");
+  const gasValue = values.getString("args");
+  const method_nameValue = values.getString("method_name");
+  if (depositValue != null) {
+    action.deposit = BigInt.fromString(depositValue.valueOf());
   }
-  if (args) {
-    action.args = bs58.decode(args).buffer;
+  if (argsValue != null) {
+    action.args = bs58.decode(argsValue.valueOf()).buffer;
   }
-  if (gas) {
-    action.gas = BigInt.fromString(gas);
+  if (gasValue != null) {
+    action.gas = BigInt.fromString(gasValue.valueOf());
   }
-  if (method_name) {
-    action.methodName = method_name;
+  if (method_nameValue != null) {
+    action.methodName = method_nameValue.valueOf();
   }
   return action;
 }
@@ -315,7 +317,7 @@ export function toReceiptWithId(json: JSON.Obj): Near_ReceiptWithId {
 }
 
 export function toExecutionOutcome(json: JSON.Obj): Near_ExecutionOutcome {
-  return {
+  const result: Near_ExecutionOutcome = {
     logs: json
       .getArr("logs")!
       .valueOf()
@@ -323,14 +325,24 @@ export function toExecutionOutcome(json: JSON.Obj): Near_ExecutionOutcome {
     receipt_ids: json
       .getArr("receipt_ids")!
       .valueOf()
-      .map<string>((v: JSON.Value) => v.stringify()),
-    gas_burnt: BigInt.fromString(json.getString("gas_burnt")!.valueOf()),
-    tokens_burnt: json.getString("tokens_burnt")!.valueOf(),
+      .map<string>((v: JSON.Value) => v.toString()),
+    gas_burnt: BigInt.fromString(json.getValue("gas_burnt")!.stringify()), //TODO change to BigNumber
+    metadata: null,
+    tokens_burnt: null,
     executor_id: json.getString("executor_id")!.valueOf(),
-    status: {
-      successReceiptId: json.getObj("status")!.getString("SuccessReceiptId")!.valueOf(),
-    } as Near_ExecutionStatus,
-  } as Near_ExecutionOutcome;
+    status: toExecutionStatus(json.getObj("status")!),
+  };
+
+  const tokens_burntValue = json.getString("tokens_burnt");
+  if (tokens_burntValue != null) {
+    result.tokens_burnt = tokens_burntValue.valueOf();
+  }
+
+  const metadataValue = json.getObj("metadata");
+  if (metadataValue != null) {
+    result.metadata = toOutcomeMetadata(metadataValue);
+  }
+  return result;
 }
 
 export function toExecutionOutcomeWithId(json: JSON.Obj): Near_ExecutionOutcomeWithId {
@@ -346,18 +358,27 @@ export function toExecutionOutcomeWithId(json: JSON.Obj): Near_ExecutionOutcomeW
 }
 
 export function toTransaction(transaction: JSON.Obj): Near_Transaction {
-  return {
+  const result: Near_Transaction = {
     signerId: transaction.getString("signer_id")!.valueOf(),
     publicKey: publicKeyFromStr(transaction.getString("public_key")!.valueOf()),
-    nonce: BigInt.fromString(transaction.getValue("nonce")!.stringify()),
+    nonce: BigInt.fromString(transaction.getValue("nonce")!.stringify()), //TODO change to BigNumber
     receiverId: transaction.getString("receiver_id")!.valueOf(),
     actions: transaction
       .getArr("actions")!
       .valueOf()
       .map<Near_Action>((v: JSON.Value) => toAction(<JSON.Obj>v)),
-    blockHash: bs58.decode(transaction.getString("block_hash")!.valueOf()).buffer,
-    hash: transaction.getString("hash")!.valueOf(),
-  };
+  } as Near_Transaction;
+
+  const blockHashValue = transaction.getString("block_hash");
+  const hashValue = transaction.getString("hash");
+  if (blockHashValue != null) {
+    hashValue;
+    result.blockHash = bs58.decode(blockHashValue.valueOf()).buffer;
+  }
+  if (hashValue != null) {
+    result.hash = hashValue.valueOf();
+  }
+  return result;
 }
 
 export function toFinalExecutionOutcome(json: JSON.Obj): Near_FinalExecutionOutcome {
@@ -368,7 +389,7 @@ export function toFinalExecutionOutcome(json: JSON.Obj): Near_FinalExecutionOutc
 
   return {
     status: {
-      successValue: status.getString("SuccessValue")!.valueOf(),
+      SuccessValue: status.getString("SuccessValue")!.valueOf(),
     },
     transaction: toTransaction(transaction),
     transaction_outcome: toExecutionOutcomeWithId(transaction_outcome),
@@ -396,7 +417,7 @@ export function toFinalExecutionOutcomeWithReceipts(json: JSON.Obj): Near_FinalE
   const txStatusReceipts: Near_FinalExecutionOutcomeWithReceipts = {
     receipts: receipts,
     status: {
-      successValue: status.getString("SuccessValue")!.valueOf(),
+      SuccessValue: status.getString("SuccessValue")!.valueOf(),
     } as Near_ExecutionStatus,
     transaction: toTransaction(transaction),
     transaction_outcome: toExecutionOutcomeWithId(transaction_outcome),
@@ -499,4 +520,43 @@ function toBlockHeaderLite(json: JSON.Obj): LightClientBlockLiteView {
 
 function toExecutionProof(json: JSON.Obj): Near_ExecutionProof {
   return { hash: json.getString("hash")!.valueOf(), direction: json.getString("direction")!.valueOf() };
+}
+
+function toOutcomeMetadata(json: JSON.Obj): Near_OutcomeMetaData {
+  const metadata: Near_OutcomeMetaData = {
+    gas_profile: [],
+    version: BigInt.fromString(json.getValue("version")!.stringify()).toUInt32(),
+  };
+  const gas_profileValue = json.getArr("gas_profile");
+  if (gas_profileValue != null) {
+    metadata.gas_profile = gas_profileValue.valueOf().map<Near_GasProfile | null>((v: JSON.Value) => {
+      const profile = <JSON.Obj>v;
+      return {
+        cost: profile.getString("cost")!.valueOf(),
+        cost_category: profile.getString("cost_category")!.valueOf(),
+        gas_used: profile.getString("gas_used")!.valueOf(),
+      };
+    });
+  }
+  return metadata;
+}
+
+function toExecutionStatus(json: JSON.Obj): Near_ExecutionStatus {
+  const result = {} as Near_ExecutionStatus;
+
+  const successValue = json.getString("SuccessValue");
+  if (successValue != null) {
+    result.SuccessValue = successValue.valueOf();
+  }
+
+  const successReceiptId = json.getString("successReceiptId");
+  if (successReceiptId != null) {
+    result.successReceiptId = successReceiptId.valueOf();
+  }
+
+  const failure = json.getValue("failure");
+  if (failure != null) {
+    result.failure = failure;
+  }
+  return result;
 }
