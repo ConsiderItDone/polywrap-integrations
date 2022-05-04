@@ -2,7 +2,6 @@ import { Web3ApiClient } from "@web3api/client-js";
 import { NearPluginConfig, KeyPair } from "../../../plugin-js";
 import {
   BlockChangeResult,
-  BlockReference,
   NearProtocolConfig,
   ChangeResult,
   EpochValidatorInfo,
