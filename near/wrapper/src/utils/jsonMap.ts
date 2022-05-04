@@ -37,8 +37,8 @@ import * as bs58 from "as-base58";
 export function fromBlockReference(blockQuery: BlockReference): JSON.Obj {
   const encoder = new JSONEncoder();
   encoder.pushObject(null);
-  if (blockQuery.blockId != null) {
-    encoder.setString("block_id", blockQuery.blockId!);
+  if (blockQuery.block_id != null) {
+    encoder.setString("block_id", blockQuery.block_id!);
   }
   if (blockQuery.finality != null) {
     encoder.setString("finality", blockQuery.finality!);

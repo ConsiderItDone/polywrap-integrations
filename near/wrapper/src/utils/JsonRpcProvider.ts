@@ -52,7 +52,7 @@ export default class JsonRpcProvider {
    */
 
   protocolConfig(
-    protocolQuery: BlockReference = { finality: "final", blockId: null, syncCheckpoint: null }
+    protocolQuery: BlockReference = { finality: "final", block_id: null, syncCheckpoint: null }
   ): NearProtocolConfig {
     const params: JSON.Obj = fromBlockReference(protocolQuery);
     const json = this.sendJsonRpc("EXPERIMENTAL_protocol_config", params);
@@ -143,10 +143,10 @@ export default class JsonRpcProvider {
     }
     encoder.popArray();
 
-    if (blockQuery.blockId != null) {
-      encoder.setString("block_id", blockQuery.blockId!);
+    if (blockQuery.block_id !== null) {
+      encoder.setString("block_id", blockQuery.block_id!);
     }
-    if (blockQuery.finality != null) {
+    if (blockQuery.finality !== null) {
       encoder.setString("finality", blockQuery.finality!);
     }
     encoder.popObject();
@@ -164,10 +164,10 @@ export default class JsonRpcProvider {
     }
     encoder.popArray();
 
-    if (blockQuery.blockId != null) {
-      encoder.setString("block_id", blockQuery.blockId!);
+    if (blockQuery.block_id !== null) {
+      encoder.setString("block_id", blockQuery.block_id!);
     }
-    if (blockQuery.finality != null) {
+    if (blockQuery.finality !== null) {
       encoder.setString("finality", blockQuery.finality!);
     }
     encoder.popObject();
@@ -189,10 +189,10 @@ export default class JsonRpcProvider {
       encoder.setString("key_prefix_base64", keyPrefix);
     }
 
-    if (blockQuery.blockId != null) {
-      encoder.setString("block_id", blockQuery.blockId!);
+    if (blockQuery.block_id !== null) {
+      encoder.setString("block_id", blockQuery.block_id!);
     }
-    if (blockQuery.finality != null) {
+    if (blockQuery.finality !== null) {
       encoder.setString("finality", blockQuery.finality!);
     }
     encoder.popObject();
@@ -210,10 +210,10 @@ export default class JsonRpcProvider {
     }
     encoder.popArray();
 
-    if (blockQuery.blockId != null) {
-      encoder.setString("block_id", blockQuery.blockId!);
+    if (blockQuery.block_id !== null) {
+      encoder.setString("block_id", blockQuery.block_id!);
     }
-    if (blockQuery.finality != null) {
+    if (blockQuery.finality !== null) {
       encoder.setString("finality", blockQuery.finality!);
     }
     encoder.popObject();
@@ -244,10 +244,10 @@ export default class JsonRpcProvider {
     }
     encoder.popArray();
 
-    if (blockQuery.blockId != null) {
-      encoder.setString("block_id", blockQuery.blockId!);
+    if (blockQuery.block_id !== null) {
+      encoder.setString("block_id", blockQuery.block_id!);
     }
-    if (blockQuery.finality != null) {
+    if (blockQuery.finality !== null) {
       encoder.setString("finality", blockQuery.finality!);
     }
     encoder.popObject();

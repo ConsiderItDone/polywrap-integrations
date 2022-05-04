@@ -250,7 +250,7 @@ export function createTransaction(input: Input_createTransaction): Near_Transact
   const block: BlockResult = getBlock({
     blockQuery: {
       finality: "final",
-      blockId: null,
+      block_id: null,
       syncCheckpoint: null,
     },
   });
