@@ -151,7 +151,7 @@ describe("e2e", () => {
     expect(blockChanges.block_hash).toBeTruthy();
     expect(blockChanges.changes).toBeInstanceOf(Array);
 
-    const nearBlockChanges = await near.connection.provider.blockChanges({ blockId: blockQuery.blockId! });
+    const nearBlockChanges = await near.connection.provider.blockChanges({ blockId: blockQuery.block_id! });
 
     expect(blockChanges.block_hash).toStrictEqual(nearBlockChanges.block_hash);
     expect(blockChanges.changes.length).toEqual(nearBlockChanges.changes.length);
