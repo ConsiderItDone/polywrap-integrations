@@ -1,6 +1,7 @@
-import { Web3ApiClient } from "@web3api/client-js";
 import { NearPluginConfig } from "../../../plugin-js"; //TODO change to appropriate package
 import * as testUtils from "./testUtils";
+
+import { Web3ApiClient } from "@web3api/client-js";
 import * as nearApi from "near-api-js";
 import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
 import path from "path";
@@ -31,7 +32,7 @@ describe("e2e", () => {
   });
 
   it.each(testUtils.valuesToFormat.slice(0, 3))("Format Near amount", async (amount) => {
-    const result = await client.query<{ formatNearAmount: String }>({
+    const result = await client.query<{ formatNearAmount: string }>({
       uri: apiUri,
       query: `query {
           formatNearAmount(
@@ -45,7 +46,7 @@ describe("e2e", () => {
     expect(result.errors).toBeFalsy();
     expect(result.data).toBeTruthy();
 
-    const formatted: String = result.data!.formatNearAmount;
+    const formatted: string = result.data!.formatNearAmount;
     expect(formatted).toBeTruthy();
 
     expect(formatted).toEqual(nearApi.utils.format.formatNearAmount(amount, 24));

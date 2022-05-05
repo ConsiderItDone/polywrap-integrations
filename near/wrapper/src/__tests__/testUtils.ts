@@ -1,27 +1,26 @@
+/* eslint-disable @typescript-eslint/naming-convention */
+/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable @typescript-eslint/no-require-imports */
 // copied and modified from https://github.com/near/near-api-js/blob/master/test/test-utils.js
+import { nearPlugin, KeyPair, KeyStores, NearPluginConfig } from "../../../plugin-js";
+import { PublicKey } from "./tsTypes";
+
 import { ClientConfig } from "@web3api/client-js";
 import { ensPlugin } from "@web3api/ens-plugin-js";
 import { ethereumPlugin } from "@web3api/ethereum-plugin-js";
 import { ipfsPlugin } from "@web3api/ipfs-plugin-js";
 import * as fs from "fs/promises";
-const BN = require("bn.js");
 import * as nearApi from "near-api-js";
-import { nearPlugin, KeyPair, KeyStores, NearPluginConfig } from "../../../plugin-js";
 import * as path from "path";
-import { PublicKey } from "./tsTypes";
+
+const BN = require("bn.js");
 
 export const networkId = "testnet";
-export const testAccountId = "polydev.testnet";
-const PRIVATE_KEY = "ed25519:W9dWnSjawNKbr5eC6z9SbTXg25fp1j8s8aGSMtABKRzKTPYLJA8Fzimb6hkq7U7JwEXGNgwCo7YhmBpfMFWy11j";
+export const testAccountId = "polywraptest.testnet";
+const PRIVATE_KEY = "ed25519:3ZASru2hHvoDpT4jut4b8LqRBnz4GqMhtp24AzkLwdhuLDm6xgptkNmXVGWwfdyFHnnnG512Xb5RJcA7Cup3yjcG";
 
 const HELLO_WASM_PATH = path.resolve(__dirname + "../../../node_modules/near-hello/dist/main.wasm");
 const HELLO_WASM_BALANCE = new BN("1000000000000000000000000");
-/* export const HELLO_WASM_METHODS = {
-  viewMethods: ["getValue", "getLastResult"],
-  changeMethods: ["setValue", "callPromise"],
-  allMethods: ["getValue", "getLastResult", "setValue", "callPromise"],
-}; */
-
 export const HELLO_WASM_METHODS = {
   viewMethods: ["getValue", "getLastResult"],
   changeMethods: ["setValue", "callPromise"],
@@ -33,8 +32,8 @@ const RANDOM_ACCOUNT_LENGTH = 40;
 export async function setUpTestConfig(): Promise<NearPluginConfig> {
   const keyStore = new KeyStores.InMemoryKeyStore();
   const keyPair = KeyPair.fromString(PRIVATE_KEY);
-  let config: NearPluginConfig = {
-    headers: {},
+  const config: NearPluginConfig = {
+    keyPair: keyPair,
     networkId: networkId,
     keyStore: keyStore,
     nodeUrl: "https://rpc.testnet.near.org",
@@ -54,7 +53,7 @@ export async function setUpTestConfig(): Promise<NearPluginConfig> {
 // Generate some unique string of length at least RANDOM_ACCOUNT_LENGTH with a given prefix using the alice nonce.
 export function generateUniqueString(prefix: string): string {
   let result = `${prefix}-${Date.now()}-${Math.round(Math.random() * 1000000)}`;
-  let add_symbols = Math.max(RANDOM_ACCOUNT_LENGTH - result.length, 1);
+  const add_symbols = Math.max(RANDOM_ACCOUNT_LENGTH - result.length, 1);
   for (let i = add_symbols; i > 0; --i) result += "0";
   return result;
 }
@@ -69,7 +68,7 @@ export async function createAccount(near: nearApi.Near): Promise<nearApi.Account
   return new nearApi.Account(near.connection, newAccountName);
 }
 
-export async function deployContract(workingAccount: nearApi.Account, contractId: string) {
+export async function deployContract(workingAccount: nearApi.Account, contractId: string): Promise<nearApi.Contract> {
   const newPublicKey = await workingAccount.connection.signer.createKey(contractId, networkId);
   const data = (await fs.readFile(HELLO_WASM_PATH)).valueOf();
   await workingAccount.createAndDeployContract(contractId, newPublicKey, data, HELLO_WASM_BALANCE);

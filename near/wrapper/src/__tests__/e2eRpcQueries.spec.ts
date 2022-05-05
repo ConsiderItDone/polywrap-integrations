@@ -1,18 +1,19 @@
-import { Web3ApiClient } from "@web3api/client-js";
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { NearPluginConfig, KeyPair } from "../../../plugin-js"; //TODO change to appropriate package
-import {
-  //BlockChangeResult,
-  //BlockReference,
-  //BlockResult,
-  //AccountView,
-  //PublicKey,
-  //AccessKeyInfo,
-  //AccessKey,
-  //ChangeResult,
-  //EpochValidatorInfo,
-  //NearProtocolConfig,
-} from "./tsTypes";
+import //BlockChangeResult,
+//BlockReference,
+//BlockResult,
+//AccountView,
+//PublicKey,
+//AccessKeyInfo,
+//AccessKey,
+//ChangeResult,
+//EpochValidatorInfo,
+//NearProtocolConfig,
+"./tsTypes";
 import * as testUtils from "./testUtils";
+
+import { Web3ApiClient } from "@web3api/client-js";
 import * as nearApi from "near-api-js";
 import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
 import path from "path";
@@ -54,7 +55,7 @@ describe("e2e", () => {
     await testUtils.deployContract(workingAccount, contractId);
 
     // set up access key
-    
+
     const keyPair = KeyPair.fromRandom("ed25519");
     /* await workingAccount.addKey(
       keyPair.getPublicKey(),
