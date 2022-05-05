@@ -154,5 +154,5 @@ export function createAndDeployContract(input: Input_createAndDeployContract): b
     ],
   });
   //const contractAccount = createAccount({})
-  return !!contractResult.status.successValue;
+  return !!contractResult.status.SuccessValue;
 }

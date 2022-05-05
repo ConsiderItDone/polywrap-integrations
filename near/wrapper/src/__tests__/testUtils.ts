@@ -60,11 +60,8 @@ export function generateUniqueString(prefix: string): string {
 
 export async function createAccount(near: nearApi.Near): Promise<nearApi.Account> {
   const newAccountName = generateUniqueString("test");
-  console.log("before key");
   const newPublicKey = await near.connection.signer.createKey(newAccountName, networkId);
-  console.log("before create");
   await near.createAccount(newAccountName, newPublicKey);
-  console.log("after create");
   return new nearApi.Account(near.connection, newAccountName);
 }
 

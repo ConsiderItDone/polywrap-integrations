@@ -1,16 +1,18 @@
+
 /* eslint-disable @typescript-eslint/naming-convention */
+
+import { Web3ApiClient } from "@web3api/client-js";
+import { NearPluginConfig, KeyPair } from "../../../plugin-js";
+
 import {
   BlockChangeResult,
-  BlockReference,
   NearProtocolConfig,
-  //BlockResult,
-  //EpochValidatorInfo,
-  //BlockResult, AccountView, PublicKey, AccessKeyInfo, AccessKey */,
-  //ChangeResult,
-  //,
-  //IdType,
-  //LightClientProof,
-  //LightClientProofRequest,
+  ChangeResult,
+  EpochValidatorInfo,
+  IdType,
+  LightClientProof,
+  LightClientProofRequest,
+  NodeStatusResult,
 } from "./tsTypes";
 import * as testUtils from "./testUtils";
 import {
@@ -27,10 +29,11 @@ import type { Finality } from "near-api-js/lib/providers/provider";
 import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
 import path from "path";
 
-//const BN = require("bn.js");
-//import { HELLO_WASM_METHODS /* , networkId, publicKeyToStr */ } from "./testUtils";
-//import { NodeStatusResult } from "./tsTypes";
-/* import { AccountAuthorizedApp,  AccountBalance } "near-api-js/lib/account";*/
+const BN = require("bn.js");
+import { HELLO_WASM_METHODS /* , networkId, publicKeyToStr */ } from "./testUtils";
+import { ChunkResult, FinalExecutionOutcome, FinalExecutionOutcomeWithReceipts } from "./tsTypes";
+//import { AccountAuthorizedApp,  AccountBalance } from "near-api-js/lib/account";
+
 
 jest.setTimeout(360000);
 
@@ -40,8 +43,11 @@ describe("e2e", () => {
 
   let nearConfig: NearPluginConfig;
   let near: nearApi.Near;
-  //let workingAccount: nearApi.Account;
-  //let contractId: string;
+  let workingAccount: nearApi.Account;
+  let sender: nearApi.Account;
+  let receiver: nearApi.Account;
+  let contractId: string;
+  let transactionOutcome: nearApi.providers.FinalExecutionOutcome;
   let latestBlock: NearBlockResult;
 
   beforeAll(async () => {
@@ -60,26 +66,33 @@ describe("e2e", () => {
     latestBlock = await near.connection.provider.block({ finality: "final" });
 
     // set up contract account
-    //contractId = testUtils.generateUniqueString("test");
-    //workingAccount = await testUtils.createAccount(near);
-    //await testUtils.deployContract(workingAccount, contractId);
+    contractId = testUtils.generateUniqueString("test");
+    workingAccount = await testUtils.createAccount(near);
+    await testUtils.deployContract(workingAccount, contractId);
     // set up access key
-    //const keyPair = KeyPair.fromRandom("ed25519");
-    /* await workingAccount.addKey(
+    const keyPair = KeyPair.fromRandom("ed25519");
+    await workingAccount.addKey(
       keyPair.getPublicKey(),
       contractId,
       HELLO_WASM_METHODS.changeMethods,
       new BN("2000000000000000000000000")
-    ); */
-    //await nearConfig.keyStore!.setKey(testUtils.networkId, workingAccount.accountId, keyPair);
+    );
+
+    await nearConfig.keyStore!.setKey(testUtils.networkId, workingAccount.accountId, keyPair);
+
+    sender = await testUtils.createAccount(near);
+    receiver = await testUtils.createAccount(near);
+    transactionOutcome = await sender.sendMoney(receiver.accountId, new BN("1"));
   });
 
   afterAll(async () => {
     await stopTestEnvironment();
+    await sender.deleteAccount(workingAccount.accountId);
+    await receiver.deleteAccount(workingAccount.accountId);
   });
 
   // status +-
-  /*  it("Get node status", async () => {
+  it("Get node status", async () => {
     const result = await client.query<{ status: NodeStatusResult }>({
       uri: apiUri,
       query: `query {
@@ -103,7 +116,7 @@ describe("e2e", () => {
     expect(status.version).toStrictEqual(nearStatus.version);
     expect(status.validators.length).toStrictEqual(nearStatus.validators.length);
     expect(status.validators).toStrictEqual(nearStatus.validators);
-  });  */
+  });
 
   // gasPrice +
   it("Get gas price", async () => {
@@ -132,8 +145,7 @@ describe("e2e", () => {
 
   // blockChanges +
   it("Get block changes", async () => {
-    const block = await near.connection.provider.block({ finality: "final" });
-    const blockQuery: BlockReference = { blockId: block.header.hash };
+    const blockQuery = { block_id: latestBlock.header.hash, finality: null, syncCheckpoint: null };
     const result = await client.query<{ blockChanges: BlockChangeResult }>({
       uri: apiUri,
       query: `query {
@@ -152,7 +164,7 @@ describe("e2e", () => {
     expect(blockChanges.block_hash).toBeTruthy();
     expect(blockChanges.changes).toBeInstanceOf(Array);
 
-    const nearBlockChanges = await near.connection.provider.blockChanges({ blockId: blockQuery.blockId! });
+    const nearBlockChanges = await near.connection.provider.blockChanges({ blockId: blockQuery.block_id! });
 
     expect(blockChanges.block_hash).toStrictEqual(nearBlockChanges.block_hash);
     expect(blockChanges.changes.length).toEqual(nearBlockChanges.changes.length);
@@ -214,7 +226,7 @@ describe("e2e", () => {
   });
 
   //validators +- response error : Validator info unavailable
-  /*  it("Get validators", async () => {
+  it("Get validators", async () => {
     const blockId = latestBlock.header.hash;
 
     const result = await client.query<{ validators: EpochValidatorInfo }>({
@@ -271,16 +283,15 @@ describe("e2e", () => {
 
     expect(validators.epoch_start_height).toEqual(nearValidators.epoch_start_height);
     //expect(validators.epoch_height)
-  });  */
+  });
 
   //lightClientProof
-  /* it("Get lightClientProof", async () => {
-    const lightClientHead = latestBlock.header.last_final_block;
-
-    const lightClientProofRequest:LightClientProofRequest = {
+  it("Get lightClientProof", async () => {
+    const lightClientProofRequest: LightClientProofRequest = {
       type: IdType.Transaction,
-      light_client_head: lightClientHead,
-      transaction_hash: // TODO
+      light_client_head: latestBlock.header.last_final_block,
+      transaction_hash: transactionOutcome.transaction.hash!,
+      sender_id: sender.accountId,
     };
 
     const result = await client.query<{ lightClientProof: LightClientProof }>({
@@ -315,11 +326,11 @@ describe("e2e", () => {
     expect(lightClientProof.block_proof).toEqual(nearLightClientProof.block_proof);
     expect(lightClientProof.outcome_proof).toEqual(nearLightClientProof.outcome_proof);
     expect(lightClientProof.outcome_root_proof).toEqual(nearLightClientProof.outcome_root_proof);
-  }); */
+  });
 
-  // accessKeyChanges
-  /* it("Get access key changes", async () => {
-    const blockQuery = { block_id: "AXa8CHDQSA8RdFCt12rtpFraVq4fDUgJbLPxwbaZcZrj" };
+  // accessKeyChanges +
+  it("Get access key changes", async () => {
+    const blockQuery = { block_id: latestBlock.header.hash, finality: null, syncCheckpoint: null };
     const accountIdArray = [workingAccount.accountId];
     const result = await client.query<{ accessKeyChanges: ChangeResult }>({
       uri: apiUri,
@@ -348,11 +359,11 @@ describe("e2e", () => {
     expect(accessKeyChanges.block_hash).toStrictEqual(nearBlockChanges.block_hash);
     expect(accessKeyChanges.changes.length).toEqual(nearBlockChanges.changes.length);
     expect(accessKeyChanges.changes).toEqual(nearBlockChanges.changes);
-  }); */
+  });
 
-  /* //accountChanges
-    it("Get account changes", async () => {
-    const blockQuery = { block_id: "AXa8CHDQSA8RdFCt12rtpFraVq4fDUgJbLPxwbaZcZrj" };
+  //accountChanges +
+  it("Get account changes", async () => {
+    const blockQuery = { block_id: latestBlock.header.hash, finality: null, syncCheckpoint: null };
     const accountIdArray = [workingAccount.accountId];
     const result = await client.query<{ accountChanges: ChangeResult }>({
       uri: apiUri,
@@ -381,11 +392,11 @@ describe("e2e", () => {
     expect(accountChanges.block_hash).toStrictEqual(nearBlockChanges.block_hash);
     expect(accountChanges.changes.length).toEqual(nearBlockChanges.changes.length);
     expect(accountChanges.changes).toEqual(nearBlockChanges.changes);
-  }); */
+  });
 
-  /* //contractCodeChanges
-    it("Get contract code changes", async () => {
-    const blockQuery = { block_id: "AXa8CHDQSA8RdFCt12rtpFraVq4fDUgJbLPxwbaZcZrj" };
+  //contractCodeChanges +
+  it("Get contract code changes", async () => {
+    const blockQuery = { block_id: latestBlock.header.hash, finality: null, syncCheckpoint: null };
     const accountIdArray = [workingAccount.accountId];
     const result = await client.query<{ contractCodeChanges: ChangeResult }>({
       uri: apiUri,
@@ -414,11 +425,11 @@ describe("e2e", () => {
     expect(contractCodeChanges.block_hash).toStrictEqual(nearBlockChanges.block_hash);
     expect(contractCodeChanges.changes.length).toEqual(nearBlockChanges.changes.length);
     expect(contractCodeChanges.changes).toEqual(nearBlockChanges.changes);
-  }); */
+  });
 
-  /* //contractStateChanges
-   it("Get contract state changes", async () => {
-    const blockQuery = { block_id: "AXa8CHDQSA8RdFCt12rtpFraVq4fDUgJbLPxwbaZcZrj" };
+  //contractStateChanges +
+  it("Get contract state changes", async () => {
+    const blockQuery = { block_id: latestBlock.header.hash, finality: null, syncCheckpoint: null };
     const accountIdArray = [workingAccount.accountId];
     const keyPrefix = "";
     const result = await client.query<{ contractStateChanges: ChangeResult }>({
@@ -454,13 +465,18 @@ describe("e2e", () => {
     expect(contractStateChanges.block_hash).toStrictEqual(nearBlockChanges.block_hash);
     expect(contractStateChanges.changes.length).toEqual(nearBlockChanges.changes.length);
     expect(contractStateChanges.changes).toEqual(nearBlockChanges.changes);
-  }); */
+  });
 
-  /* //singleAccessKeyChanges
-   it("Get single access key changes", async () => {
-    const blockQuery = { block_id: "AXa8CHDQSA8RdFCt12rtpFraVq4fDUgJbLPxwbaZcZrj" };
+  //singleAccessKeyChanges +
+  it("Get single access key changes", async () => {
+    const blockQuery = { block_id: latestBlock.header.hash, finality: null, syncCheckpoint: null };
     const accessKeyArray = [
-      { account_id: workingAccount.accountId, public_key: (await near.connection.signer.getPublicKey()).toString() },
+      {
+        account_id: workingAccount.accountId,
+        public_key: (
+          await near.connection.signer.getPublicKey(workingAccount.accountId, testUtils.networkId)
+        ).toString(),
+      },
     ];
     const result = await client.query<{ singleAccessKeyChanges: ChangeResult }>({
       uri: apiUri,
@@ -489,65 +505,62 @@ describe("e2e", () => {
     expect(singleAccessKeyChanges.block_hash).toStrictEqual(nearBlockChanges.block_hash);
     expect(singleAccessKeyChanges.changes.length).toEqual(nearBlockChanges.changes.length);
     expect(singleAccessKeyChanges.changes).toEqual(nearBlockChanges.changes);
-  }); */
+  });
 
-  /* //txStatus
+  //txStatus +-
   it("txStatus with string hash", async () => {
-    const sender = await testUtils.createAccount(near);
-    const receiver = await testUtils.createAccount(near);
-    const outcome = await sender.sendMoney(receiver.accountId, new BN("1"));
-
     const result = await client.query<{ txStatus: FinalExecutionOutcome }>({
       uri: apiUri,
       query: `query {
         txStatus(
           txHash: $txHash
-          accountId: $txHash
+          accountId: $accountId
         )
       }`,
       variables: {
-        txHash: outcome.transaction.hash,
+        txHash: transactionOutcome.transaction.hash,
         accountId: sender.accountId,
       },
     });
+
+    const nearTxStatus = await near.connection.provider.txStatus(transactionOutcome.transaction.hash, sender.accountId);
+
     expect(result.errors).toBeFalsy();
     expect(result.data).toBeTruthy();
 
     const txStatus: FinalExecutionOutcome = result.data!.txStatus;
 
-    const nearTxStatus = await near.connection.provider.txStatus(outcome.transaction.hash, sender.accountId);
-
     expect(txStatus).toMatchObject(nearTxStatus);
-  }); */
+  });
 
-  /* //txStatusReceipts
+  //txStatusReceipts +-
   it("txStatusReceipts", async () => {
-    const sender = await testUtils.createAccount(near);
-    const receiver = await testUtils.createAccount(near);
-    const outcome = await sender.sendMoney(receiver.accountId, new BN("1"));
-
     const result = await client.query<{ txStatusReceipts: FinalExecutionOutcomeWithReceipts }>({
       uri: apiUri,
       query: `query {
         txStatusReceipts(
           txHash: $txHash
-          accountId: $txHash
+          accountId: $accountId
         )
       }`,
       variables: {
-        txHash: outcome.transaction.hash,
+        txHash: transactionOutcome.transaction.hash,
         accountId: sender.accountId,
       },
     });
+
     expect(result.errors).toBeFalsy();
     expect(result.data).toBeTruthy();
 
     const txStatusReceipts: FinalExecutionOutcomeWithReceipts = result.data!.txStatusReceipts;
 
-    const nearTxStatusReceipts = await near.connection.provider.txStatusReceipts(outcome.transaction.hash, sender.accountId);
+    const nearTxStatusReceipts = await near.connection.provider.txStatusReceipts(
+      transactionOutcome.transaction.hash,
+      sender.accountId
+    );
 
     expect("receipts" in txStatusReceipts).toBe(true);
     expect(txStatusReceipts.receipts.length).toBeGreaterThanOrEqual(1);
     expect(txStatusReceipts).toMatchObject(nearTxStatusReceipts);
-  }); */
+  });
 });
