@@ -1,5 +1,5 @@
-import { Web3ApiClient } from "@web3api/client-js";
-import { KeyPair, NearPluginConfig } from "near-polywrap-js";
+/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable @typescript-eslint/no-require-imports */
 import {
   ExecutionOutcomeWithId,
   FinalExecutionOutcome,
@@ -9,11 +9,15 @@ import {
   Action,
 } from "./tsTypes";
 import * as testUtils from "./testUtils";
-import * as nearApi from "near-api-js";
-const BN = require("bn.js");
 import { HELLO_WASM_METHODS } from "./testUtils";
+
+import * as nearApi from "near-api-js";
+import { KeyPair, NearPluginConfig } from "near-polywrap-js";
+import { Web3ApiClient } from "@web3api/client-js";
 import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
 import path from "path";
+
+const BN = require("bn.js");
 
 jest.setTimeout(360000);
 
