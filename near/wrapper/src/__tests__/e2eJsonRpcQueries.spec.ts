@@ -1,9 +1,5 @@
 
-/* eslint-disable @typescript-eslint/naming-convention */
-
-import { Web3ApiClient } from "@web3api/client-js";
 import { NearPluginConfig, KeyPair } from "../../../plugin-js";
-
 import {
   BlockChangeResult,
   NearProtocolConfig,
@@ -15,14 +11,7 @@ import {
   NodeStatusResult,
 } from "./tsTypes";
 import * as testUtils from "./testUtils";
-import {
-  ChunkResult,
-  //FinalExecutionOutcome,
-  //FinalExecutionOutcomeWithReceipts
-} from "./tsTypes";
-
 import { Web3ApiClient } from "@web3api/client-js";
-import { NearPluginConfig /* KeyPair */ } from "near-polywrap-js"; //TODO change to appropriate package
 import * as nearApi from "near-api-js";
 import { BlockResult as NearBlockResult } from "near-api-js/lib/providers/provider";
 import type { Finality } from "near-api-js/lib/providers/provider";
@@ -32,8 +21,6 @@ import path from "path";
 const BN = require("bn.js");
 import { HELLO_WASM_METHODS /* , networkId, publicKeyToStr */ } from "./testUtils";
 import { ChunkResult, FinalExecutionOutcome, FinalExecutionOutcomeWithReceipts } from "./tsTypes";
-//import { AccountAuthorizedApp,  AccountBalance } from "near-api-js/lib/account";
-
 
 jest.setTimeout(360000);
 

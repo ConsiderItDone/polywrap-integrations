@@ -2,7 +2,7 @@ import * as testUtils from "./testUtils";
 import { Near_FinalExecutionOutcome } from "../w3";
 
 import { Web3ApiClient } from "@web3api/client-js";
-import { NearPluginConfig } from "near-polywrap-js"; //TODO change to appropriate package
+import { NearPluginConfig } from "../../../plugin-js"; //TODO change to appropriate package
 import * as nearApi from "near-api-js";
 import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
 import path from "path";

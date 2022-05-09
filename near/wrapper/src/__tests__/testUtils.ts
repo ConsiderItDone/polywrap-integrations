@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/naming-convention */
-/* eslint-disable @typescript-eslint/no-var-requires */
-/* eslint-disable @typescript-eslint/no-require-imports */
 // copied and modified from https://github.com/near/near-api-js/blob/master/test/test-utils.js
 import { nearPlugin, KeyPair, KeyStores, NearPluginConfig } from "../../../plugin-js";
 import { PublicKey } from "./tsTypes";
@@ -33,7 +30,7 @@ export async function setUpTestConfig(): Promise<NearPluginConfig> {
   const keyStore = new KeyStores.InMemoryKeyStore();
   const keyPair = KeyPair.fromString(PRIVATE_KEY);
   const config: NearPluginConfig = {
-    keyPair: keyPair,
+    headers: {},
     networkId: networkId,
     keyStore: keyStore,
     nodeUrl: "https://rpc.testnet.near.org",
