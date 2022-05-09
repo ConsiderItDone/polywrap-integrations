@@ -47,6 +47,7 @@ type Mutation {
     signerId: String!
   ): String!
 
+  # create a new Near account
   createAccount(
     newAccountId: String!
     publicKey: Near_PublicKey! # | String

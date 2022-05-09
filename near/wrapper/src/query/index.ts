@@ -307,7 +307,7 @@ export function gasPrice(input: Input_gasPrice): BigInt {
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
   let blockId: string | null = null;
   if (input.blockId !== null) {
-    blockId = input.blockId!
+    blockId = input.blockId!;
   }
   const gasPrice = provider.gasPrice(blockId);
   return BigInt.fromString(gasPrice.getString("gas_price")!.valueOf());

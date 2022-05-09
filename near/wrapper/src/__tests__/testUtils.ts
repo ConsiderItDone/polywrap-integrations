@@ -1,6 +1,6 @@
 // copied and modified from https://github.com/near/near-api-js/blob/master/test/test-utils.js
 import { nearPlugin, KeyPair, KeyStores, NearPluginConfig } from "../../../plugin-js";
-import { PublicKey } from "./tsTypes";
+import { KeyTypeEnum, PublicKey } from "./tsTypes";
 
 import { ClientConfig } from "@web3api/client-js";
 import { ensPlugin } from "@web3api/ens-plugin-js";
@@ -9,7 +9,6 @@ import { ipfsPlugin } from "@web3api/ipfs-plugin-js";
 import * as fs from "fs/promises";
 import * as nearApi from "near-api-js";
 import * as path from "path";
-
 const BN = require("bn.js");
 
 export const networkId = "testnet";
@@ -72,6 +71,17 @@ export async function deployContract(workingAccount: nearApi.Account, contractId
 export const publicKeyToStr = (key: PublicKey): string => {
   const encodedData = nearApi.utils.serialize.base_encode(Uint8Array.from(key.data));
   return `ed25519:${encodedData}`;
+};
+
+export const publicKeyFromStr = (encodedKey: string): PublicKey => {
+  const parts = encodedKey.split(":");
+  if (parts.length == 1) {
+    return { keyType: KeyTypeEnum.ed25519, data: Buffer.from(parts[0]) };
+  } else if (parts.length == 2) {
+    return { keyType: 0, data: Buffer.from(parts[1]) };
+  } else {
+    throw new Error("Invalid encoded key format, must be <curve>:<encoded key>");
+  }
 };
 
 export const getPlugins = (

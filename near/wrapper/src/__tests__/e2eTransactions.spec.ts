@@ -40,23 +40,9 @@ describe("e2e", () => {
 
   beforeAll(async () => {
     // set up test env and deploy api
-    const {
-      ethereum,
-      ensAddress,
-      ipfs,
-      registrarAddress,
-      resolverAddress,
-      reverseAddress,
-    } = await initTestEnvironment();
+    const { ethereum, ensAddress, ipfs } = await initTestEnvironment();
     const apiPath: string = path.resolve(__dirname + "/../../");
-    const api = await buildAndDeployApi({
-      ipfsProvider: ipfs,
-      ensRegistrarAddress: registrarAddress,
-      ensResolverAddress: resolverAddress,
-      ethereumProvider: ethereum,
-      apiAbsPath: apiPath,
-      ensRegistryAddress: reverseAddress,
-    });
+    const api = await buildAndDeployApi(apiPath, ipfs, ensAddress);
     apiUri = `ens/testnet/${api.ensDomain}`;
     // set up client
     nearConfig = await testUtils.setUpTestConfig();
@@ -74,10 +60,10 @@ describe("e2e", () => {
     await workingAccount.addKey(
       keyPair.getPublicKey(),
       contractId,
-      HELLO_WASM_METHODS.allMethods,
+      HELLO_WASM_METHODS.changeMethods,
       new BN("2000000000000000000000000")
     );
-    await nearConfig.keyStore.setKey(testUtils.networkId, workingAccount.accountId, keyPair);
+    await nearConfig.keyStore!.setKey(testUtils.networkId, workingAccount.accountId, keyPair);
   });
 
   afterAll(async () => {
@@ -170,7 +156,9 @@ describe("e2e", () => {
 
   it("creates, signs, sends, and awaits mining of a transaction without wallet", async () => {
     const actions: Action[] = prepActions();
-    const result = await client.query<{ signAndSendTransaction: FinalExecutionOutcome }>({
+    const result = await client.query<{
+      signAndSendTransaction: FinalExecutionOutcome;
+    }>({
       uri: apiUri,
       query: `mutation {
         signAndSendTransaction(

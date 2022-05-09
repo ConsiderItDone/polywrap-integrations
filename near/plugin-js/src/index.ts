@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { mutation, query } from "./resolvers";
 import {
   manifest,
@@ -15,6 +16,7 @@ import { fromAction, fromSignedTx, fromTx, toPublicKey } from "./typeMapping";
 import { parseJsonFinalExecutionOutcome } from "./jsonMapping";
 import { JsonFinalExecutionOutcome } from "./jsonTypes";
 
+import { ConnectConfig } from "near-api-js";
 import {
   Plugin,
   PluginFactory,
@@ -23,7 +25,6 @@ import {
 } from "@web3api/core-js";
 import * as nearApi from "near-api-js";
 import sha256 from "js-sha256";
-import { ConnectConfig } from "near-api-js";
 
 export { keyStores as KeyStores, KeyPair } from "near-api-js";
 
@@ -171,6 +172,16 @@ export class NearPlugin extends Plugin {
       },
     };
     return { hash, signedTx };
+  }
+
+  public async createKey(input: Mutation.Input_createKey): Promise<PublicKey> {
+    const { networkId, accountId } = input;
+    const keyPair = await this._config.keyStore!.getKey(
+      this._config.networkId,
+      accountId
+    );
+    await this._config.keyStore!.setKey(networkId, accountId, keyPair);
+    return toPublicKey(keyPair.getPublicKey());
   }
 
   public async sendJsonRpc(input: Mutation.Input_sendJsonRpc): Promise<Json> {

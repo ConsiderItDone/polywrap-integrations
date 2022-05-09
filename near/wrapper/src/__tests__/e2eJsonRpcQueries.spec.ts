@@ -1,4 +1,3 @@
-
 import { NearPluginConfig, KeyPair } from "../../../plugin-js";
 import {
   BlockChangeResult,
