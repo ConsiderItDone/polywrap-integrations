@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-/* eslint-disable @typescript-eslint/no-require-imports */
 import {
   ExecutionOutcomeWithId,
   FinalExecutionOutcome,
@@ -12,7 +10,7 @@ import * as testUtils from "./testUtils";
 import { HELLO_WASM_METHODS } from "./testUtils";
 
 import * as nearApi from "near-api-js";
-import { KeyPair, NearPluginConfig } from "near-polywrap-js";
+import { KeyPair, NearPluginConfig } from "../../../plugin-js";
 import { Web3ApiClient } from "@web3api/client-js";
 import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
 import path from "path";

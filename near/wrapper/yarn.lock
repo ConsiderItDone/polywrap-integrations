@@ -1419,19 +1419,6 @@
     axios "0.21.2"
     dotenv "10.0.0"
 
-"@web3api/core-js@0.0.1-prealpha.49":
-  version "0.0.1-prealpha.49"
-  resolved "https://registry.yarnpkg.com/@web3api/core-js/-/core-js-0.0.1-prealpha.49.tgz#7a89325376afadf02fa38f054ea1590f207f2ee0"
-  integrity sha512-vsb0mWgoBl4zY/tYSJ5jmgIt948SYY4C8fyqeP5O7ckORftkfW0UPC0ssXpvr6qN5+6e/suIL98gAddvoV4/BQ==
-  dependencies:
-    "@web3api/manifest-schemas" "0.0.1-prealpha.49"
-    "@web3api/tracing-js" "0.0.1-prealpha.49"
-    graphql "15.5.0"
-    graphql-tag "2.10.4"
-    js-yaml "3.14.0"
-    jsonschema "1.4.0"
-    semver "7.3.5"
-
 "@web3api/core-js@0.0.1-prealpha.71":
   version "0.0.1-prealpha.71"
   resolved "https://registry.yarnpkg.com/@web3api/core-js/-/core-js-0.0.1-prealpha.71.tgz#e4c22d56d86c17d3326083e98b24386625bb4a7b"
@@ -1510,11 +1497,6 @@
   dependencies:
     "@web3api/core-js" "0.0.1-prealpha.71"
 
-"@web3api/manifest-schemas@0.0.1-prealpha.49":
-  version "0.0.1-prealpha.49"
-  resolved "https://registry.yarnpkg.com/@web3api/manifest-schemas/-/manifest-schemas-0.0.1-prealpha.49.tgz#e5e93d7467fc6ca4fac23de1cf511b95fcda81f6"
-  integrity sha512-/dD42Nj4MGxb1dwQca8duAyyX3eZ+3hJqQwpq3EV3jZOABgZVl1y3r8x/nzu+2pshmz01439esmrnhOanyXmEQ==
-
 "@web3api/manifest-schemas@0.0.1-prealpha.71":
   version "0.0.1-prealpha.71"
   resolved "https://registry.yarnpkg.com/@web3api/manifest-schemas/-/manifest-schemas-0.0.1-prealpha.71.tgz#2f36452d8e5af188e12d937675de06e75f5d82b7"
@@ -1566,23 +1548,6 @@
   dependencies:
     axios "0.21.2"
     spawn-command "0.0.2-1"
-
-"@web3api/tracing-js@0.0.1-prealpha.49":
-  version "0.0.1-prealpha.49"
-  resolved "https://registry.yarnpkg.com/@web3api/tracing-js/-/tracing-js-0.0.1-prealpha.49.tgz#4f4e6aec7e480a3154cb4d874cf4018cc7874824"
-  integrity sha512-JLXuA86cA5alcP+aHQWmYgju4MgnJkw3BjQ/EyYE/W/aM4L409BKrsNs+g4Y+bKlxwJDDRXffsmM7UceLcXsRQ==
-  dependencies:
-    "@opentelemetry/api" "0.20.0"
-    "@opentelemetry/context-zone" "0.20.0"
-    "@opentelemetry/core" "0.20.0"
-    "@opentelemetry/exporter-collector" "0.20.0"
-    "@opentelemetry/exporter-jaeger" "0.20.0"
-    "@opentelemetry/exporter-zipkin" "0.20.0"
-    "@opentelemetry/node" "0.20.0"
-    "@opentelemetry/propagator-b3" "0.20.0"
-    "@opentelemetry/tracing" "0.20.0"
-    "@opentelemetry/web" "0.20.0"
-    browser-util-inspect "0.2.0"
 
 "@web3api/tracing-js@0.0.1-prealpha.71":
   version "0.0.1-prealpha.71"
@@ -4748,7 +4713,7 @@ jest@27.0.6:
     import-local "^3.0.2"
     jest-cli "^27.0.6"
 
-js-sha256@0.9.0, js-sha256@^0.9.0:
+js-sha256@^0.9.0:
   version "0.9.0"
   resolved "https://registry.yarnpkg.com/js-sha256/-/js-sha256-0.9.0.tgz#0b89ac166583e91ef9123644bd3c5334ce9d0966"
   integrity sha512-sga3MHh9sgQN2+pJ9VYZ+1LPwXOxuBJBA5nrR5/ofPfuiJBE2hnjsaN8se8JznOmGLN2p49Pe5U/ttafcs/apA==
@@ -5465,23 +5430,6 @@ natural-compare@^1.4.0:
   resolved "https://registry.yarnpkg.com/natural-compare/-/natural-compare-1.4.0.tgz#4abebfeed7541f2c27acfb29bdbbd15c8d5ba4f7"
   integrity sha1-Sr6/7tdUHywnrPspvbvRXI1bpPc=
 
-near-api-js@0.43.1:
-  version "0.43.1"
-  resolved "https://registry.yarnpkg.com/near-api-js/-/near-api-js-0.43.1.tgz#aa3f1669afae9eb37f65b02dca3f28472ebe4bb7"
-  integrity sha512-bgFuboD/a3eintaWqWMN9oWcGHkxbrKiJhxkJwHmwJrYx49y9QvWwEtoxeHSjKskJHUVXGKvaYRsc9XirrJ5JQ==
-  dependencies:
-    bn.js "5.2.0"
-    borsh "^0.6.0"
-    bs58 "^4.0.0"
-    depd "^2.0.0"
-    error-polyfill "^0.1.3"
-    http-errors "^1.7.2"
-    js-sha256 "^0.9.0"
-    mustache "^4.0.0"
-    node-fetch "^2.6.1"
-    text-encoding-utf-8 "^1.0.2"
-    tweetnacl "^1.0.1"
-
 near-api-js@^0.44.2:
   version "0.44.2"
   resolved "https://registry.yarnpkg.com/near-api-js/-/near-api-js-0.44.2.tgz#e451f68f2c56bd885c7b918db5818a3e6e9423d0"
@@ -5503,16 +5451,6 @@ near-hello@0.5.1:
   version "0.5.1"
   resolved "https://registry.yarnpkg.com/near-hello/-/near-hello-0.5.1.tgz#68621928857afc21f5a7e0c21a47069a5dc058ef"
   integrity sha512-k7S8VFyESWgkKYDso99B4XbxAdo0VX9b3+GAaO5PvMgQjNr/6o09PHRywg/NkBQpf+ZYj7nNpJcyrNJGQsvA3w==
-
-near-polywrap-js@0.0.3:
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/near-polywrap-js/-/near-polywrap-js-0.0.3.tgz#e97a60ed4166c68500d786b0be859a726f6aa2ec"
-  integrity sha512-nzRyXTo1t2+wZgQ8qPeCiqcMjBGRBXhUf3ZCaH+ggHJvAFxy3+nyMfN3obq8YXStsb6BEr3kTJB2OGjSf6NqxQ==
-  dependencies:
-    "@web3api/core-js" "0.0.1-prealpha.49"
-    bn.js "5.2.0"
-    js-sha256 "0.9.0"
-    near-api-js "0.43.1"
 
 node-fetch@2.6.0:
   version "2.6.0"

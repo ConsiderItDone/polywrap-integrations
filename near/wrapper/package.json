@@ -16,6 +16,7 @@
     "test:RpcQueries": "jest e2eRpcQueries --passWithNoTests --runInBand --verbose --silent=false",
     "test:e2eMutations": "jest e2eMutations --passWithNoTests --runInBand --verbose --silent=false",
     "test:JsonRpcQueries": "jest e2eJsonRpcQueries --passWithNoTests --runInBand --verbose --silent=false",
+    "test:Wallet": "jest e2eWallet.spec --passWithNoTests --runInBand --verbose --silent=false",
     "test:Format": "jest e2eFormat --passWithNoTests --runInBand --verbose --silent=false",
     "test": "yarn test:e2e",
     "test:ci": "yarn test:e2e"
@@ -47,7 +48,6 @@
     "jest": "27.0.6",
     "near-api-js": "^0.44.2",
     "near-hello": "0.5.1",
-    "near-polywrap-js": "0.0.3",
     "prettier": "2.2.1",
     "solc": "0.8.3",
     "ts-jest": "27.0.4",

@@ -11,7 +11,7 @@ import "localstorage-polyfill";
 import { buildAndDeployApi, initTestEnvironment } from "@web3api/test-env-js";
 import { Web3ApiClient } from "@web3api/client-js";
 import * as nearApi from "near-api-js";
-import { nearPlugin, NearPluginConfig } from "near-polywrap-js";
+import { nearPlugin, NearPluginConfig } from "../../../plugin-js/build";
 import path from "path";
 
 const MockBrowser = require("mock-browser").mocks.MockBrowser;
@@ -62,7 +62,7 @@ describe("e2e", () => {
       testUtils.HELLO_WASM_METHODS.changeMethods,
       new BN("2000000000000000000000000")
     );
-    await nearConfig.keyStore.setKey(testUtils.networkId, workingAccount.accountId, keyPair);
+    await nearConfig.keyStore!.setKey(testUtils.networkId, workingAccount.accountId, keyPair);
     await testUtils.deployContract(workingAccount, contractId);
     const polywrapConfig = await testUtils.getPlugins(ethereum, ensAddress, ipfs, nearConfig);
     workingAccount = await testUtils.createAccount(near);
