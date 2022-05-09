@@ -22,9 +22,12 @@
   },
   "dependencies": {
     "as-base58": "^0.1.1",
-    "as-fraction": "^0.2.0"
+    "as-fraction": "^0.2.0",
+    "localstorage-polyfill": "^1.0.1",
+    "mock-browser": "^0.92.14"
   },
   "devDependencies": {
+    "@types/bn.js": "^5.1.0",
     "@types/jest": "27.0.2",
     "@typescript-eslint/eslint-plugin": "4.11.1",
     "@typescript-eslint/parser": "4.11.1",
