@@ -38,10 +38,12 @@ import {
   BlockChangeResult,
   LightClientProof,
   NearProtocolConfig,
+  KeyValuePair,
+  Input_viewContractState
 } from "./w3";
 import JsonRpcProvider from "../utils/JsonRpcProvider";
 import * as bs58 from "as-base58";
-import { BigInt, JSON, JSONEncoder } from "@web3api/wasm-as";
+import { BigInt, JSON, JSONEncoder, Context, WriteSizer } from "@web3api/wasm-as";
 import { publicKeyFromStr, publicKeyToStr } from "../utils/typeUtils";
 import {
   toAccessKey,
@@ -114,6 +116,25 @@ export function getAccountState(input: Input_getAccountState): AccountView {
     blockHeight: BigInt.fromString(result.getValue("block_height")!.stringify()),
     blockHash: result.getString("block_hash")!.valueOf(),
   };
+}
+
+export function viewContractState(input: Input_viewContractState): KeyValuePair[] {
+  const encoder = new JSONEncoder();
+  encoder.pushObject(null);
+  encoder.setString("request_type", "view_state");
+  // encoder.setString("account_id", '');
+  if (input.blockQuery.block_id != null) {
+    encoder.setString("block_id",input.blockQuery.block_id!);
+  }
+  if (input.blockQuery.finality != null) {
+    encoder.setString("finality", input.blockQuery.finality!);
+  }
+  encoder.popObject();
+  const params: JSON.Obj = <JSON.Obj>JSON.parse(encoder.serialize());
+  // send rpc
+  const provider: JsonRpcProvider = new JsonRpcProvider(null);
+  const result: JSON.Obj = provider.sendJsonRpc("query", params);
+  return [{ key: null, value: null }]
 }
 
 export function findAccessKey(input: Input_findAccessKey): AccessKeyInfo | null {

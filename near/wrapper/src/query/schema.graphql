@@ -51,6 +51,11 @@ type Query {
     args: JSON!
   ): JSON!
 
+  viewContractState(
+    prefix: String!
+    blockQuery: BlockReference!
+  ): [KeyValuePair!]!
+
   """
     Transaction Query Functions (Implemented, Tested)
   """
@@ -239,6 +244,11 @@ type ChunkHeader {
   tx_root: String!
   validator_proposals: [JSON!]!
   validator_reward: String!
+}
+
+type KeyValuePair {
+  key: Bytes
+  value: Bytes
 }
 
 type ChunkResult {

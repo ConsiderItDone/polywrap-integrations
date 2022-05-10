@@ -1,19 +1,18 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { NearPluginConfig, KeyPair } from "../../../plugin-js"; //TODO change to appropriate package
-
 import { BlockReference, BlockResult, AccountView, PublicKey, AccessKeyInfo, AccessKey } from "./tsTypes";
-
 import * as testUtils from "./testUtils";
+import { HELLO_WASM_METHODS /* , networkId, publicKeyToStr */ } from "./testUtils";
 
 import { Web3ApiClient } from "@web3api/client-js";
 import * as nearApi from "near-api-js";
 import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
 import path from "path";
+import { AccountAuthorizedApp, AccountBalance } from "near-api-js/lib/account";
+
 const BN = require("bn.js");
-import { HELLO_WASM_METHODS /* , networkId, publicKeyToStr */ } from "./testUtils";
 //import { NodeStatusResult } from "./tsTypes";
 //import { AccountAuthorizedApp } "near-api-js/lib/account";
-import { AccountAuthorizedApp, AccountBalance } from "near-api-js/lib/account";
 
 jest.setTimeout(360000);
 
