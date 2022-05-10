@@ -142,23 +142,15 @@ describe("e2e", () => {
         accountId: workingAccount.accountId,
       },
     });
+    const state: ContractStateResult = result.data!.viewContractState;
+    const resultState = await workingAccount.viewState("final");
     expect(result.errors).toBeFalsy();
     expect(result.data).toBeTruthy();
-
-    const state: ContractStateResult = result.data!.viewContractState;
     expect(state).toBeTruthy();
     expect(result.data).toEqual({ viewContractState: { values: [] } });
     expect(result.errors).toEqual(undefined);
-
-    // + -
-    // const resultState = await workingAccount.viewState({
-    //   prefix: "",
-    //   blockQuery: blockQuery,
-    //   accountId: workingAccount.accountId,
-    // });
-    // console.log(resultState);
-
-    console.log(result);
+    expect(resultState).toBeTruthy();
+    expect(resultState).toEqual([]);
   });
 
   // account balance +
