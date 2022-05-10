@@ -39,7 +39,8 @@ import {
   LightClientProof,
   NearProtocolConfig,
   KeyValuePair,
-  Input_viewContractState
+  Input_viewContractState,
+  ContractStateResult
 } from "./w3";
 import JsonRpcProvider from "../utils/JsonRpcProvider";
 import * as bs58 from "as-base58";
@@ -51,6 +52,7 @@ import {
   toBlockChanges,
   toChangeResult,
   toChunkResult,
+  toContractStateResult,
   toEpochValidatorInfo,
   toFinalExecutionOutcome,
   toFinalExecutionOutcomeWithReceipts,
@@ -118,7 +120,7 @@ export function getAccountState(input: Input_getAccountState): AccountView {
   };
 }
 
-export function viewContractState(input: Input_viewContractState): KeyValuePair[] {
+export function viewContractState(input: Input_viewContractState): ContractStateResult {
   const encoder = new JSONEncoder();
   encoder.pushObject(null);
   encoder.setString("request_type", "view_state");
@@ -129,12 +131,14 @@ export function viewContractState(input: Input_viewContractState): KeyValuePair[
   if (input.blockQuery.finality != null) {
     encoder.setString("finality", input.blockQuery.finality!);
   }
+  encoder.setString("account_id", input.accountId);
+  encoder.setString("prefix_base64", '');
   encoder.popObject();
   const params: JSON.Obj = <JSON.Obj>JSON.parse(encoder.serialize());
   // send rpc
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
   const result: JSON.Obj = provider.sendJsonRpc("query", params);
-  return [{ key: null, value: null }]
+  return toContractStateResult(result)
 }
 
 export function findAccessKey(input: Input_findAccessKey): AccessKeyInfo | null {

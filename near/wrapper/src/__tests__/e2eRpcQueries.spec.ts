@@ -3,6 +3,7 @@ import { NearPluginConfig, KeyPair } from "../../../plugin-js"; //TODO change to
 import { BlockReference, BlockResult, AccountView, PublicKey, AccessKeyInfo, AccessKey } from "./tsTypes";
 import * as testUtils from "./testUtils";
 import { HELLO_WASM_METHODS /* , networkId, publicKeyToStr */ } from "./testUtils";
+import { ContractStateResult } from "../query/w3";
 
 import { Web3ApiClient } from "@web3api/client-js";
 import * as nearApi from "near-api-js";
@@ -122,6 +123,42 @@ describe("e2e", () => {
     expect(state.codeHash).toStrictEqual(nearState.code_hash);
     expect(state.storagePaidAt).toStrictEqual(nearState.storage_paid_at.toString());
     expect(state.storageUsage).toStrictEqual(nearState.storage_usage.toString());
+  });
+
+  it("Get contract state", async () => {
+    const blockQuery = { block_id: null, finality: "final", syncCheckpoint: null };
+    const result = await client.query<{ viewContractState: ContractStateResult }>({
+      uri: apiUri,
+      query: `query {
+        viewContractState(
+          prefix: $prefix
+          blockQuery: $blockQuery,
+          accountId: $accountId
+        )
+      }`,
+      variables: {
+        prefix: "",
+        blockQuery: blockQuery,
+        accountId: workingAccount.accountId,
+      },
+    });
+    expect(result.errors).toBeFalsy();
+    expect(result.data).toBeTruthy();
+
+    const state: ContractStateResult = result.data!.viewContractState;
+    expect(state).toBeTruthy();
+    expect(result.data).toEqual({ viewContractState: { values: [] } });
+    expect(result.errors).toEqual(undefined);
+
+    // + -
+    // const resultState = await workingAccount.viewState({
+    //   prefix: "",
+    //   blockQuery: blockQuery,
+    //   accountId: workingAccount.accountId,
+    // });
+    // console.log(resultState);
+
+    console.log(result);
   });
 
   // account balance +

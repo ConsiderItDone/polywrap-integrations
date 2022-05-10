@@ -30,6 +30,7 @@ import {
   LightClientProof,
   LightClientProofRequest,
   LightClientBlockLiteView,
+  ContractStateResult,
   getIdTypeKey,
   KeyValuePair,
 } from "../query/w3";
@@ -103,7 +104,7 @@ export function toBlockChanges(json: JSON.Obj): BlockChangeResult {
   };
 }
 
-export function toKeyValuePair(json: JSON.Obj): KeyValuePair {
+export function toContractStateResult(json: JSON.Obj): ContractStateResult {
   const values = json.getArr("values")!.valueOf();
   return {
     values: values.map<KeyValuePair>((v: JSON.Value) => {
@@ -112,7 +113,7 @@ export function toKeyValuePair(json: JSON.Obj): KeyValuePair {
       return {
         key: val.getString("key")!.valueOf(),
         value: val.getString("value")!.valueOf(),
-        proof: proof.map<Near_ExecutionProof>((v) => toExecutionProof(<JSON.Obj>v)),
+        // proof: proof.map<Near_ExecutionProof>((v) => toExecutionProof(<JSON.Obj>v)),
       } as KeyValuePair;
     }),
   };

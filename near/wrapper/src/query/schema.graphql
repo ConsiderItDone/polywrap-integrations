@@ -54,7 +54,8 @@ type Query {
   viewContractState(
     prefix: String!
     blockQuery: BlockReference!
-  ): [KeyValuePair!]!
+    accountId: String!
+  ): ContractStateResult!
 
   """
     Transaction Query Functions (Implemented, Tested)
@@ -247,8 +248,8 @@ type ChunkHeader {
 }
 
 type KeyValuePair {
-  key: Bytes
-  value: Bytes
+  key: String!
+  value: String!
 }
 
 type ChunkResult {
@@ -422,4 +423,8 @@ type ChangeResult {
 type AccessKeyWithPublicKey {
   account_id: String!
   public_key: String!
+}
+
+type ContractStateResult {
+  values: [KeyValuePair!]!
 }
