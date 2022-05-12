@@ -41,6 +41,6 @@ export function fullAccessKey(): Near_AccessKey {
 export function functionCallAccessKey(receiverId: string, methodNames: string[], allowance: BigInt): Near_AccessKey {
   return {
     nonce: BigInt.fromString("0"),
-    permission: { receiverId, methodNames, allowance } as Near_AccessKeyPermission,
+    permission: { _: "FullAccess"  } as Near_AccessKeyPermission,
   };
 }
