@@ -1,8 +1,8 @@
 import * as testUtils from "./testUtils";
 import { Near_FinalExecutionOutcome } from "../w3";
+import { KeyPair, NearPluginConfig } from "../../../plugin-js"; //TODO change to appropriate package
 
 import { Web3ApiClient } from "@web3api/client-js";
-import { KeyPair, NearPluginConfig } from "../../../plugin-js"; //TODO change to appropriate package
 import * as nearApi from "near-api-js";
 import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
 import path from "path";
@@ -51,7 +51,7 @@ describe("e2e", () => {
   afterAll(async () => {
     await stopTestEnvironment();
   });
-   
+
   it("Create account", async () => {
     const newAccountId = testUtils.generateUniqueString("test");
     const keyPair = KeyPair.fromRandom("ed25519");
@@ -261,7 +261,7 @@ describe("e2e", () => {
 
     await receiver.deleteAccount(testUtils.testAccountId);
   });
- 
+
   it("Create and deploy contract", async () => {
     const newContractId = testUtils.generateUniqueString("test_contract");
 
@@ -274,7 +274,7 @@ describe("e2e", () => {
     const acc = await near.account(testUtils.testAccountId);
 
     const created = await acc.createAccount(newContractId, newPublicKey, new BN(newAmount));
-    console.log('created', created)
+    console.log("created", created);
     const data = fs.readFileSync(testUtils.HELLO_WASM_PATH);
 
     //await acc.addKey(newPublicKey, newContractId, "", new BN(400000));
