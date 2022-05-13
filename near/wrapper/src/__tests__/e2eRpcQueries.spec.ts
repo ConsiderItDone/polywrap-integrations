@@ -143,6 +143,15 @@ describe("e2e", () => {
         request_type: "view_code",
       },
     });
+
+    const response = await near.connection.provider.query({
+      account_id: testUtils.testAccountId,
+      finality: "optimistic",
+      request_type: "view_code",
+    });
+    expect(response).toBeTruthy();
+    expect(response.block_hash).toStrictEqual(result.data?.viewContractCode.block_hash);
+    expect(`${response.block_height}`).toStrictEqual(result.data?.viewContractCode.block_height);
     expect(result.errors).toBeFalsy();
     expect(result.data).toBeTruthy();
     expect(result.errors).toStrictEqual(undefined);

@@ -11,7 +11,7 @@ import {
 } from "./tsTypes";
 import * as testUtils from "./testUtils";
 import { HELLO_WASM_METHODS } from "./testUtils";
-import { ChunkResult, FinalExecutionOutcome, FinalExecutionOutcomeWithReceipts } from "./tsTypes";
+import { ChunkResult, FinalExecutionOutcome } from "./tsTypes";
 
 import { Web3ApiClient } from "@web3api/client-js";
 import * as nearApi from "near-api-js";
