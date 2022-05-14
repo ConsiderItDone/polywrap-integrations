@@ -36,11 +36,13 @@ import {
   Near_FinalExecutionOutcomeWithReceipts,
   ChunkResult,
   BlockChangeResult,
+
   LightClientProof,
   NearProtocolConfig,
   KeyValuePair,
   Input_viewContractState,
-  ContractStateResult
+  ContractStateResult,
+  ViewContractCode,
 } from "./w3";
 import JsonRpcProvider from "../utils/JsonRpcProvider";
 import * as bs58 from "as-base58";
@@ -68,6 +70,7 @@ import {
   Input_getAccessKeys,
   Input_getAccountDetails,
   Input_viewFunction,
+  Input_viewContractCode
 } from "./w3/Query/serialization";
 
 export function requestSignIn(input: Input_requestSignIn): boolean {
@@ -139,6 +142,24 @@ export function viewContractState(input: Input_viewContractState): ContractState
   const provider: JsonRpcProvider = new JsonRpcProvider(null);
   const result: JSON.Obj = provider.sendJsonRpc("query", params);
   return toContractStateResult(result)
+}
+  
+export function viewContractCode(input: Input_viewContractCode): ViewContractCode {
+  const encoder = new JSONEncoder();
+  encoder.pushObject(null);
+  encoder.setString("request_type", "view_code");
+  encoder.setString("account_id", input.accountId);
+  encoder.setString("finality", "optimistic");
+  encoder.popObject();
+  const params: JSON.Obj = <JSON.Obj>JSON.parse(encoder.serialize());
+  const provider: JsonRpcProvider = new JsonRpcProvider(null);
+  const result: JSON.Obj = provider.sendJsonRpc("query", params);
+return {
+  code_base64: result.getString("code_base64")!.valueOf(),
+  hash: result.getString("hash")!.valueOf(),
+  block_height: BigInt.fromString(result.getValue("block_height")!.stringify()),
+  block_hash: result.getString("block_hash")!.valueOf(),
+  }
 }
 
 export function findAccessKey(input: Input_findAccessKey): AccessKeyInfo | null {

@@ -21,6 +21,10 @@ type Query {
     accountId: String!
   ): AccountView!
 
+  viewContractCode(
+    accountId: String!
+   ) : ViewContractCode!
+
   findAccessKey(
     accountId: String!
   ): AccessKeyInfo
@@ -369,6 +373,13 @@ type AccountView implements QueryResponseKind {
   storagePaidAt: BigInt!
 }
 
+type  ViewContractCode {
+  code_base64: String!
+  hash: String!
+  block_height: BigInt!
+  block_hash: String!
+}
+
 type AccountBalance {
   total: String!
   stateStaked: String!
@@ -395,6 +406,12 @@ type AccessKey {
   permission: AccessKeyPermission!
 }
 
+type KeyVulueCode {
+  code_base64: String!
+  hash: String!
+  block_height: BigInt!
+  block_hash: String!
+}
 # Access keys contain access key permissions, which determine how an account is allowed to interact with a contract
 type AccessKeyInfo {
   publicKey: String!
