@@ -570,9 +570,9 @@ function toExecutionStatus(json: JSON.Obj): Near_ExecutionStatus {
     result.SuccessValue = successValue.valueOf();
   }
 
-  const successReceiptId = json.getString("successReceiptId");
+  const successReceiptId = json.getString("SuccessReceiptId");
   if (successReceiptId != null) {
-    result.successReceiptId = successReceiptId.valueOf();
+    result.SuccessReceiptId = successReceiptId.valueOf();
   }
 
   const failure = json.getValue("failure");
