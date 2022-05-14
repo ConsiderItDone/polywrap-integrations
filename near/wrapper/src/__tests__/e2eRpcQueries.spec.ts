@@ -2,9 +2,10 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { NearPluginConfig, KeyPair } from "../../../plugin-js"; //TODO change to appropriate package
-import * as testUtils from "./testUtils";
 import { BlockReference, BlockResult, AccountView, PublicKey, AccessKeyInfo, AccessKey } from "./tsTypes";
-// import { NodeStatusResult } from "./tsTypes";
+import * as testUtils from "./testUtils";
+import { HELLO_WASM_METHODS /* , networkId, publicKeyToStr */ } from "./testUtils";
+import { ContractStateResult } from "../query/w3";
 import { ViewContractCode } from "../query/w3";
 
 import { Web3ApiClient } from "@web3api/client-js";
@@ -14,6 +15,9 @@ import path from "path";
 import { AccountAuthorizedApp, AccountBalance } from "near-api-js/lib/account";
 
 const BN = require("bn.js");
+//import { NodeStatusResult } from "./tsTypes";
+//import { AccountAuthorizedApp } "near-api-js/lib/account";
+
 
 jest.setTimeout(360000);
 
@@ -125,8 +129,34 @@ describe("e2e", () => {
     expect(state.storageUsage).toStrictEqual(nearState.storage_usage.toString());
   });
 
-  //contract code
-
+  it("Get contract state", async () => {
+    const blockQuery = { block_id: null, finality: "final", syncCheckpoint: null };
+    const result = await client.query<{ viewContractState: ContractStateResult }>({
+      uri: apiUri,
+      query: `query {
+        viewContractState(
+          prefix: $prefix
+          blockQuery: $blockQuery,
+          accountId: $accountId
+        )
+      }`,
+      variables: {
+        prefix: "",
+        blockQuery: blockQuery,
+        accountId: workingAccount.accountId,
+      },
+    });
+    const state: ContractStateResult = result.data!.viewContractState;
+    const resultState = await workingAccount.viewState("final");
+    expect(result.errors).toBeFalsy();
+    expect(result.data).toBeTruthy();
+    expect(state).toBeTruthy();
+    expect(result.data).toEqual({ viewContractState: { values: [] } });
+    expect(result.errors).toEqual(undefined);
+    expect(resultState).toBeTruthy();
+    expect(resultState).toEqual([]);
+  
+  // contract code
   it("Get contract code", async () => {
     const result = await client.query<{ viewContractCode: ViewContractCode }>({
       uri: apiUri,
