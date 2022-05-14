@@ -1,5 +1,6 @@
 import * as testUtils from "./testUtils";
 import { Near_FinalExecutionOutcome } from "../w3";
+import { KeyPair, NearPluginConfig } from "../../../plugin-js"; //TODO change to appropriate package
 
 import { Web3ApiClient } from "@web3api/client-js";
 import { KeyPair, NearPluginConfig } from "../../../plugin-js"; //TODO change to appropriate package

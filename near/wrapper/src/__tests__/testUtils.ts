@@ -9,6 +9,7 @@ import { ipfsPlugin } from "@web3api/ipfs-plugin-js";
 import * as fs from "fs/promises";
 import * as nearApi from "near-api-js";
 import * as path from "path";
+
 const BN = require("bn.js");
 
 export const networkId = "testnet";
