@@ -26,6 +26,7 @@ import { BigInt, JSON } from "@web3api/wasm-as";
 import { createTransaction, signTransaction } from "../query";
 import { Input_createTransaction } from "../query/w3";
 import * as action from "../utils/actionCreators";
+import * as bs58 from "as-base58";
 import { fullAccessKey, functionCallAccessKey } from "../utils/typeUtils";
 
 export function sendJsonRpc(input: Input_sendJsonRpc): JSON.Obj {
@@ -119,6 +120,7 @@ export function sendMoney(input: Input_sendMoney): Near_FinalExecutionOutcome {
     actions: [action.transfer(input.amount)],
   });
 }
+
 export function functionCall(input: Input_functionCall): Near_FinalExecutionOutcome {
   const actions = [action.functionCall(input.methodName, input.args, input.gas, input.deposit)];
   if (input.signerId !== null) {
@@ -140,28 +142,16 @@ export function deleteKey(input: Input_deleteKey): Near_FinalExecutionOutcome {
     actions: [action.deleteKey(input.publicKey)],
   });
 }
+
 export function createAndDeployContract(input: Input_createAndDeployContract): Near_FinalExecutionOutcome {
-/*   const transaction = createTransaction({
+  return signAndSendTransaction({
     receiverId: input.contractId,
+    signerId: input.signerId,
     actions: [
       action.createAccount(),
       action.transfer(input.amount),
       action.addKey(input.publicKey, fullAccessKey()),
       action.deployContract(input.data),
     ],
-  } as Input_createTransaction);
-  const signedTxResult: Near_SignTransactionResult = signTransaction({ transaction: transaction }); */
-     const contractResult = signAndSendTransaction({
-    receiverId: input.contractId,
-    signerId: input.contractId,
-    actions: [
-      action.createAccount(),
-      action.transfer(input.amount),
-      action.addKey(input.publicKey, fullAccessKey()),
-      action.deployContract(input.data),
-    ],
-  }); 
-  return contractResult
-  //const contractAccount = createAccount({})
-  //return sendTransaction({ signedTx: signedTxResult.signedTx });
+  });
 }

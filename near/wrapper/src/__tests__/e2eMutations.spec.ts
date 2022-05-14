@@ -10,6 +10,7 @@ import { BN } from "bn.js";
 import * as fs from "fs";
 
 import "localstorage-polyfill";
+
 const MockBrowser = require("mock-browser").mocks.MockBrowser;
 const mock = new MockBrowser();
 
@@ -265,23 +266,17 @@ describe("e2e", () => {
   it("Create and deploy contract", async () => {
     const newContractId = testUtils.generateUniqueString("test_contract");
 
-    const keyPair = KeyPair.fromRandom("ed25519");
-    const newPublicKey = keyPair.getPublicKey();
-
-    const { amount } = await workingAccount.state();
-    const newAmount = new BN(amount).div(new BN(10)).toString();
-
-    const acc = await near.account(testUtils.testAccountId);
-
-    const created = await acc.createAccount(newContractId, newPublicKey, new BN(newAmount));
-    console.log("created", created);
     const data = fs.readFileSync(testUtils.HELLO_WASM_PATH);
 
-    //await acc.addKey(newPublicKey, newContractId, "", new BN(400000));
+    const { amount } = await masterAccount.state();
+    const newAmount = new BN(amount).div(new BN(100)).toString();
 
-    //const newAccount = await testUtils.createAccount(near);
+    const signerPublicKey = await masterAccount.connection.signer.getPublicKey(
+      masterAccount.accountId,
+      testUtils.networkId
+    );
 
-    const result = await client.query<{ createAndDeployContract: boolean }>({
+    const result = await client.query<{ createAndDeployContract: Near_FinalExecutionOutcome }>({
       uri: apiUri,
       query: `mutation {
         createAndDeployContract(
@@ -294,10 +289,10 @@ describe("e2e", () => {
       }`,
       variables: {
         contractId: newContractId,
-        publicKey: newPublicKey,
         data: data,
         amount: newAmount,
-        signerId: acc.accountId,
+        publicKey: signerPublicKey,
+        signerId: masterAccount.accountId,
       },
     });
 
@@ -306,9 +301,9 @@ describe("e2e", () => {
 
     const createAndDeployContractResult = result.data!.createAndDeployContract;
 
-    console.log(createAndDeployContractResult);
-
     expect(createAndDeployContractResult).toBeTruthy();
+    expect(createAndDeployContractResult.status.failure).toBeFalsy();
+    expect(createAndDeployContractResult.status.SuccessValue).toBeDefined();
   });
 
   it("Deploy contract", async () => {
@@ -344,10 +339,44 @@ describe("e2e", () => {
     expect(result.data).toBeTruthy();
 
     const deployContractResult = result.data!.deployContract;
-    console.log(deployContractResult);
 
     expect(deployContractResult).toBeTruthy();
     expect(deployContractResult.status.failure).toBeFalsy();
     expect(deployContractResult.status.SuccessValue).toBeDefined();
+  });
+
+  it("FunctionCall with json stringified args", async () => {
+    const jsonArgs = JSON.stringify({});
+
+    const result = await client.query<{ functionCall: Near_FinalExecutionOutcome }>({
+      uri: apiUri,
+      query: `mutation {
+        functionCall(
+          contractId: $contractId
+          methodName: $methodName
+          args: $args
+          gas: $gas
+          deposit: $deposit
+          signerId: $signerId
+        )
+      }`,
+      variables: {
+        contractId: contractId,
+        methodName: "hello",
+        args: jsonArgs,
+        gas: new BN("20000000000000").toString(),
+        deposit: new BN("20000000000000").toString(),
+        signerId: workingAccount.accountId,
+      },
+    });
+
+    expect(result.errors).toBeFalsy();
+    expect(result.data).toBeTruthy();
+
+    const functionResult = result.data!.functionCall;
+
+    expect(functionResult).toBeTruthy();
+    expect(functionResult.status.failure).toBeFalsy();
+    expect(functionResult.status.SuccessValue).toBeDefined();
   });
 });
