@@ -11,8 +11,6 @@ import path from "path";
 import { AccountAuthorizedApp, AccountBalance } from "near-api-js/lib/account";
 
 const BN = require("bn.js");
-//import { NodeStatusResult } from "./tsTypes";
-//import { AccountAuthorizedApp } "near-api-js/lib/account";
 
 jest.setTimeout(360000);
 
@@ -122,6 +120,7 @@ describe("e2e", () => {
     expect(state.storageUsage).toStrictEqual(nearState.storage_usage.toString());
   });
 
+  // contract state +
   it("Get contract state", async () => {
     const blockQuery = { block_id: null, finality: "final", syncCheckpoint: null };
     const result = await client.query<{ viewContractState: ContractStateResult }>({
@@ -168,6 +167,9 @@ describe("e2e", () => {
       },
     });
 
+    expect(result.errors).toBeFalsy();
+    expect(result.data).toBeTruthy();
+
     const response = await near.connection.provider.query({
       account_id: testUtils.testAccountId,
       finality: "optimistic",
@@ -176,9 +178,6 @@ describe("e2e", () => {
     expect(response).toBeTruthy();
     expect(response.block_hash).toStrictEqual(result.data?.viewContractCode.block_hash);
     expect(`${response.block_height}`).toStrictEqual(result.data?.viewContractCode.block_height);
-    expect(result.errors).toBeFalsy();
-    expect(result.data).toBeTruthy();
-    expect(result.errors).toStrictEqual(undefined);
   });
 
   // account balance +
@@ -328,8 +327,9 @@ describe("e2e", () => {
     expect(accessKeyInfo.publicKey).toStrictEqual(nearAccessKey.publicKey.toString());
   });
 
-  /* it("view function via account", async () => {
-    const methodName = "hello";
+  // view function +-
+  it("view function via account", async () => {
+    const methodName = "hello"; // this is the function defined in hello.wasm file that we are calling
     const args = { name: "trex" };
 
     const result = await client.query<{ viewFunction: JSON }>({
@@ -342,23 +342,21 @@ describe("e2e", () => {
         )
       }`,
       variables: {
-        contractId: workingAccount.accountId,
+        contractId: contractId,
         methodName: methodName,
-        args: args,
+        args: JSON.stringify(args),
       },
     });
+
     expect(result.errors).toBeFalsy();
     expect(result.data).toBeTruthy();
 
-    const viewFunctionResult: JSON = result.data!.viewFunction;
+    const viewFunctionResult: JSON = result.data!.viewFunction; // => "hello trex"
 
     expect(viewFunctionResult).toBeTruthy();
 
-    const nearViewFunctionResult = await workingAccount.viewFunction(
-      contractId,
-      "hello", // this is the function defined in hello.wasm file that we are calling
-      args
-    );
-    expect(viewFunctionResult).toEqual(nearViewFunctionResult);
-  }); */
+    //const nearViewFunctionResult = await workingAccount.viewFunction(contractId, methodName, args); // returns "block_hash", "block_height", "error":method not found or bad utf16
+
+    //expect(viewFunctionResult).toEqual(nearViewFunctionResult);
+  });
 });
