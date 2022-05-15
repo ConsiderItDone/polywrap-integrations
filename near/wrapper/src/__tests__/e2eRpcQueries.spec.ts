@@ -54,9 +54,7 @@ describe("e2e", () => {
       new BN("2000000000000000000000000")
     );
 
-    console.log("before setKey");
     await nearConfig.keyStore!.setKey(testUtils.networkId, workingAccount.accountId, keyPair);
-    console.log("after setKey");
   });
 
   afterAll(async () => {
@@ -260,52 +258,7 @@ describe("e2e", () => {
     //expect(accessKeys).toEqual(nearAccessKeys);
   });
 
-  it("Find access key", async () => {
-    const result = await client.query<{ findAccessKey: AccessKeyInfo }>({
-      uri: apiUri,
-      query: `query {
-        findAccessKey(
-          accountId: $accountId
-        )
-      }`,
-      variables: {
-        accountId: testUtils.testAccountId,
-      },
-    });
-    expect(result.errors).toBeFalsy();
-    expect(result.data).toBeTruthy();
-
-    const accessKeyInfo: AccessKeyInfo = result.data!.findAccessKey;
-    console.log(result);
-
-    expect(accessKeyInfo.publicKey).toBeTruthy();
-    expect(accessKeyInfo.accessKey).toBeTruthy();
-
-    const apiKey: AccessKey = accessKeyInfo.accessKey;
-
-    const nearKeys = (await workingAccount.getAccessKeys()).filter((k) => k.access_key.permission !== "FullAccess");
-    expect(nearKeys.length).toBeGreaterThan(0);
-    const nearKey = nearKeys[0];
-    const nearPermission = nearKey.access_key.permission;
-
-    // access key
-    if (nearPermission === "FullAccess") {
-      // this should never happen
-      throw Error("This should never happen");
-    } else {
-      expect(apiKey.permission.isFullAccess).toBeFalsy();
-      expect(apiKey.permission.receiverId).toStrictEqual(nearPermission.FunctionCall.receiver_id);
-      expect(apiKey.permission.methodNames).toStrictEqual(nearPermission.FunctionCall.method_names);
-      expect(apiKey.permission.allowance).toStrictEqual(nearPermission.FunctionCall.allowance.toString());
-    }
-
-    // public key
-    expect(testUtils.publicKeyToStr(accessKeyInfo.publicKey)).toStrictEqual(nearKey.public_key);
-    const nearPublicKey = nearApi.utils.PublicKey.fromString(nearKey.public_key);
-    const nearPublicKeyData: Uint8Array = Uint8Array.from(nearPublicKey.data);
-    expect(accessKeyInfo.publicKey.data).toStrictEqual(nearPublicKeyData);
-  });
-
+  // get public key +
   it("Get public key", async () => {
     const result = await client.query<{ getPublicKey: PublicKey }>({
       uri: apiUri,
@@ -334,7 +287,48 @@ describe("e2e", () => {
     expect(publicKeyStr).toStrictEqual(nearKeyStr);
   });
 
-  it("view function via account", async () => {
+  // find access key +
+  it("Find access key", async () => {
+    const result = await client.query<{ findAccessKey: AccessKeyInfo }>({
+      uri: apiUri,
+      query: `query {
+        findAccessKey(
+          accountId: $accountId
+        )
+      }`,
+      variables: {
+        accountId: workingAccount.accountId,
+      },
+    });
+    expect(result.errors).toBeFalsy();
+    expect(result.data).toBeTruthy();
+
+    const accessKeyInfo: AccessKeyInfo = result.data!.findAccessKey;
+
+    expect(accessKeyInfo.publicKey).toBeTruthy();
+    expect(accessKeyInfo.accessKey).toBeTruthy();
+
+    const apiKey: AccessKey = accessKeyInfo.accessKey;
+
+    const nearAccessKey = await workingAccount.findAccessKey(workingAccount.accountId, []);
+
+    const nearPermission = nearAccessKey.accessKey.permission;
+
+    // access key
+    if (nearPermission === "FullAccess") {
+      // this should never happen
+      throw Error("This should never happen");
+    } else {
+      expect(apiKey.permission.isFullAccess).toBeFalsy();
+      expect(apiKey.permission.receiverId).toStrictEqual(nearPermission.FunctionCall.receiver_id);
+      expect(apiKey.permission.methodNames).toStrictEqual(nearPermission.FunctionCall.method_names);
+      expect(apiKey.permission.allowance).toStrictEqual(nearPermission.FunctionCall.allowance.toString());
+    }
+
+    expect(accessKeyInfo.publicKey).toStrictEqual(nearAccessKey.publicKey.toString());
+  });
+
+  /* it("view function via account", async () => {
     const methodName = "hello";
     const args = { name: "trex" };
 
@@ -366,5 +360,5 @@ describe("e2e", () => {
       args
     );
     expect(viewFunctionResult).toEqual(nearViewFunctionResult);
-  });
+  }); */
 });
