@@ -346,7 +346,7 @@ describe("e2e", () => {
   });
 
   it("FunctionCall with json stringified args", async () => {
-    const jsonArgs = JSON.stringify({});
+    const jsonArgs = JSON.stringify({ name: "trex" });
 
     const result = await client.query<{ functionCall: Near_FinalExecutionOutcome }>({
       uri: apiUri,
