@@ -5,13 +5,13 @@
 import { Input_requestSignIn, Input_signOut, Input_isSignedIn, Input_getAccountId } from "../query/w3";
 import * as testUtils from "./testUtils";
 
-const BN = require("bn.js");
+//const BN = require("bn.js");
 
 import "localstorage-polyfill";
 import { buildAndDeployApi, initTestEnvironment } from "@web3api/test-env-js";
 import { Web3ApiClient } from "@web3api/client-js";
 import * as nearApi from "near-api-js";
-import { KeyPair, NearPluginConfig } from "../../../plugin-js/build";
+import { NearPluginConfig } from "../../../plugin-js/build";
 import path from "path";
 
 const MockBrowser = require("mock-browser").mocks.MockBrowser;
@@ -28,11 +28,11 @@ describe("e2e", () => {
 
   const mock = new MockBrowser();
 
-  global["document"] = mock.getDocument();
-  global["window"] = mock.getWindow();
-  global["localStorage"] = localStorage;
-
   beforeAll(async () => {
+    global["document"] = mock.getDocument();
+    global["window"] = mock.getWindow();
+    global["localStorage"] = localStorage;
+
     // set up test env and deploy api
     const { ethereum, ensAddress, ipfs } = await initTestEnvironment();
     const apiPath: string = path.resolve(__dirname + "/../../");
@@ -51,23 +51,13 @@ describe("e2e", () => {
 
     workingAccount = await testUtils.createAccount(near);
     await testUtils.deployContract(workingAccount, contractId);
-
-    const keyPair = KeyPair.fromRandom("ed25519");
-    // set up access key
-    await workingAccount.addKey(
-      keyPair.getPublicKey(),
-      contractId,
-      testUtils.HELLO_WASM_METHODS.changeMethods,
-      new BN("2000000000000000000000000")
-    );
-
-    await nearConfig.keyStore!.setKey(testUtils.networkId, workingAccount.accountId, keyPair);
   });
 
   afterAll(async () => {
     await workingAccount.deleteAccount(testUtils.testAccountId);
   });
 
+  // requestSignIn +
   it("Request sign in", async () => {
     const result = await client.query<{
       requestSignIn: Input_requestSignIn;
@@ -89,11 +79,14 @@ describe("e2e", () => {
       },
     });
     expect(result.errors).toBeFalsy();
-    expect(result.data).toEqual({ requestSignIn: true });
-    expect(result.errors).toEqual(undefined);
-    expect(result).toBeTruthy();
+    expect(result.data).toBeTruthy();
+
+    const requestSignInSuccess = result.data?.requestSignIn;
+
+    expect(requestSignInSuccess).toBeTruthy();
   });
 
+  // signOut +
   it("Sign out", async () => {
     const result = await client.query<{
       signOut: Input_signOut;
@@ -104,12 +97,16 @@ describe("e2e", () => {
           }`,
       variables: {},
     });
+
     expect(result.errors).toBeFalsy();
-    expect(result.data).toEqual({ signOut: true });
-    expect(result.errors).toEqual(undefined);
-    expect(result).toBeTruthy();
+    expect(result.data).toBeTruthy();
+
+    const signOutSuccess = result.data?.signOut;
+
+    expect(signOutSuccess).toBeTruthy();
   });
 
+  // isSignedIn +
   it("Is signed in", async () => {
     const result = await client.query<{
       isSignedIn: Input_isSignedIn;
@@ -124,6 +121,7 @@ describe("e2e", () => {
     expect(result).toBeTruthy();
   });
 
+  // getAccountId +
   it("Get account id", async () => {
     const result = await client.query<{
       getAccountId: Input_getAccountId;
@@ -135,8 +133,10 @@ describe("e2e", () => {
       variables: {},
     });
     expect(result.errors).toBeFalsy();
-    expect(result.data).toEqual({ getAccountId: "" });
-    expect(result.errors).toEqual(undefined);
-    expect(result).toBeTruthy();
+    expect(result.data).toBeTruthy();
+
+    const getAccountIdSuccess = result.data?.getAccountId;
+
+    expect(getAccountIdSuccess).toBeDefined();
   });
 });
