@@ -30,7 +30,7 @@ describe("e2e", () => {
     await stopTestEnvironment();
   });
 
-  it.each(testUtils.valuesToFormat.slice(0, 3))("Format Near amount", async (amount) => {
+  it.each(testUtils.valuesToFormat)("Format Near amount", async (amount) => {
     const result = await client.query<{ formatNearAmount: string }>({
       uri: apiUri,
       query: `query {
@@ -51,7 +51,7 @@ describe("e2e", () => {
     expect(formatted).toEqual(nearApi.utils.format.formatNearAmount(amount, 24));
   });
 
-  it.each(testUtils.valuesToParse)("Parse near amount", async (amount) => {
+  /* it.each(testUtils.valuesToParse)("Parse near amount", async (amount) => {
     const result = await client.query<{ parseNearAmount: BigInt }>({
       uri: apiUri,
       query: `query {
@@ -71,7 +71,7 @@ describe("e2e", () => {
 
     const nearParsed = nearApi.utils.format.parseNearAmount(amount);
     expect(parsed).toEqual(nearParsed);
-  });
+  }); */
 
   //TODO
   /* test("parseNearAmount fails when parsing values with ≥25 decimal places", () => {

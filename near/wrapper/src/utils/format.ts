@@ -37,19 +37,24 @@ function trimTrailingZeroes(value: String): String {
   //TODO replace after implementation:  Not implemented: Regular expressions
   // return value.replace(/\.?0*$/, "");
   const split = value.split(".");
-  if (split.length > 1) {
-    const int = split[0];
+  if (split.length == 1) {
+    return value;
+  } else {
+    let int = "0";
+    if (split[0] != "") {
+      int = split[0];
+    }
     let decimals = split[1];
-    for (let i = decimals.length - 1; i > 0; i--) {
-      if (decimals[i] === "0") {
+    for (let i = split[1].length - 1; i > 0; i--) {
+      if (decimals.endsWith("0")) {
         decimals = decimals.slice(0, i);
       } else {
-        break;
+        continue;
       }
     }
+    if (decimals == "0" || decimals == "") return int;
     return `${int}.${decimals}`;
   }
-  return value;
 }
 
 function trimLeadingZeroes(value: String): String {
@@ -78,7 +83,7 @@ function formatWithCommas(value: String): String {
   // while (pattern.test(value)) {
   //   value = value.replace(pattern, "$1,$2");
   // }
-  if (value === "0") return "0";
+  if (value == "0") return "0";
   const reversed = value.split("").reverse().join("");
   let result: String[] = [];
   for (let i = 1; i <= reversed.length; i++) {
