@@ -7,7 +7,7 @@ export function parseNearAmount(input: String): String {
   const amount: String = cleanupAmount(input.toString());
   const split = amount.split(".");
   const wholePart = split[0];
-  const fracPart = split[1] || "";
+  const fracPart = split.length > 1 ? split[1] : "";
   if (split.length > 2 || fracPart.length > NEAR_NOMINATION_EXP) {
     throw new Error(`Cannot parse '${amount}' as NEAR amount`);
   }
@@ -59,14 +59,17 @@ function trimLeadingZeroes(value: String): String {
   //   return "0";
   // }
   let result = value;
-  for (let i = 0; i < result.length; i++) {
-    if (result[i] === "0") {
-      result = result.slice(i + 1);
+  for (let i = 0; i < value.length; i++) {
+    if (result.startsWith("0")) {
+      result = result.replace("0", "");
     } else {
-      break;
+      continue;
     }
   }
-  return value;
+  if (result == "") {
+    return "0";
+  }
+  return result;
 }
 
 function formatWithCommas(value: String): String {

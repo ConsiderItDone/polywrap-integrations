@@ -5,7 +5,6 @@ import { Web3ApiClient } from "@web3api/client-js";
 import * as nearApi from "near-api-js";
 import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@web3api/test-env-js";
 import path from "path";
-//const BN = require("bn.js");
 
 jest.setTimeout(360000);
 
@@ -52,7 +51,7 @@ describe("e2e", () => {
     expect(formatted).toEqual(nearApi.utils.format.formatNearAmount(amount, 24));
   });
 
-  /*   it.each(testUtils.valuesToParse.slice(0,1))("Parse near amount", async (amount) => {
+  it.each(testUtils.valuesToParse)("Parse near amount", async (amount) => {
     const result = await client.query<{ parseNearAmount: BigInt }>({
       uri: apiUri,
       query: `query {
@@ -72,7 +71,7 @@ describe("e2e", () => {
 
     const nearParsed = nearApi.utils.format.parseNearAmount(amount);
     expect(parsed).toEqual(nearParsed);
-  }); */
+  });
 
   //TODO
   /* test("parseNearAmount fails when parsing values with ≥25 decimal places", () => {
