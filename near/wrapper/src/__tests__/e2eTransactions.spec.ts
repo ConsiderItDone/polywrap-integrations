@@ -66,6 +66,7 @@ describe("e2e", () => {
 
   afterAll(async () => {
     await stopTestEnvironment();
+    await workingAccount.deleteAccount(testUtils.testAccountId)
   });
 
   it("Creates a transaction without wallet", async () => {

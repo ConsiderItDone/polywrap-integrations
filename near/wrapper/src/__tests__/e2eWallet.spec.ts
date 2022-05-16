@@ -11,16 +11,15 @@ import "localstorage-polyfill";
 import { buildAndDeployApi, initTestEnvironment } from "@web3api/test-env-js";
 import { Web3ApiClient } from "@web3api/client-js";
 import * as nearApi from "near-api-js";
-import { nearPlugin, NearPluginConfig } from "../../../plugin-js/build";
+import { KeyPair, NearPluginConfig } from "../../../plugin-js/build";
 import path from "path";
 
 const MockBrowser = require("mock-browser").mocks.MockBrowser;
-const uri = "w3://ens/near.web3api.eth";
 
 jest.setTimeout(360000);
 
 describe("e2e", () => {
-  let ensUri: string;
+  let apiUri: string;
   let client: Web3ApiClient;
   let nearConfig: NearPluginConfig;
   let contractId: string;
@@ -34,46 +33,46 @@ describe("e2e", () => {
   global["localStorage"] = localStorage;
 
   beforeAll(async () => {
+    // set up test env and deploy api
+    const { ethereum, ensAddress, ipfs } = await initTestEnvironment();
+    const apiPath: string = path.resolve(__dirname + "/../../");
+
+    const api = await buildAndDeployApi(apiPath, ipfs, ensAddress);
+    apiUri = `ens/testnet/${api.ensDomain}`;
+    // set up client
     nearConfig = await testUtils.setUpTestConfig();
     near = await nearApi.connect(nearConfig);
-    client = new Web3ApiClient({
-      plugins: [
-        {
-          uri: uri,
-          plugin: nearPlugin(nearConfig),
-        },
-      ],
-    });
-  });
 
-  beforeEach(async () => {
-    const { ensAddress: ensRegistryAddress, ipfs, ethereum, ensAddress } = await initTestEnvironment();
-    const apiPath: string = path.resolve(__dirname + "/../../");
-    const api = await buildAndDeployApi(apiPath, ipfs, ensRegistryAddress);
-    ensUri = `ens/testnet/${api.ensDomain}`;
-    nearConfig = await testUtils.setUpTestConfig();
+    const plugins = testUtils.getPlugins(ethereum, ensAddress, ipfs, nearConfig);
+    client = new Web3ApiClient(plugins);
+
+    // set up contract account
     contractId = testUtils.generateUniqueString("test");
-    workingAccount = await testUtils.createAccount(near);
 
-    const keyPair = await nearApi.KeyPair.fromRandom("ed25519");
+    workingAccount = await testUtils.createAccount(near);
+    await testUtils.deployContract(workingAccount, contractId);
+
+    const keyPair = KeyPair.fromRandom("ed25519");
+    // set up access key
     await workingAccount.addKey(
       keyPair.getPublicKey(),
       contractId,
       testUtils.HELLO_WASM_METHODS.changeMethods,
       new BN("2000000000000000000000000")
     );
+
     await nearConfig.keyStore!.setKey(testUtils.networkId, workingAccount.accountId, keyPair);
-    await testUtils.deployContract(workingAccount, contractId);
-    const polywrapConfig = await testUtils.getPlugins(ethereum, ensAddress, ipfs, nearConfig);
-    workingAccount = await testUtils.createAccount(near);
-    client = await new Web3ApiClient(polywrapConfig);
+  });
+
+  afterAll(async () => {
+    await workingAccount.deleteAccount(testUtils.testAccountId);
   });
 
   it("Request sign in", async () => {
     const result = await client.query<{
       requestSignIn: Input_requestSignIn;
     }>({
-      uri: ensUri,
+      uri: apiUri,
       query: `query {
               requestSignIn(
                 contractId: $contractId,
@@ -99,7 +98,7 @@ describe("e2e", () => {
     const result = await client.query<{
       signOut: Input_signOut;
     }>({
-      uri: ensUri,
+      uri: apiUri,
       query: `query {
               signOut
           }`,
@@ -115,7 +114,7 @@ describe("e2e", () => {
     const result = await client.query<{
       isSignedIn: Input_isSignedIn;
     }>({
-      uri: ensUri,
+      uri: apiUri,
       query: `query {
         isSignedIn
           }`,
@@ -129,7 +128,7 @@ describe("e2e", () => {
     const result = await client.query<{
       getAccountId: Input_getAccountId;
     }>({
-      uri: ensUri,
+      uri: apiUri,
       query: `query {
         getAccountId
           }`,

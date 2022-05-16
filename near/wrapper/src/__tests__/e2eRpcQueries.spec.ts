@@ -57,7 +57,7 @@ describe("e2e", () => {
 
   afterAll(async () => {
     await stopTestEnvironment();
-    //await workingAccount.deleteAccount(workingAccount.accountId);
+    await workingAccount.deleteAccount(testUtils.testAccountId)
   });
 
   // block +

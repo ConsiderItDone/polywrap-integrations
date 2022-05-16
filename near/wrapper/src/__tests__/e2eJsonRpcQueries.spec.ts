@@ -73,6 +73,7 @@ describe("e2e", () => {
     await stopTestEnvironment();
     await sender.deleteAccount(workingAccount.accountId);
     await receiver.deleteAccount(workingAccount.accountId);
+    await workingAccount.deleteAccount(testUtils.testAccountId)
   });
 
   // status  +
