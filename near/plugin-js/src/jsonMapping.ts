@@ -78,11 +78,11 @@ export const parseJsonExecutionStatus = (
   status: JsonExecutionStatus | string
 ): ExecutionStatus => {
   if (typeof status === "string") {
-    return { SuccessValue: status };
+    return { successValue: status };
   }
   return {
-    SuccessValue: status.SuccessValue,
-    SuccessReceiptId: status.SuccessReceiptId,
+    successValue: status.SuccessValue,
+    successReceiptId: status.SuccessReceiptId,
     failure: JSON.stringify(status.Failure),
   };
 };

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { mutation, query } from "./resolvers";
 import {
   manifest,
@@ -6,7 +5,6 @@ import {
   Mutation,
   Transaction,
   SignedTransaction,
-  Signature,
   SignTransactionResult,
   FinalExecutionOutcome,
   PublicKey,
@@ -16,7 +14,6 @@ import { fromAction, fromSignedTx, fromTx, toPublicKey } from "./typeMapping";
 import { parseJsonFinalExecutionOutcome } from "./jsonMapping";
 import { JsonFinalExecutionOutcome } from "./jsonTypes";
 
-import { ConnectConfig } from "near-api-js";
 import {
   Plugin,
   PluginFactory,
@@ -28,7 +25,16 @@ import sha256 from "js-sha256";
 
 export { keyStores as KeyStores, KeyPair } from "near-api-js";
 
-export interface NearPluginConfig extends ConnectConfig {}
+export interface NearPluginConfig {
+  networkId: string;
+  keyStore: nearApi.keyStores.KeyStore;
+  nodeUrl: string;
+  walletUrl?: string;
+  helperUrl?: string;
+  explorerUrl?: string;
+  masterAccount?: string;
+  initialBalance?: string;
+}
 
 export class NearPlugin extends Plugin {
   private near: nearApi.Near;
@@ -90,7 +96,7 @@ export class NearPlugin extends Plugin {
     input: Query.Input_getPublicKey
   ): Promise<PublicKey | null> {
     const { accountId } = input;
-    const keyPair = await this._config.keyStore!.getKey(
+    const keyPair = await this._config.keyStore.getKey(
       this._config.networkId,
       accountId
     );
@@ -174,16 +180,6 @@ export class NearPlugin extends Plugin {
     return { hash, signedTx };
   }
 
-  public async createKey(input: Mutation.Input_createKey): Promise<PublicKey> {
-    const { networkId, accountId } = input;
-    const keyPair = await this._config.keyStore!.getKey(
-      this._config.networkId,
-      accountId
-    );
-    await this._config.keyStore!.setKey(networkId, accountId, keyPair);
-    return toPublicKey(keyPair.getPublicKey());
-  }
-
   public async sendJsonRpc(input: Mutation.Input_sendJsonRpc): Promise<Json> {
     const method = input.method;
     const params = JSON.parse(input.params);
@@ -204,22 +200,6 @@ export class NearPlugin extends Plugin {
       meta: meta ?? undefined,
     });
     return true;
-  }
-  public async signMessage(input: Query.Input_signMessage): Promise<Signature> {
-    const { message, signerId } = input;
-    const {
-      signature,
-      publicKey,
-    } = await this.near.connection.signer.signMessage(
-      message,
-      signerId,
-      this.near.connection.networkId
-    );
-
-    return {
-      data: signature,
-      keyType: toPublicKey(publicKey).keyType,
-    };
   }
 
   public async sendTransaction(
