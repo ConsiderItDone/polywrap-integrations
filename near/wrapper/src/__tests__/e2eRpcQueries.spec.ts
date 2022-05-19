@@ -10,8 +10,6 @@ import { buildAndDeployApi, initTestEnvironment, stopTestEnvironment } from "@we
 import path from "path";
 import { AccountAuthorizedApp, AccountBalance } from "near-api-js/lib/account";
 
-//const BN = require("bn.js");
-
 jest.setTimeout(360000);
 
 describe("e2e", () => {
